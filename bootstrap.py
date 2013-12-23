@@ -31,7 +31,7 @@ def object_file(fn):
 
 # --- variables
 
-dependencies = ['catch']
+dependencies = ['catch', 'wheels']
 include_flags = flags([include('include')], map(dependency_include, dependencies))
 cxx_flags = flags(['-Wall', '-Wextra', '-Werror', '-std=c++11', '-O3'])
 ld_flags = flags(['-flto'])

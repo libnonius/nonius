@@ -1,0 +1,3 @@
+[submodule "deps/wheels"]
+	path = deps/wheels
+	url = https://github.com/rmartinho/wheels.git

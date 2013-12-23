@@ -1,9 +1,8 @@
-#include <nonius/measurement.h++>
+#include <nonius/environment.h++>
 #include <iostream>
 
 int main() {
-    auto d = nonius::run_for_at_least(std::chrono::seconds(1), 1, [](int x) {
-            return bool(std::cout << "foo" << x << '\n');
-        });
-    std::cout << std::get<0>(d).count();
+    //using s = std::chrono::seconds;
+    //using fs = std::chrono::duration<double, std::ratio<1>>;
+    std::cout << nonius::warmup(10000);
 }

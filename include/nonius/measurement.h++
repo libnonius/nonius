@@ -14,18 +14,17 @@
 #ifndef NONIUS_MEASUREMENT_HPP
 #define NONIUS_MEASUREMENT_HPP
 
+#include <nonius/detail/duration.h++>
+
+#include <wheels/fun/result_of.h++>
+
 #include <chrono>
 #include <tuple>
 #include <type_traits>
 
 namespace nonius {
-    template <typename Clock>
-    using Duration = typename Clock::duration;
-    template <typename Sig>
-    using ResultOf = typename std::result_of<Sig>::type;
-
     template <typename Clock = std::chrono::high_resolution_clock, typename Fun, typename... Args>
-    std::tuple<Duration<Clock>, ResultOf<Fun(Args...)>> time(Fun&& fun, Args&&... args) {
+    std::tuple<Duration<Clock>, wheels::fun::ResultOf<Fun(Args...)>> time(Fun&& fun, Args&&... args) {
         auto start = Clock::now();
         auto&& r = fun(std::forward<Args>(args)...);
         auto end = Clock::now();
@@ -38,7 +37,7 @@ namespace nonius {
     }
 
     template <typename Clock = std::chrono::high_resolution_clock, typename Fun>
-    std::tuple<Duration<Clock>, int, ResultOf<Fun(int)>> run_for_at_least(Duration<Clock> how_long, int init_seed, Fun&& fun) {
+    std::tuple<Duration<Clock>, int, wheels::fun::ResultOf<Fun(int)>> run_for_at_least(Duration<Clock> how_long, int init_seed, Fun&& fun) {
         auto seed = init_seed;
         int iters = 0;
         auto start = Clock::now();
@@ -51,7 +50,7 @@ namespace nonius {
             if(std::get<0>(r) >= how_long) {
                 return std::make_tuple(std::get<0>(r), seed, std::get<1>(r));
             }
-            seed += 1; // TODO *2
+            seed *= 2;
             ++iters;
         }
     }
