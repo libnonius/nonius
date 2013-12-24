@@ -17,38 +17,42 @@
 #include <nonius/detail/duration.h++>
 
 #include <wheels/fun/result_of.h++>
+#include <wheels/fun/invoke.h++>
 
 #include <chrono>
 #include <tuple>
 #include <type_traits>
 
 namespace nonius {
+    template <typename Duration, typename Result>
+    struct timing {
+        Duration elapsed;
+        Result result;
+    };
+    template <typename Clock, typename Sig>
+    using TimingOf = timing<Duration<Clock>, wheels::fun::ResultOf<Sig>>;
+    // TODO fuck void
     template <typename Clock = std::chrono::high_resolution_clock, typename Fun, typename... Args>
-    std::tuple<Duration<Clock>, wheels::fun::ResultOf<Fun(Args...)>> time(Fun&& fun, Args&&... args) {
+    TimingOf<Clock, Fun(Args...)> time(Fun&& fun, Args&&... args) {
         auto start = Clock::now();
-        auto&& r = fun(std::forward<Args>(args)...);
+        auto&& r = wheels::fun::invoke(fun, std::forward<Args>(args)...);
         auto end = Clock::now();
         auto delta = end - start;
-        return std::make_tuple(delta, std::forward<decltype(r)>(r));
-    }
-    template <typename Clock = std::chrono::high_resolution_clock, typename Fun, typename... Args>
-    Duration<Clock> time_(Fun&& fun, Args&&... args) {
-        return std::get<0>(time<Clock>(std::forward<Fun>(fun), std::forward<Args>(args)...));
+        return { delta, std::forward<decltype(r)>(r) };
     }
 
     template <typename Clock = std::chrono::high_resolution_clock, typename Fun>
-    std::tuple<Duration<Clock>, int, wheels::fun::ResultOf<Fun(int)>> run_for_at_least(Duration<Clock> how_long, int init_seed, Fun&& fun) {
-        auto seed = init_seed;
+    TimingOf<Clock, Fun(int)> run_for_at_least(Duration<Clock> how_long, int& seed, Fun&& fun) {
         int iters = 0;
         auto start = Clock::now();
         while(true) {
             auto now = Clock::now();
             if(now - start > how_long * 10) {
-                throw "took to long to run: seed %d, iters %d"; //fail
+                throw "took too long to run: seed %d, iters %d"; //fail
             }
             auto r = time(fun, seed);
-            if(std::get<0>(r) >= how_long) {
-                return std::make_tuple(std::get<0>(r), seed, std::get<1>(r));
+            if(r.elapsed >= how_long) {
+                return r;
             }
             seed *= 2;
             ++iters;
