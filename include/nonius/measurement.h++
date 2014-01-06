@@ -14,6 +14,7 @@
 #ifndef NONIUS_MEASUREMENT_HPP
 #define NONIUS_MEASUREMENT_HPP
 
+#include <nonius/clock.h++>
 #include <nonius/detail/duration.h++>
 
 #include <wheels/fun/result_of.h++>
@@ -32,7 +33,7 @@ namespace nonius {
     template <typename Clock, typename Sig>
     using TimingOf = timing<Duration<Clock>, wheels::fun::ResultOf<Sig>>;
     // TODO fuck void
-    template <typename Clock = std::chrono::high_resolution_clock, typename Fun, typename... Args>
+    template <typename Clock = default_clock, typename Fun, typename... Args>
     TimingOf<Clock, Fun(Args...)> time(Fun&& fun, Args&&... args) {
         auto start = Clock::now();
         auto&& r = wheels::fun::invoke(fun, std::forward<Args>(args)...);
@@ -41,7 +42,7 @@ namespace nonius {
         return { delta, std::forward<decltype(r)>(r) };
     }
 
-    template <typename Clock = std::chrono::high_resolution_clock, typename Fun>
+    template <typename Clock = default_clock, typename Fun>
     TimingOf<Clock, Fun(int)> run_for_at_least(Duration<Clock> how_long, int& seed, Fun&& fun) {
         int iters = 0;
         auto start = Clock::now();

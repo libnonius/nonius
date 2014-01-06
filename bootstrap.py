@@ -29,23 +29,28 @@ def get_files(root, pattern):
 def object_file(fn):
     return os.path.join('obj', re.sub(r'\.c\+\+', '.o', fn))
 
+# --- arguments
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--cxx', default='g++', metavar='executable', help='compiler name to use (default: g++)')
+parser.add_argument('--boost-dir', default=None, metavar='path', help='path of boost include files')
+args = parser.parse_args()
+
 # --- variables
 
 dependencies = ['catch', 'wheels']
 include_flags = flags([include('include')], map(dependency_include, dependencies))
+if(args.boost_dir):
+    include_flags += ' ' + include(args.boost_dir)
 cxx_flags = flags(['-Wall', '-Wextra', '-Werror', '-std=c++11', '-O3'])
 ld_flags = flags(['-flto'])
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--cxx', default='g++', metavar='executable', help='compiler name to use (default: g++)')
-args = parser.parse_args()
-
-# ---
+# --- preamble
 
 ninja = ninja_syntax.Writer(open('build.ninja', 'w'))
 
 ninja.variable('ninja_required_version', '1.3')
-ninja.variable('builddir', 'obj')
+ninja.variable('builddir', 'obj' + os.sep)
 
 # --- rules
 
@@ -65,7 +70,7 @@ ninja.rule('link',
         description = 'LINK $in')
 
 ninja.rule('lib',
-        command = 'ar rc $out $in && ranlib $out',
+        command = 'ar rcs $out $in',
         description = 'AR $in')
 
 ninja.rule('dist',
@@ -84,7 +89,7 @@ for fn in src_files:
     ninja.build(object_file(fn), 'cxx',
             inputs = fn)
 
-libnonius = 'bin/libnonius.a'
+libnonius = os.path.join('bin', 'libnonius.a')
 ninja.build(libnonius, 'lib',
         inputs = obj_files)
 
@@ -94,7 +99,7 @@ for fn in test_src_files:
     ninja.build(object_file(fn), 'cxx',
             inputs = fn)
 
-test_runner = 'bin/test'
+test_runner = os.path.join('bin', 'test')
 ninja.build(test_runner, 'link',
         inputs = test_obj_files + [libnonius])
 ninja.build('test', 'phony',
@@ -102,7 +107,7 @@ ninja.build('test', 'phony',
 ninja.build('lib', 'phony',
         inputs = libnonius)
 
-tar = 'dist/nonius.tar.bz2'
+tar = os.path.join('dist', 'nonius.tar.bz2')
 ninja.build(tar, 'dist',
         inputs = hdr_files + ([libnonius] if src_files else []))
 

@@ -2,3 +2,4 @@ bin/
 obj/
 build.ninja
 __pycache__
+*.swp
