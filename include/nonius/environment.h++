@@ -46,19 +46,27 @@ namespace nonius {
 
             return std::make_tuple(std::move(deltas), times.size());
         }
+
+        auto warmup_time = std::chrono::milliseconds(100);
+        auto clock_resolution_estimation_time = std::chrono::milliseconds(500);
+        auto clock_cost_estimation_time_limit = std::chrono::seconds(1);
+        auto clock_cost_estimation_tick_limit = 100000;
+        auto clock_cost_estimation_time = std::chrono::milliseconds(10);
+        auto clock_cost_estimation_iterations = 10000;
     } // namespace detail
+
     template <typename Clock = default_clock>
     void warmup(int& seed) {
-        run_for_at_least<Clock>(Duration<Clock>(std::chrono::milliseconds(100)), seed, detail::resolution<Clock>);
+        run_for_at_least<Clock>(Duration<Clock>(detail::warmup_time), seed, detail::resolution<Clock>);
     }
     template <typename Clock = default_clock>
     FloatDuration<Clock> estimate_clock_resolution(int seed) {
-        auto r = run_for_at_least<Clock>(Duration<Clock>(std::chrono::milliseconds(500)), seed, detail::resolution<Clock>).result;
+        auto r = run_for_at_least<Clock>(Duration<Clock>(detail::clock_resolution_estimation_time), seed, detail::resolution<Clock>).result;
         return analyse_mean(std::get<0>(r).begin(), std::get<0>(r).end(), std::get<1>(r));
     }
     template <typename Clock = default_clock>
     FloatDuration<Clock> estimate_clock_cost(FloatDuration<Clock> resolution) {
-        auto time_limit = std::min(resolution * 100000, FloatDuration<Clock>(std::chrono::seconds(1)));
+        auto time_limit = std::min(resolution * detail::clock_cost_estimation_tick_limit, FloatDuration<Clock>(detail::clock_cost_estimation_time_limit));
         auto time_clock = [](int k) {
             return time<Clock>([k]() -> int {
                 for(int i = 0; i < k; ++i) {
@@ -69,12 +77,12 @@ namespace nonius {
             }).elapsed;
         };
         time_clock(1);
-        int iters = 10000;
-        auto elapsed = run_for_at_least<Clock>(Duration<Clock>(std::chrono::milliseconds(10)), iters, time_clock).elapsed;
+        int iters = detail::clock_cost_estimation_iterations;
+        auto elapsed = run_for_at_least<Clock>(Duration<Clock>(detail::clock_cost_estimation_time), iters, time_clock).elapsed;
         std::vector<FloatDuration<Clock>> times;
-        int n = std::ceil(time_limit / elapsed);
-        times.reserve(n);
-        std::generate_n(std::back_inserter(times), n, [time_clock, iters]{ return time_clock(iters) / iters; });
+        int nsamples = std::ceil(time_limit / elapsed);
+        times.reserve(nsamples);
+        std::generate_n(std::back_inserter(times), nsamples, [time_clock, iters]{ return time_clock(iters) / iters; });
         return analyse_mean(times.begin(), times.end(), times.size());
     }
 } // namespace nonius
