@@ -3,3 +3,4 @@ obj/
 build.ninja
 __pycache__
 *.swp
+*.pyc

@@ -25,7 +25,7 @@
 
 namespace nonius {
     template <typename Clock = default_clock, typename Iterator>
-    FloatDuration<Clock> analyse_mean(Iterator first, Iterator last, int ) {
+    FloatDuration<Clock> analyse_mean(Iterator first, Iterator last, int ) { // TODO outliers
         namespace acc = boost::accumulators;
         acc::accumulator_set<FloatDuration<Clock>, acc::stats<acc::tag::mean>> a;
         return acc::mean(std::for_each(first, last, a));

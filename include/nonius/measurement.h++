@@ -20,7 +20,6 @@
 #include <wheels/fun/result_of.h++>
 #include <wheels/fun/invoke.h++>
 
-#include <chrono>
 #include <tuple>
 #include <type_traits>
 
@@ -29,6 +28,11 @@ namespace nonius {
     struct timing {
         Duration elapsed;
         Result result;
+    };
+    template <typename Duration>
+    struct timing<Duration, void> {
+        Duration elapsed;
+        struct {} result;
     };
     template <typename Clock, typename Sig>
     using TimingOf = timing<Duration<Clock>, wheels::fun::ResultOf<Sig>>;

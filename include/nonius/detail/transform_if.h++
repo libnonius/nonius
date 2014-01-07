@@ -11,8 +11,8 @@
 
 // transform_if algorithm
 
-#ifndef NONIUS_TRANSFORM_IF_HPP
-#define NONIUS_TRANSFORM_IF_HPP
+#ifndef NONIUS_DETAIL_TRANSFORM_IF_HPP
+#define NONIUS_DETAIL_TRANSFORM_IF_HPP
 
 #include <iterator>
 #include <utility>
@@ -34,5 +34,5 @@ namespace nonius {
     } // namespace detail
 } // namespace nonius
 
-#endif // NONIUS_TRANSFORM_IF_HPP
+#endif // NONIUS_DETAIL_TRANSFORM_IF_HPP
 
