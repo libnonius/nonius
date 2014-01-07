@@ -1,6 +1,6 @@
 // Nonius - C++ benchmarking tool
 //
-// Written in 2013 by Martinho Fernandes <martinho.fernandes@gmail.com>
+// Written in 2013-2014 by Martinho Fernandes <martinho.fernandes@gmail.com>
 //
 // To the extent possible under law, the author(s) have dedicated all copyright and related
 // and neighboring rights to this software to the public domain worldwide. This software is
@@ -28,11 +28,13 @@ namespace nonius {
     struct timing {
         Duration elapsed;
         Result result;
+        int iterations;
     };
     template <typename Duration>
     struct timing<Duration, void> {
         Duration elapsed;
         struct {} result;
+        int iterations;
     };
     template <typename Clock, typename Sig>
     using TimingOf = timing<Duration<Clock>, wheels::fun::ResultOf<Sig>>;
@@ -43,12 +45,11 @@ namespace nonius {
         auto&& r = wheels::fun::invoke(fun, std::forward<Args>(args)...);
         auto end = Clock::now();
         auto delta = end - start;
-        return { delta, std::forward<decltype(r)>(r) };
+        return { delta, std::forward<decltype(r)>(r), 1 };
     }
 
     template <typename Clock = default_clock, typename Fun>
-    TimingOf<Clock, Fun(int)> run_for_at_least(Duration<Clock> how_long, int& seed, Fun&& fun) {
-        int iters = 0;
+    TimingOf<Clock, Fun(int)> run_for_at_least(Duration<Clock> how_long, int seed, Fun&& fun) {
         auto start = Clock::now();
         while(true) {
             auto now = Clock::now();
@@ -57,10 +58,9 @@ namespace nonius {
             }
             auto r = time(fun, seed);
             if(r.elapsed >= how_long) {
-                return r;
+                return { r.elapsed, std::move(r.result), seed };
             }
             seed *= 2;
-            ++iters;
         }
     }
 } // namespace nonius
