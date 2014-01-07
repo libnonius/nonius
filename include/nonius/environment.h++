@@ -47,6 +47,7 @@ namespace nonius {
             return std::make_tuple(std::move(deltas), times.size());
         }
 
+        auto warmup_seed = 10000;
         auto warmup_time = std::chrono::milliseconds(100);
         auto clock_resolution_estimation_time = std::chrono::milliseconds(500);
         auto clock_cost_estimation_time_limit = std::chrono::seconds(1);
@@ -56,8 +57,10 @@ namespace nonius {
     } // namespace detail
 
     template <typename Clock = default_clock>
-    void warmup(int& seed) {
-        run_for_at_least<Clock>(Duration<Clock>(detail::warmup_time), seed, detail::resolution<Clock>);
+    int warmup() {
+        auto iters = detail::warmup_seed;
+        run_for_at_least<Clock>(Duration<Clock>(detail::warmup_time), iters, detail::resolution<Clock>);
+        return iters;
     }
     template <typename Clock = default_clock>
     FloatDuration<Clock> estimate_clock_resolution(int seed) {
@@ -84,6 +87,20 @@ namespace nonius {
         times.reserve(nsamples);
         std::generate_n(std::back_inserter(times), nsamples, [time_clock, iters]{ return time_clock(iters) / iters; });
         return analyse_mean(times.begin(), times.end(), times.size());
+    }
+
+    template <typename Clock>
+    struct environment {
+        FloatDuration<Clock> clock_resolution;
+        FloatDuration<Clock> clock_cost;
+    };
+
+    template <typename Clock = default_clock>
+    environment<Clock> measure_environment() {
+        auto iters = warmup();
+        auto resolution = estimate_clock_resolution<Clock>(iters);
+        auto cost = estimate_clock_cost<Clock>(resolution);
+        return { resolution, cost };
     }
 } // namespace nonius
 

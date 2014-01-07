@@ -4,9 +4,7 @@
 
 int main() {
     using fns = std::chrono::duration<double, std::nano>;
-    int seed = 10000;
-    nonius::warmup(seed);
-    auto resolution = nonius::estimate_clock_resolution(seed);
-    std::cout << "Clock resolution: " << fns(resolution).count() << " ns\n";
-    std::cout << "Cost of clock call: " << fns(nonius::estimate_clock_cost(resolution)).count() << " ns\n";
+    auto env = nonius::measure_environment();
+    std::cout << "Clock resolution: " << fns(env.clock_resolution).count() << " ns\n";
+    std::cout << "Cost of clock call: " << fns(env.clock_cost).count() << " ns\n";
 }
