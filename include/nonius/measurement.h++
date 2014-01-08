@@ -24,25 +24,53 @@
 #include <type_traits>
 
 namespace nonius {
+    namespace detail {
+        template <typename T>
+        struct complete_type { using type = T; };
+        template <>
+        struct complete_type<void> { struct type {}; };
+
+        template <typename T>
+        using CompleteType = typename complete_type<T>::type;
+
+        template <typename Result>
+        struct complete_invoker {
+            template <typename... Args>
+            static Result invoke(Args&&... args) {
+                return wheels::fun::invoke(std::forward<Args>(args)...);
+            }
+        };
+        template <>
+        struct complete_invoker<void> {
+            template <typename... Args>
+            static CompleteType<void> invoke(Args&&... args) {
+                wheels::fun::invoke(std::forward<Args>(args)...);
+                return {};
+            }
+        };
+        template <typename Sig>
+        using CompleteResultOf = detail::CompleteType<wheels::fun::ResultOf<Sig>>;
+
+        // invoke and not return void :(
+        template <typename Fun, typename... Args>
+        CompleteResultOf<Fun(Args...)> complete_invoke(Fun&& fun, Args&&... args) {
+            return complete_invoker<wheels::fun::ResultOf<Fun(Args...)>>::invoke(std::forward<Fun>(fun), std::forward<Args>(args)...);
+        }
+    } // namespace detail
+
     template <typename Duration, typename Result>
     struct timing {
         Duration elapsed;
         Result result;
         int iterations;
     };
-    template <typename Duration>
-    struct timing<Duration, void> {
-        Duration elapsed;
-        struct {} result;
-        int iterations;
-    };
     template <typename Clock, typename Sig>
-    using TimingOf = timing<Duration<Clock>, wheels::fun::ResultOf<Sig>>;
+    using TimingOf = timing<Duration<Clock>, detail::CompleteResultOf<Sig>>;
     // TODO fuck void
     template <typename Clock = default_clock, typename Fun, typename... Args>
     TimingOf<Clock, Fun(Args...)> time(Fun&& fun, Args&&... args) {
         auto start = Clock::now();
-        auto&& r = wheels::fun::invoke(fun, std::forward<Args>(args)...);
+        auto&& r = detail::complete_invoke(fun, std::forward<Args>(args)...);
         auto end = Clock::now();
         auto delta = end - start;
         return { delta, std::forward<decltype(r)>(r), 1 };

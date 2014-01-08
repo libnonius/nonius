@@ -14,10 +14,19 @@
 #ifndef NONIUS_CLOCK_HPP
 #define NONIUS_CLOCK_HPP
 
+#include <nonius/detail/duration.h++>
+
 #include <chrono>
 
 namespace nonius {
     using default_clock = std::chrono::high_resolution_clock;
+
+    template <typename Clock>
+    struct now {
+        TimePoint<Clock> operator()() const {
+            return Clock::now();
+        }
+    };
 } // namespace nonius
 
 #endif // NONIUS_CLOCK_HPP

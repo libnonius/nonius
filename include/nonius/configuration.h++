@@ -11,16 +11,18 @@
 
 // Run configuration
 
-#ifndef NONIUS_CONFIG_HPP
-#define NONIUS_CONFIG_HPP
+#ifndef NONIUS_CONFIGURATION_HPP
+#define NONIUS_CONFIGURATION_HPP
 
 namespace nonius {
-    struct config {
-        int samples;
+    struct configuration {
+        int samples = 100;
+        double confidence_interval = 0.95;
+        int resamples = 100000;
     };
 } // namespace nonius
 
-#endif // NONIUS_CONFIG_HPP
+#endif // NONIUS_CONFIGURATION_HPP
 
 
 
