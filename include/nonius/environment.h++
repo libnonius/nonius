@@ -32,12 +32,12 @@
 namespace nonius {
     namespace detail {
         template <typename Clock>
-        std::tuple<std::vector<Duration<Clock>>, int> resolution(int k) {
+        std::tuple<std::vector<FloatDuration<Clock>>, int> resolution(int k) {
             std::vector<TimePoint<Clock>> times;
             times.reserve(k+1);
             std::generate_n(std::back_inserter(times), k+1, now<Clock>{});
 
-            std::vector<Duration<Clock>> deltas;
+            std::vector<FloatDuration<Clock>> deltas;
             deltas.reserve(k);
             detail::transform_if(std::next(times.begin()), times.end(), times.begin(),
                               std::back_inserter(deltas),
@@ -58,14 +58,14 @@ namespace nonius {
 
     template <typename Clock>
     int warmup() {
-        return run_for_at_least<Clock>(Duration<Clock>(detail::warmup_time), detail::warmup_seed, detail::resolution<Clock>)
+        return run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(detail::warmup_time), detail::warmup_seed, detail::resolution<Clock>)
                 .iterations;
     }
     template <typename Clock>
     FloatDuration<Clock> estimate_clock_resolution(int iterations) {
-        auto r = run_for_at_least<Clock>(Duration<Clock>(detail::clock_resolution_estimation_time), iterations, detail::resolution<Clock>)
+        auto r = run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(detail::clock_resolution_estimation_time), iterations, detail::resolution<Clock>)
                 .result;
-        return analyse_mean<Clock>(std::get<0>(r).begin(), std::get<0>(r).end());
+        return stats::mean(std::get<0>(r).begin(), std::get<0>(r).end());
     }
     template <typename Clock>
     FloatDuration<Clock> estimate_clock_cost(FloatDuration<Clock> resolution) {
@@ -80,12 +80,12 @@ namespace nonius {
         };
         time_clock(1);
         int iters = detail::clock_cost_estimation_iterations;
-        auto&& r = run_for_at_least<Clock>(Duration<Clock>(detail::clock_cost_estimation_time), iters, time_clock);
+        auto&& r = run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(detail::clock_cost_estimation_time), iters, time_clock);
         std::vector<FloatDuration<Clock>> times;
         int nsamples = std::ceil(time_limit / r.elapsed);
         times.reserve(nsamples);
         std::generate_n(std::back_inserter(times), nsamples, [time_clock, &r]{ return time_clock(r.iterations) / r.iterations; });
-        return analyse_mean<Clock>(times.begin(), times.end());
+        return stats::mean(times.begin(), times.end());
     }
 
     template <typename Clock>
