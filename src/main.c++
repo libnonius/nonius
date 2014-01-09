@@ -7,15 +7,14 @@
 
 struct mean {
     template <typename It>
-    std::pair<nonius::detail::IteratorValue<It>, nonius::detail::IteratorValue<It>> operator()(It f, It l) {
-        auto count = l - f;
-        auto mean =  nonius::stats::mean(f, l);
-        double stddev_sum = 0;
-        for(; f != l; ++f) {
-            auto x = *f;
-            auto diff = (x - mean).count();
-            stddev_sum += diff * diff;
-        }
+    std::pair<nonius::detail::IteratorValue<It>, nonius::detail::IteratorValue<It>> operator()(It first, It last) {
+        using value = nonius::detail::IteratorValue<It>;
+        auto count = last - first;
+        auto mean = nonius::stats::mean(first, last);
+        double stddev_sum = std::accumulate(first, last, 0.0, [mean](double a, value b) {
+                    double diff = (b - mean).count();
+                    return a + diff*diff;
+                });
         auto stddev = decltype(mean)(std::sqrt(stddev_sum / count));
         return { mean, stddev };
     }
