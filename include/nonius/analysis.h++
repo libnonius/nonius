@@ -84,6 +84,17 @@ namespace nonius {
             return sum /(double) count;
         }
 
+        // NOTE totally duration specific ;)
+        template <typename Iterator>
+        detail::IteratorValue<Iterator> standard_deviation(Iterator first, Iterator last) {
+            auto m = mean(first, last);
+            double variance = std::accumulate(first, last, 0.0, [m](double a, detail::IteratorValue<Iterator> b) {
+                        double diff = (b - m).count();
+                        return a + diff*diff;
+                    }) / (last - first);
+            return decltype(m)(std::sqrt(variance));
+        }
+
         template <typename T>
         struct sample_analysis {
             T mean;
