@@ -17,9 +17,13 @@
 #include <nonius/clock.h++>
 #include <nonius/detail/duration.h++>
 
+#include <wheels/fun/result_of.h++>
+
 #include <algorithm>
 #include <functional>
 #include <iterator>
+#include <vector>
+#include <random>
 #include <utility>
 
 namespace nonius {
@@ -86,6 +90,25 @@ namespace nonius {
             T standard_deviation;
             T outlier_variance;
         };
+
+        // TODO replace estimator with boost.accumulators
+        template <typename URng, typename Iterator, typename Estimator>
+        std::vector<wheels::fun::ResultOf<Estimator(Iterator,Iterator)>> resample(URng&& rng, int resamples, Iterator first, Iterator last, Estimator&& estimator) {
+            int n_samples = last-first;
+            std::uniform_int_distribution<int> index_dist(0, n_samples-1);
+
+            std::vector<wheels::fun::ResultOf<Estimator(Iterator, Iterator)>> results;
+            results.reserve(resamples);
+
+            std::generate_n(std::back_inserter(results), resamples, [n_samples, first, &estimator, &index_dist, &rng]{
+                std::vector<detail::IteratorValue<Iterator>> resampled;
+                resampled.reserve(n_samples);
+                std::generate_n(std::back_inserter(resampled), n_samples, [first, &index_dist, &rng]{ return first[index_dist(rng)]; });
+                return estimator(resampled.begin(), resampled.end());
+            });
+
+            return results;
+        }
 
         template <typename T>
         struct estimate {

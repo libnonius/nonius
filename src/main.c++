@@ -4,6 +4,13 @@
 #include <chrono>
 #include <string>
 
+struct mean {
+    template <typename It>
+    nonius::detail::IteratorValue<It> operator()(It f, It l) {
+        return nonius::stats::mean(f, l);
+    }
+};
+
 int main() {
     using fns = std::chrono::duration<double, std::nano>;
 
@@ -26,5 +33,10 @@ int main() {
     std::cout << "\t* Low mild: " << o.low_mild << '\n';
     std::cout << "\t* High mild: " << o.high_mild << '\n';
     std::cout << "\t* High severe: " << o.high_severe << '\n';
+
+    std::cout << "Resampling " << cfg.resamples << " times...\n";
+
+    std::mt19937 rng;
+    auto resample = nonius::stats::resample(rng, cfg.resamples, sample.begin(), sample.end(), ::mean{});
 }
 
