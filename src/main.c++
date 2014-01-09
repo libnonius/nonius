@@ -3,11 +3,21 @@
 #include <iostream>
 #include <chrono>
 #include <string>
+#include <utility>
 
 struct mean {
     template <typename It>
-    nonius::detail::IteratorValue<It> operator()(It f, It l) {
-        return nonius::stats::mean(f, l);
+    std::pair<nonius::detail::IteratorValue<It>, nonius::detail::IteratorValue<It>> operator()(It f, It l) {
+        auto count = l - f;
+        auto mean =  nonius::stats::mean(f, l);
+        double stddev_sum = 0;
+        for(; f != l; ++f) {
+            auto x = *f;
+            auto diff = (x - mean).count();
+            stddev_sum += diff * diff;
+        }
+        auto stddev = decltype(mean)(std::sqrt(stddev_sum / count));
+        return { mean, stddev };
     }
 };
 
@@ -38,5 +48,9 @@ int main() {
 
     std::mt19937 rng;
     auto resample = nonius::stats::resample(rng, cfg.resamples, sample.begin(), sample.end(), ::mean{});
+    for(auto r : resample) {
+        std::cout << fns(r.first).count() << " ns\t" << fns(r.second).count() << " ns\t\t";
+    }
+    std::cout << '\n';
 }
 
