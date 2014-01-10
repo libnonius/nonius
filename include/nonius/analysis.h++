@@ -103,8 +103,8 @@ namespace nonius {
         };
 
         // TODO replace estimator with boost.accumulators
-        template <typename URng, typename Iterator, typename Estimator>
-        std::vector<wheels::fun::ResultOf<Estimator(Iterator,Iterator)>> resample(URng&& rng, int resamples, Iterator first, Iterator last, Estimator&& estimator) {
+        template <typename URng, typename Estimator, typename Iterator>
+        std::vector<wheels::fun::ResultOf<Estimator(Iterator, Iterator)>> resample(URng&& rng, int resamples, Estimator&& estimator, Iterator first, Iterator last) {
             int n_samples = last-first;
             std::uniform_int_distribution<int> index_dist(0, n_samples-1);
 
@@ -117,6 +117,21 @@ namespace nonius {
                 std::generate_n(std::back_inserter(resampled), n_samples, [first, &index_dist, &rng]{ return first[index_dist(rng)]; });
                 return estimator(resampled.begin(), resampled.end());
             });
+
+            return results;
+        }
+
+        template <typename Estimator, typename Iterator>
+        std::vector<wheels::fun::ResultOf<Estimator(Iterator, Iterator)>> jackknife(Estimator&& estimator, Iterator first, Iterator last) {
+            int nsamples = last - first;
+            auto second = std::next(first);
+            std::vector<wheels::fun::ResultOf<Estimator(Iterator, Iterator)>> results;
+            results.reserve(nsamples);
+
+            for(auto it = first; it != last; ++it) {
+                std::iter_swap(it, first);
+                results.push_back(estimator(second, last));
+            }
 
             return results;
         }
