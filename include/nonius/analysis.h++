@@ -17,24 +17,22 @@
 #include <nonius/clock.h++>
 #include <nonius/detail/duration.h++>
 
-#include <wheels/fun/result_of.h++>
+#include <wheels/meta/invoke.h++>
+#include <wheels/expand.h++>
 
 #include <algorithm>
 #include <functional>
 #include <iterator>
 #include <vector>
+#include <array>
 #include <random>
+#include <tuple>
 #include <utility>
 
 namespace nonius {
-    namespace detail {
-        template <typename Iterator>
-        using IteratorValue = typename std::iterator_traits<Iterator>::value_type;
-    } // namespace detail
-
     namespace stats {
         template <typename Iterator>
-        detail::IteratorValue<Iterator> weighted_average_quantile(int k, int q, Iterator first, Iterator last) {
+        double weighted_average_quantile(int k, int q, Iterator first, Iterator last) {
             int count = last - first;
             double idx = (count - 1) * k /(double) q;
             int j = (int)idx;
@@ -78,55 +76,74 @@ namespace nonius {
         }
 
         template <typename Iterator>
-        detail::IteratorValue<Iterator> mean(Iterator first, Iterator last) {
+        double mean(Iterator first, Iterator last) {
             int count = last - first;
-            auto sum = std::accumulate(first, last, detail::IteratorValue<Iterator>{});
-            return sum /(double) count;
+            double sum = std::accumulate(first, last, 0.0);
+            return sum / count;
         }
 
-        // NOTE totally duration specific ;)
         template <typename Iterator>
-        detail::IteratorValue<Iterator> standard_deviation(Iterator first, Iterator last) {
+        double standard_deviation(Iterator first, Iterator last) {
             auto m = mean(first, last);
-            double variance = std::accumulate(first, last, 0.0, [m](double a, detail::IteratorValue<Iterator> b) {
-                        double diff = (b - m).count();
+            double variance = std::accumulate(first, last, 0.0, [m](double a, double b) {
+                        double diff = b - m;
                         return a + diff*diff;
                     }) / (last - first);
-            return decltype(m)(std::sqrt(variance));
+            return std::sqrt(variance);
         }
 
-        template <typename T>
         struct sample_analysis {
-            T mean;
-            T standard_deviation;
-            T outlier_variance;
+            double mean;
+            double standard_deviation;
+            double outlier_variance;
         };
 
+        namespace detail {
+            template <typename URng, typename InIt, typename OutIt, typename Estimator>
+            void do_resample(int resamples, std::uniform_int_distribution<int>& dist, URng& rng, InIt first, InIt last, Estimator& estimator, std::vector<double>& out) {
+                int n = last - first;
+                out.reserve(resamples);
+                std::generate_n(std::back_inserter(out), resamples, [n, first, &estimator, &dist, &rng] {
+                    std::vector<double> resampled;
+                    resampled.reserve(n);
+                    std::generate_n(std::back_inserter(resampled), n, [first, &dist, &rng] { return first[dist(rng)]; });
+                    return estimator(resampled.begin(), resampled.end());
+                });
+            }
+            template <int... I>
+            struct indices {
+                using next = indices<I..., sizeof...(I)>;
+            };
+            template <int N>
+            struct make_seq {
+                using type = typename make_seq<N-1>::next;
+            };
+            template <int N>
+            using MakeSeq = wheels::meta::Invoke<make_seq<N>>;
+
+            template <typename URng, typename InIt, typename OutIt, int... I, typename... Estimators>
+            void do_resample(indices<I...>, int resamples, std::uniform_int_distribution<int>& dist, URng& rng, InIt first, InIt last, std::array<std::vector<double>, sizeof...(Estimators)>& out, Estimators&&... estimators) {
+                WHEELS_EXPAND(do_resample(resamples, dist, rng, first, last, estimators, out[I]));
+            }
+        } // namespace detail
         // TODO replace estimator with boost.accumulators
-        template <typename URng, typename Estimator, typename Iterator>
-        std::vector<wheels::fun::ResultOf<Estimator(Iterator, Iterator)>> resample(URng&& rng, int resamples, Estimator&& estimator, Iterator first, Iterator last) {
-            int n_samples = last-first;
-            std::uniform_int_distribution<int> index_dist(0, n_samples-1);
+        template <typename URng, typename Iterator, typename... Estimators>
+        std::array<std::vector<double>, sizeof...(Estimators)> resample(URng&& rng, int resamples, Iterator first, Iterator last, Estimators&&... estimators) {
+            int n = last - first;
+            std::uniform_int_distribution<int> index_dist(0, n-1);
 
-            std::vector<wheels::fun::ResultOf<Estimator(Iterator, Iterator)>> results;
-            results.reserve(resamples);
-
-            std::generate_n(std::back_inserter(results), resamples, [n_samples, first, &estimator, &index_dist, &rng]{
-                std::vector<detail::IteratorValue<Iterator>> resampled;
-                resampled.reserve(n_samples);
-                std::generate_n(std::back_inserter(resampled), n_samples, [first, &index_dist, &rng]{ return first[index_dist(rng)]; });
-                return estimator(resampled.begin(), resampled.end());
-            });
+            std::array<std::vector<double>, sizeof...(Estimators)> results;
+            detail::do_resample(detail::MakeSeq<sizeof...(Estimators)>{}, resamples, index_dist, rng, first, last, results, estimators...);
 
             return results;
         }
 
         template <typename Estimator, typename Iterator>
-        std::vector<wheels::fun::ResultOf<Estimator(Iterator, Iterator)>> jackknife(Estimator&& estimator, Iterator first, Iterator last) {
-            int nsamples = last - first;
+        std::vector<double> jackknife(Estimator&& estimator, Iterator first, Iterator last) {
+            int n = last - first;
             auto second = std::next(first);
-            std::vector<wheels::fun::ResultOf<Estimator(Iterator, Iterator)>> results;
-            results.reserve(nsamples);
+            std::vector<double> results;
+            results.reserve(n);
 
             for(auto it = first; it != last; ++it) {
                 std::iter_swap(it, first);
@@ -136,11 +153,10 @@ namespace nonius {
             return results;
         }
 
-        template <typename T>
         struct estimate {
-            T point;
-            T lower_bound;
-            T upper_bound;
+            double point;
+            double lower_bound;
+            double upper_bound;
             double confidence_level;
         };
     } // namespace stats

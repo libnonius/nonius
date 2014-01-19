@@ -47,22 +47,21 @@ namespace nonius {
         return { std::move(description), std::forward<Fun>(fun) };
     }
 
-    template <typename Clock>
-    using sample = std::vector<FloatDuration<Clock>>;
+    using sample = std::vector<double>;
 
     template <typename Clock, typename Fun>
-    sample<Clock> run_benchmark(configuration cfg, environment<Clock> env, benchmark<Fun> const& benchmark) {
+    sample run_benchmark(configuration cfg, environment<Clock> env, benchmark<Fun> const& benchmark) {
         int warmup_iters = 10000;
         run_for_at_least<Clock>(std::chrono::milliseconds(100), warmup_iters, detail::repeat(now<Clock>{}));
         auto min_time = env.clock_resolution * 1000;
         auto run_time = std::min(min_time, decltype(min_time)(std::chrono::milliseconds(100)));
         auto&& test = run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(run_time), 1, benchmark);
         auto new_iters = std::ceil(min_time * test.iterations / test.elapsed);
-        std::vector<FloatDuration<Clock>> times;
+        sample times;
         times.reserve(cfg.samples);
         std::generate_n(std::back_inserter(times), cfg.samples, [&benchmark, env, new_iters]{
                 auto t = time<Clock>(benchmark, new_iters).elapsed;
-                return (t - env.clock_cost) / new_iters;
+                return ((t - env.clock_cost) / new_iters).count();
         });
         return times;
     }
