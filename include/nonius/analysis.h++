@@ -52,11 +52,14 @@ namespace nonius {
         }
 
         struct outliers {
-            int samples_seen = 0;
             int low_severe = 0;     // more than 3 times IQR below Q1
             int low_mild = 0;       // 1.5 to 3 times IQR below Q1
             int high_mild = 0;      // 1.5 to 3 times IQR above Q3
             int high_severe = 0;    // more than 3 times IQR above Q3
+
+            int total() const {
+                return low_severe + low_mild + high_mild + high_severe;
+            }
         };
 
         template <typename Iterator>
@@ -76,7 +79,6 @@ namespace nonius {
                 else if(t < lom) ++o.low_mild;
                 else if(t > his) ++o.high_severe;
                 else if(t > him) ++o.high_mild;
-                ++o.samples_seen;
             }
             return o;
         }
@@ -98,12 +100,6 @@ namespace nonius {
             return std::sqrt(variance);
         }
 
-        struct sample_analysis {
-            double mean;
-            double standard_deviation;
-            double outlier_variance;
-        };
-
         template <typename... Estimators>
         using resamples = std::array<sample, sizeof...(Estimators)>;
 
@@ -118,15 +114,19 @@ namespace nonius {
                     std::generate_n(std::back_inserter(resampled), n, [first, &dist, &rng] { return first[dist(rng)]; });
                     return estimator(resampled.begin(), resampled.end());
                 });
+                std::sort(out.begin(), out.end());
             }
             template <int... I>
             struct indices {
+                using type = indices<I...>;
                 using next = indices<I..., sizeof...(I)>;
             };
             template <int N>
             struct make_seq {
-                using type = typename make_seq<N-1>::next;
+                using type = typename make_seq<N-1>::type::next;
             };
+            template <>
+            struct make_seq<0> : indices<> {};
             template <int N>
             using MakeSeq = wheels::meta::Invoke<make_seq<N>>;
 
@@ -200,8 +200,8 @@ namespace nonius {
                 double b2 = bias - z1;
                 double a1 = a(b1);
                 double a2 = a(b2);
-                int lo = std::min(cumn(a1), n - 1);
-                int hi = std::min(cumn(a1), n - 1);
+                int lo = std::max(cumn(a1), 0);
+                int hi = std::min(cumn(a2), n - 1);
 
                 if(n_samples == 1) return { point, point, point };
                 else return { point, resample[lo], resample[hi] };
@@ -216,10 +216,58 @@ namespace nonius {
         template <typename Iterator, typename... Estimators>
         estimates<Estimators...> bootstrap(double confidence_level, Iterator first, Iterator last, resamples<Estimators...> const& resample, Estimators&&... estimators) {
             estimates<Estimators...> results;
-            detail::do_resample(detail::MakeSeq<sizeof...(Estimators)>{}, confidence_level, first, last, resample, results, estimators...);
+            detail::do_bootstrap(detail::MakeSeq<sizeof...(Estimators)>{}, confidence_level, first, last, resample, results, estimators...);
             return results;
         }
+
+        double outlier_variance(estimate mean, estimate stddev, int n) {
+            double sb = stddev.point;
+            double mn = mean.point / n;
+            double mg_min = mn / 2.;
+            double sg = std::min(mg_min / 4., sb / std::sqrt(n));
+            double sg2 = sg * sg;
+            double sb2 = sb * sb;
+
+            auto c_max = [n, mn, sb2, sg2](double x) -> double {
+                double k = mn - x;
+                double d = k * k;
+                double nd = n * d;
+                double k0 = -n * nd;
+                double k1 = sb2 - n * sg2 + nd;
+                double det = k1 * k1 - 4 * sg2 * k0;
+                return (int)(-2. * k0 / (k1 + std::sqrt(det)));
+            };
+
+            auto var_out = [n, sb2, sg2](double c) {
+                double nc = n - c;
+                return (nc / n) * (sb2 - nc * sg2);
+            };
+
+            return std::min(var_out(1), var_out(std::min(c_max(0.), c_max(mg_min)))) / sb2;
+        }
     } // namespace stats
+
+    struct sample_analysis {
+        stats::estimate mean;
+        stats::estimate standard_deviation;
+        double outlier_variance;
+    };
+
+    template <typename Iterator>
+    sample_analysis analyse_sample(double confidence_level, int n_resamples, Iterator first, Iterator last) {
+        static std::random_device entropy;
+
+        int n = last - first;
+
+        std::mt19937 rng(entropy());
+        auto mean = &stats::mean<Iterator>;
+        auto stddev = &stats::standard_deviation<Iterator>;
+        auto resamples = stats::resample(rng, n_resamples, first, last, mean, stddev);
+        auto estimates = stats::bootstrap(confidence_level, first, last, resamples, mean, stddev);
+        double outlier_variance = stats::outlier_variance(estimates[0], estimates[1], n);
+
+        return { estimates[0], estimates[1], outlier_variance };
+    }
 } // namespace nonius
 
 #endif // NONIUS_ANALYSIS_HPP
