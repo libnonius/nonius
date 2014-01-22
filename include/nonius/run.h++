@@ -20,6 +20,7 @@
 #include <nonius/configuration.h++>
 #include <nonius/detail/duration.h++>
 #include <nonius/detail/repeat.h++>
+#include <nonius/detail/function.h++>
 
 #include <chrono>
 #include <algorithm>
@@ -27,30 +28,23 @@
 #include <iterator>
 #include <string>
 #include <functional>
+#include <map>
 #include <utility>
 
 namespace nonius {
-    namespace detail {
-    } // namespace detail
-
-    template <typename Fun>
     struct benchmark {
-        std::string description;
-        Fun function;
+        std::string name;
+        detail::benchmark_function function;
 
         void operator()(int k) const {
             detail::repeat(std::ref(function))(k);
         }
     };
-    template <typename Fun>
-    benchmark<wheels::meta::Decay<Fun>> make_benchmark(std::string description, Fun&& fun) {
-        return { std::move(description), std::forward<Fun>(fun) };
-    }
 
     using sample = std::vector<double>;
 
-    template <typename Clock, typename Fun>
-    sample run_benchmark(configuration cfg, environment<Clock> env, benchmark<Fun> const& benchmark) {
+    template <typename Clock>
+    sample run_benchmark(configuration cfg, environment<Clock> env, benchmark const& benchmark) {
         int warmup_iters = 10000;
         run_for_at_least<Clock>(std::chrono::milliseconds(100), warmup_iters, detail::repeat(now<Clock>{}));
         auto min_time = env.clock_resolution * 1000;
@@ -66,10 +60,27 @@ namespace nonius {
         return times;
     }
 
-    //template <typename Clock>
-    //void run_analyse1(configuration cfg, environment<Clock> env, benchmark<Fun> const& benchmark) {
-    //    auto ci = cfg.confidence_interval;
-    //}
+    struct benchmark_results {
+        sample_analysis analysis;
+        stats::outliers outliers;
+    };
+
+    template <typename Clock>
+    benchmark_results run_analyse1(configuration cfg, environment<Clock> env, benchmark const& benchmark) {
+        auto sample = nonius::run_benchmark(cfg, env, benchmark);
+        auto analysis = nonius::analyse_sample(cfg.confidence_interval, cfg.resamples, sample.begin(), sample.end());
+        auto outliers = nonius::stats::classify_outliers(sample.begin(), sample.end());
+        return { analysis, outliers };
+    }
+
+    template <typename Clock, typename Iterator>
+    std::map<std::string, benchmark_results> run_analyse(configuration cfg, environment<Clock> env, Iterator first, Iterator last) {
+        std::map<std::string, benchmark_results> results;
+        std::transform(first, last, std::inserter(results, results.end()), [cfg, env](benchmark const& b) {
+            return std::make_pair(b.name, run_analyse1(cfg, env, b));
+        });
+        return results;
+    }
 } // namespace nonius
 
 #endif // NONIUS_RUN_HPP
