@@ -9,29 +9,26 @@
 // You should have received a copy of the CC0 Public Domain Dedication along with this software.
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>
 
-// Environment information
+// Benchmark results
 
-#ifndef NONIUS_ENVIRONMENT_HPP
-#define NONIUS_ENVIRONMENT_HPP
+#ifndef NONIUS_BENCHMARK_RESULTS_HPP
+#define NONIUS_BENCHMARK_RESULTS_HPP
 
 #include <nonius/clock.h++>
-#include <nonius/outlier_classification.h++>
+#include <nonius/estimate.h++>
+
+#include <vector>
+#include <string>
 
 namespace nonius {
     template <typename Duration>
-    using environment_estimate = Duration;
-    //TODO
-    //struct environment_estimate {
-    //    Duration mean;
-    //    outlier_classification outliers;
-    //};
-    template <typename Clock = default_clock>
-    struct environment {
-        environment_estimate<FloatDuration<Clock>> clock_resolution;
-        environment_estimate<FloatDuration<Clock>> clock_cost;
-        //estimate function_cost;
+    struct sample_analysis {
+        std::vector<Duration> samples;
+        estimate<Duration> mean;
+        estimate<Duration> standard_deviation;
+        double outlier_variance;
     };
 } // namespace nonius
 
-#endif // NONIUS_ENVIRONMENT_HPP
+#endif // NONIUS_BENCHMARK_RESULTS_HPP
 

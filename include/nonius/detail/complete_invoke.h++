@@ -9,19 +9,15 @@
 // You should have received a copy of the CC0 Public Domain Dedication along with this software.
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>
 
-// Measurement module
+// Invoke with a special case for void
 
-#ifndef NONIUS_MEASUREMENT_HPP
-#define NONIUS_MEASUREMENT_HPP
-
-#include <nonius/clock.h++>
-#include <nonius/detail/duration.h++>
+#ifndef NONIUS_DETAIL_COMPLETE_INVOKE_HPP
+#define NONIUS_DETAIL_COMPLETE_INVOKE_HPP
 
 #include <wheels/fun/result_of.h++>
 #include <wheels/fun/invoke.h++>
 
-#include <tuple>
-#include <type_traits>
+#include <utility>
 
 namespace nonius {
     namespace detail {
@@ -57,41 +53,7 @@ namespace nonius {
             return complete_invoker<wheels::fun::ResultOf<Fun(Args...)>>::invoke(std::forward<Fun>(fun), std::forward<Args>(args)...);
         }
     } // namespace detail
-
-    template <typename Duration, typename Result>
-    struct timing {
-        Duration elapsed;
-        Result result;
-        int iterations;
-    };
-    template <typename Clock, typename Sig>
-    using TimingOf = timing<Duration<Clock>, detail::CompleteResultOf<Sig>>;
-    // TODO fuck void
-    template <typename Clock = default_clock, typename Fun, typename... Args>
-    TimingOf<Clock, Fun(Args...)> time(Fun&& fun, Args&&... args) {
-        auto start = Clock::now();
-        auto&& r = detail::complete_invoke(fun, std::forward<Args>(args)...);
-        auto end = Clock::now();
-        auto delta = end - start;
-        return { delta, std::forward<decltype(r)>(r), 1 };
-    }
-
-    template <typename Clock = default_clock, typename Fun>
-    TimingOf<Clock, Fun(int)> run_for_at_least(Duration<Clock> how_long, int seed, Fun&& fun) {
-        auto start = Clock::now();
-        while(true) {
-            auto now = Clock::now();
-            if(now - start > how_long * 10) {
-                throw "took too long to run: seed %d, iters %d"; //fail
-            }
-            auto r = time(fun, seed);
-            if(r.elapsed >= how_long) {
-                return { r.elapsed, std::move(r.result), seed };
-            }
-            seed *= 2;
-        }
-    }
 } // namespace nonius
 
-#endif // NONIUS_MEASUREMENT_HPP
+#endif // NONIUS_DETAIL_COMPLETE_INVOKE_HPP
 

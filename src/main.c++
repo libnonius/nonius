@@ -1,24 +1,29 @@
-#include <nonius/environment.h++>
-#include <nonius/run.h++>
-#include <iostream>
-#include <chrono>
+#include <nonius/configuration.h++>
+#include <nonius/benchmark.h++>
+#include <nonius/go.h++>
+
+#include <iterator>
 #include <string>
-#include <utility>
 
 int main() {
-    using orig = nonius::FloatDuration<nonius::default_clock>;
-    using fns = std::chrono::duration<double, std::nano>;
-
     nonius::configuration cfg;
     nonius::benchmark benchmarks[] = {
         { "to_string(42)", []{ return std::to_string(42); } },
         { "to_string(4.2)", []{ return std::to_string(4.2); } },
     };
 
+    nonius::go(cfg, std::begin(benchmarks), std::end(benchmarks));
+
+    /*
+    using fns = std::chrono::duration<double, std::nano>;
+
+    nonius::configuration cfg;
+
     std::cout << "Measuring environment...\n";
-    auto env = nonius::measure_environment<nonius::default_clock>();
+    auto env = nonius::environment<>::measure();
     std::cout << "Running benchmark...\n";
-    auto results = nonius::run_analyse(cfg, env, benchmarks, benchmarks + 2);
+
+    auto results = nonius::detail::run_analyse(cfg, env, benchmarks, benchmarks + 2);
     std::cout << "Done.\n";
 
     auto print_bounded_stat = [](std::string const& name, nonius::stats::estimate e) {
@@ -61,5 +66,6 @@ int main() {
         }
         std::cout << " * Variance is " << outlier_effect << " by outliers\n";
     }
+    */
 }
 

@@ -9,29 +9,24 @@
 // You should have received a copy of the CC0 Public Domain Dedication along with this software.
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>
 
-// Run configuration
+// Execution plan
 
-#ifndef NONIUS_CONFIGURATION_HPP
-#define NONIUS_CONFIGURATION_HPP
-
-#include <nonius/reporter.h++>
+#ifndef NONIUS_EXECUTION_PLAN_HPP
+#define NONIUS_EXECUTION_PLAN_HPP
 
 namespace nonius {
-    struct configuration {
-    public:
-        configuration() {
-            static nonius::reporter null_reporter;
-            reporter = &null_reporter;
-        }
+    template <typename Duration>
+    struct execution_plan {
+        int samples;
+        int iterations_per_sample;
+        Duration estimated_duration;
 
-        int samples = 100;
-        double confidence_interval = 0.95;
-        int resamples = 100000;
-        nonius::reporter* reporter;
+        template <typename Duration2>
+        operator execution_plan<Duration2>() const {
+            return { samples, iterations_per_sample, estimated_duration };
+        }
     };
 } // namespace nonius
 
-#endif // NONIUS_CONFIGURATION_HPP
-
-
+#endif // NONIUS_EXECUTION_PLAN_HPP
 

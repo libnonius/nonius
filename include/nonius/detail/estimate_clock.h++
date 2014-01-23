@@ -1,0 +1,92 @@
+// Nonius - C++ benchmarking tool
+//
+// Written in 2014 by Martinho Fernandes <martinho.fernandes@gmail.com>
+//
+// To the extent possible under law, the author(s) have dedicated all copyright and related
+// and neighboring rights to this software to the public domain worldwide. This software is
+// distributed without any warranty.
+//
+// You should have received a copy of the CC0 Public Domain Dedication along with this software.
+// If not, see <http://creativecommons.org/publicdomain/zero/1.0/>
+
+// Environment measurement
+
+#ifndef NONIUS_DETAIL_ENVIRONMENT_HPP
+#define NONIUS_DETAIL_ENVIRONMENT_HPP
+
+#include <nonius/clock.h++>
+#include <nonius/environment.h++>
+#include <nonius/detail/stats.h++>
+#include <nonius/detail/run_for_at_least.h++>
+#include <nonius/detail/transform_if.h++>
+
+#include <algorithm>
+#include <chrono>
+#include <iterator>
+#include <tuple>
+#include <vector>
+#include <cmath>
+
+namespace nonius {
+    namespace detail {
+        template <typename Clock>
+        std::tuple<std::vector<double>, int> resolution(int k) {
+            std::vector<TimePoint<Clock>> times;
+            times.reserve(k+1);
+            std::generate_n(std::back_inserter(times), k+1, now<Clock>{});
+
+            std::vector<double> deltas;
+            deltas.reserve(k);
+            detail::transform_if(std::next(times.begin()), times.end(), times.begin(),
+                              std::back_inserter(deltas),
+                              [](TimePoint<Clock> a, TimePoint<Clock> b) { return (a - b).count(); },
+                              [](double d) { return d > 0; });
+
+            return std::make_tuple(std::move(deltas), times.size());
+        }
+
+        constexpr auto warmup_seed = 10000;
+        constexpr auto clock_resolution_estimation_time = std::chrono::milliseconds(500);
+        constexpr auto clock_cost_estimation_time_limit = std::chrono::seconds(1);
+        constexpr auto clock_cost_estimation_tick_limit = 100000;
+        constexpr auto clock_cost_estimation_time = std::chrono::milliseconds(10);
+        constexpr auto clock_cost_estimation_iterations = 10000;
+
+        template <typename Clock>
+        int warmup() {
+            return run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(warmup_time), warmup_seed, &resolution<Clock>)
+                    .iterations;
+        }
+        template <typename Clock>
+        FloatDuration<Clock> estimate_clock_resolution(int iterations) {
+            auto r = run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(clock_resolution_estimation_time), iterations, &resolution<Clock>)
+                    .result;
+            return FloatDuration<Clock>(mean(std::get<0>(r).begin(), std::get<0>(r).end()));
+        }
+        template <typename Clock>
+        FloatDuration<Clock> estimate_clock_cost(FloatDuration<Clock> resolution) {
+            auto time_limit = std::min(resolution * clock_cost_estimation_tick_limit, FloatDuration<Clock>(clock_cost_estimation_time_limit));
+            auto time_clock = [](int k) {
+                return detail::measure<Clock>([k]{
+                    for(int i = 0; i < k; ++i) {
+                        volatile auto ignored = Clock::now();
+                        (void)ignored;
+                    }
+                }).elapsed;
+            };
+            time_clock(1);
+            int iters = clock_cost_estimation_iterations;
+            auto&& r = run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(clock_cost_estimation_time), iters, time_clock);
+            std::vector<double> times;
+            int nsamples = std::ceil(time_limit / r.elapsed);
+            times.reserve(nsamples);
+            std::generate_n(std::back_inserter(times), nsamples, [time_clock, &r]{
+                        return (time_clock(r.iterations) / r.iterations).count();
+                    });
+            return FloatDuration<Clock>(mean(times.begin(), times.end()));
+        }
+    } // namespace detail
+} // namespace nonius
+
+#endif // NONIUS_DETAIL_ENVIRONMENT_HPP
+

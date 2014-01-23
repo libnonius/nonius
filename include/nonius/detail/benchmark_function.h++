@@ -11,14 +11,15 @@
 
 // Dumb std::function implementation for consistent call overhead
 
-#ifndef NONIUS_DETAIL_FUNCTION_HPP
-#define NONIUS_DETAIL_FUNCTION_HPP
+#ifndef NONIUS_DETAIL_BENCHMARK_FUNCTION_HPP
+#define NONIUS_DETAIL_BENCHMARK_FUNCTION_HPP
 
 #include <wheels/meta/decay.h++>
 #include <wheels/meta/enable_if.h++>
 #include <wheels/meta/is_related.h++>
 
 #include <utility>
+#include <memory>
 
 namespace nonius {
     namespace detail {
@@ -50,6 +51,5 @@ namespace nonius {
     } // namespace detail
 } // namespace nonius
 
-#endif // NONIUS_DETAIL_FUNCTION_HPP
-
+#endif // NONIUS_DETAIL_BENCHMARK_FUNCTION_HPP
 
