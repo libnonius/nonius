@@ -30,7 +30,7 @@
 namespace nonius {
     namespace detail {
         template <typename Clock>
-        std::tuple<std::vector<double>, int> resolution(int k) {
+        std::vector<double> resolution(int k) {
             std::vector<TimePoint<Clock>> times;
             times.reserve(k+1);
             std::generate_n(std::back_inserter(times), k+1, now<Clock>{});
@@ -42,7 +42,7 @@ namespace nonius {
                               [](TimePoint<Clock> a, TimePoint<Clock> b) { return (a - b).count(); },
                               [](double d) { return d > 0; });
 
-            return std::make_tuple(std::move(deltas), times.size());
+            return deltas;
         }
 
         constexpr auto warmup_seed = 10000;
@@ -58,13 +58,16 @@ namespace nonius {
                     .iterations;
         }
         template <typename Clock>
-        FloatDuration<Clock> estimate_clock_resolution(int iterations) {
+        environment_estimate<FloatDuration<Clock>> estimate_clock_resolution(int iterations) {
             auto r = run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(clock_resolution_estimation_time), iterations, &resolution<Clock>)
                     .result;
-            return FloatDuration<Clock>(mean(std::get<0>(r).begin(), std::get<0>(r).end()));
+            return {
+                FloatDuration<Clock>(mean(r.begin(), r.end())),
+                classify_outliers(r.begin(), r.end()),
+            };
         }
         template <typename Clock>
-        FloatDuration<Clock> estimate_clock_cost(FloatDuration<Clock> resolution) {
+        environment_estimate<FloatDuration<Clock>> estimate_clock_cost(FloatDuration<Clock> resolution) {
             auto time_limit = std::min(resolution * clock_cost_estimation_tick_limit, FloatDuration<Clock>(clock_cost_estimation_time_limit));
             auto time_clock = [](int k) {
                 return detail::measure<Clock>([k]{
@@ -83,7 +86,10 @@ namespace nonius {
             std::generate_n(std::back_inserter(times), nsamples, [time_clock, &r]{
                         return (time_clock(r.iterations) / r.iterations).count();
                     });
-            return FloatDuration<Clock>(mean(times.begin(), times.end()));
+            return {
+                FloatDuration<Clock>(mean(times.begin(), times.end())),
+                classify_outliers(times.begin(), times.end()),
+            };
         }
     } // namespace detail
 } // namespace nonius

@@ -15,7 +15,7 @@
 #define NONIUS_DETAIL_ANALYSE_HPP
 
 #include <nonius/clock.h++>
-#include <nonius/benchmark_results.h++>
+#include <nonius/sample_analysis.h++>
 #include <nonius/detail/stats.h++>
 
 #include <algorithm>
@@ -25,7 +25,7 @@
 namespace nonius {
     namespace detail {
         template <typename Duration, typename Iterator>
-        sample_analysis<Duration> analyse(configuration cfg, environment<Duration> env, Iterator first, Iterator last) {
+        sample_analysis<Duration> analyse(configuration cfg, environment<Duration>, Iterator first, Iterator last) {
             std::vector<double> samples;
             samples.reserve(last - first);
             std::transform(first, last, std::back_inserter(samples), [](Duration d) { return d.count(); });
@@ -41,11 +41,15 @@ namespace nonius {
                     e.confidence_interval,
                 };
             };
+            std::vector<Duration> samples2;
+            samples2.reserve(samples.size());
+            std::transform(samples.begin(), samples.end(), std::back_inserter(samples2), [](double d) { return Duration(d); });
             return {
-                std::move(samples),
+                std::move(samples2),
                 wrap_estimate(analysis.mean),
                 wrap_estimate(analysis.standard_deviation),
-                analysis.outlier_variance
+                outliers,
+                analysis.outlier_variance,
             };
         }
     } // namespace detail

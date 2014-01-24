@@ -19,12 +19,15 @@
 
 namespace nonius {
     template <typename Duration>
-    using environment_estimate = Duration;
-    //TODO
-    //struct environment_estimate {
-    //    Duration mean;
-    //    outlier_classification outliers;
-    //};
+    struct environment_estimate {
+        Duration mean;
+        outlier_classification outliers;
+
+        template <typename Duration2>
+        operator environment_estimate<Duration2>() const {
+            return { mean, outliers };
+        }
+    };
     template <typename Clock = default_clock>
     struct environment {
         environment_estimate<FloatDuration<Clock>> clock_resolution;

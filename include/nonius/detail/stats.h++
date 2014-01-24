@@ -185,8 +185,8 @@ namespace nonius {
             int lo = std::max(cumn(a1), 0);
             int hi = std::min(cumn(a2), n - 1);
 
-            if(n_samples == 1) return { point, point, point };
-            else return { point, resample[lo], resample[hi] };
+            if(n_samples == 1) return { point, point, point, confidence_level };
+            else return { point, resample[lo], resample[hi], confidence_level };
         }
 
         template <typename Iterator, int... I, typename... Estimators>
@@ -227,14 +227,14 @@ namespace nonius {
             return std::min(var_out(1), var_out(std::min(c_max(0.), c_max(mg_min)))) / sb2;
         }
 
-        struct sample_analysis {
+        struct bootstrap_analysis {
             estimate<double> mean;
             estimate<double> standard_deviation;
             double outlier_variance;
         };
 
         template <typename Iterator>
-        sample_analysis analyse_samples(double confidence_level, int n_resamples, Iterator first, Iterator last) {
+        bootstrap_analysis analyse_samples(double confidence_level, int n_resamples, Iterator first, Iterator last) {
             static std::random_device entropy;
 
             int n = last - first;
@@ -244,7 +244,7 @@ namespace nonius {
             auto stddev = &detail::standard_deviation<Iterator>;
             auto resamples = resample(rng, n_resamples, first, last, mean, stddev);
             auto estimates = bootstrap(confidence_level, first, last, resamples, mean, stddev);
-            double outlier_variance = outlier_variance(estimates[0], estimates[1], n);
+            double outlier_variance = detail::outlier_variance(estimates[0], estimates[1], n);
 
             return { estimates[0], estimates[1], outlier_variance };
         }

@@ -44,12 +44,12 @@ namespace nonius {
         }
 
         template <typename Clock>
-        execution_plan<FloatDuration<Clock>> prepare(configuration cfg, environment<FloatDuration<Clock>> env) const {
-            auto min_time = env.clock_resolution * detail::minimum_ticks;
+        execution_plan<FloatDuration<Clock>> prepare(configuration, environment<FloatDuration<Clock>> env) const {
+            auto min_time = env.clock_resolution.mean * detail::minimum_ticks;
             auto run_time = std::min(min_time, decltype(min_time)(detail::warmup_time));
             auto&& test = detail::run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(run_time), 1, *this);
             int new_iters = std::ceil(min_time * test.iterations / test.elapsed);
-            return { cfg.samples, new_iters, test.elapsed / test.iterations * new_iters };
+            return { new_iters, test.elapsed / test.iterations * new_iters };
         }
 
         template <typename Clock>
@@ -61,7 +61,7 @@ namespace nonius {
             times.reserve(cfg.samples);
             std::generate_n(std::back_inserter(times), cfg.samples, [this, env, plan]{
                     auto t = detail::measure<Clock>(*this, plan.iterations_per_sample).elapsed;
-                    return ((t - env.clock_cost) / plan.iterations_per_sample);
+                    return ((t - env.clock_cost.mean) / plan.iterations_per_sample);
             });
             return times;
         }

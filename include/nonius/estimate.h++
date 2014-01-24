@@ -15,12 +15,17 @@
 #define NONIUS_ESTIMATE_HPP
 
 namespace nonius {
-    template <typename T>
+    template <typename Duration>
     struct estimate {
-        T point;
-        T lower_bound;
-        T upper_bound;
+        Duration point;
+        Duration lower_bound;
+        Duration upper_bound;
         double confidence_interval;
+
+        template <typename Duration2>
+        operator estimate<Duration2>() const {
+            return { point, lower_bound, upper_bound, confidence_interval };
+        }
     };
 } // namespace nonius
 

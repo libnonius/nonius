@@ -16,9 +16,12 @@
 
 #include <nonius/clock.h++>
 #include <nonius/estimate.h++>
+#include <nonius/outlier_classification.h++>
 
+#include <algorithm>
 #include <vector>
 #include <string>
+#include <iterator>
 
 namespace nonius {
     template <typename Duration>
@@ -26,7 +29,22 @@ namespace nonius {
         std::vector<Duration> samples;
         estimate<Duration> mean;
         estimate<Duration> standard_deviation;
+        outlier_classification outliers;
         double outlier_variance;
+
+        template <typename Duration2>
+        operator sample_analysis<Duration2>() const {
+            std::vector<Duration2> samples2;
+            samples2.reserve(samples.size());
+            std::transform(samples.begin(), samples.end(), std::back_inserter(samples2), [](Duration d) { return Duration2(d); });
+            return {
+                std::move(samples2),
+                mean,
+                standard_deviation,
+                outliers,
+                outlier_variance,
+            };
+        }
     };
 } // namespace nonius
 

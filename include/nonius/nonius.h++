@@ -9,21 +9,16 @@
 // You should have received a copy of the CC0 Public Domain Dedication along with this software.
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>
 
-// Run configuration
+// Main header
 
-#ifndef NONIUS_CONFIGURATION_HPP
-#define NONIUS_CONFIGURATION_HPP
+#ifndef NONIUS_HPP
+#define NONIUS_HPP
 
-namespace nonius {
-    struct configuration {
-    public:
-        int samples = 100;
-        double confidence_interval = 0.95;
-        int resamples = 100000;
-    };
-} // namespace nonius
+#include <nonius/clock.h++>
+#include <nonius/benchmark.h++>
+#include <nonius/configuration.h++>
+#include <nonius/stdout_reporter.h++>
+#include <nonius/go.h++>
 
-#endif // NONIUS_CONFIGURATION_HPP
-
-
+#endif // NONIUS_HPP
 

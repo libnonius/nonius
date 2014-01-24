@@ -19,42 +19,58 @@
 #include <nonius/configuration.h++>
 #include <nonius/environment.h++>
 #include <nonius/reporter.h++>
+#include <nonius/stdout_reporter.h++>
 #include <nonius/detail/estimate_clock.h++>
+#include <nonius/detail/analyse.h++>
 
 namespace nonius {
     namespace detail {
         template <typename Clock>
-        environment<FloatDuration<Clock>> measure_environment(reporter& r) {
-            r.estimate_clock_resolution_start();
+        environment<FloatDuration<Clock>> measure_environment(reporter& rep) {
+            rep.estimate_clock_resolution_start();
             auto iters = detail::warmup<Clock>();
             auto resolution = detail::estimate_clock_resolution<Clock>(iters);
-            r.estimate_clock_resolution_complete(resolution);
+            rep.estimate_clock_resolution_complete(resolution);
 
-            r.estimate_clock_cost_start();
-            auto cost = detail::estimate_clock_cost<Clock>(resolution);
-            r.estimate_clock_cost_complete(cost);
+            rep.estimate_clock_cost_start();
+            auto cost = detail::estimate_clock_cost<Clock>(resolution.mean);
+            rep.estimate_clock_cost_complete(cost);
 
             return { resolution, cost };
         }
     } // namespace detail
     template <typename Clock = default_clock, typename Iterator>
-    void go(configuration cfg, Iterator first, Iterator last) {
-        auto env = detail::measure_environment<Clock>(*cfg.reporter);
+    void go(configuration cfg, Iterator first, Iterator last, reporter& rep) {
+        rep.configure(cfg);
 
-        cfg.reporter->suite_start();
+        auto env = detail::measure_environment<Clock>(rep);
+
+        rep.suite_start();
 
         for(; first != last; ++first) {
-            cfg.reporter->benchmark_start(first->name);
+            rep.benchmark_start(first->name);
 
             auto plan = first->template prepare<Clock>(cfg, env);
-            cfg.reporter->measurement_start(plan);
+            rep.measurement_start(plan);
             auto samples = first->template run<Clock>(cfg, env, plan);
-            cfg.reporter->measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
+            rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
 
-            cfg.reporter->benchmark_complete();
+            rep.analysis_start();
+            auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
+            rep.analysis_complete(analysis);
+
+            rep.benchmark_complete();
         }
 
-        cfg.reporter->suite_complete();
+        rep.suite_complete();
+    }
+    template <typename Clock = default_clock, typename Iterator>
+    void go(configuration cfg, Iterator first, Iterator last, reporter&& rep) {
+        go(cfg, first, last, rep);
+    }
+    template <typename Clock = default_clock, typename Iterator>
+    void go(configuration cfg, Iterator first, Iterator last) {
+        go(cfg, first, last, stdout_reporter{});
     }
 } // namespace nonius
 

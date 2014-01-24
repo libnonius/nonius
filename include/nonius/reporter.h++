@@ -18,12 +18,15 @@
 #include <nonius/outlier_classification.h++>
 #include <nonius/environment.h++>
 #include <nonius/execution_plan.h++>
+#include <nonius/sample_analysis.h++>
 
 #include <vector>
 #include <string>
 
 namespace nonius {
     struct reporter {
+        virtual void configure(configuration /*cfg*/) {}
+
         virtual void estimate_clock_resolution_start() {}
         virtual void estimate_clock_resolution_complete(environment_estimate<fp_seconds> /*estimate*/) {}
 
@@ -35,6 +38,9 @@ namespace nonius {
 
         virtual void measurement_start(execution_plan<fp_seconds> /*measurement conditions*/) {}
         virtual void measurement_complete(std::vector<fp_seconds> const& /*samples*/) {}
+
+        virtual void analysis_start() {} // TODO make generic?
+        virtual void analysis_complete(sample_analysis<fp_seconds> const& /*analysis*/) {}
 
         virtual void benchmark_complete() {}
         virtual void suite_complete() {}
