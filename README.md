@@ -48,12 +48,12 @@ After the measurements are performed, a statistical bootstrapping is performed
 on the data. The number of resamples is configurable but defaults to 100000.
 After the bootstrapping is done, the mean and standard deviation estimates are
 printed out, along with their confidence interval, followed by classification of
-the outliers. The very last information is tells us if the outliers are
-important: if they affect the variance greatly, our measurements might not be
-very significative. It could be that there is another factor affecting our
-measurements (say, some other application that was doing some heavy task at the
-same time), or maybe the code being measure varies wildly in performance. Nonius
-will provide the data; it's up to you to make sense of it.
+the outliers. The very last information tells us if the outliers are important:
+if they affect the variance greatly, our measurements might not be very
+trustworthy. It could be that there is another factor affecting our measurements
+(say, some other application that was doing some heavy task at the same time),
+or maybe the code being measure varies wildly in performance. Nonius will
+provide the data; it's up to you to make sense of it.
 
  [bootstrapping]: http://en.wikipedia.org/wiki/Bootstrapping_%28statistics%29
 
