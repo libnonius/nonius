@@ -34,6 +34,7 @@ def object_file(fn):
 parser = argparse.ArgumentParser()
 parser.add_argument('--cxx', default='g++', metavar='executable', help='compiler name to use (default: g++)')
 parser.add_argument('--boost-dir', default=None, metavar='path', help='path of boost include files')
+parser.add_argument('--no-lto', action='store_true', help='do not perform link-time optimisation')
 args = parser.parse_args()
 
 # --- variables
@@ -43,7 +44,7 @@ include_flags = flags([include('include')], map(dependency_include, dependencies
 if(args.boost_dir):
     include_flags += ' ' + include(args.boost_dir)
 cxx_flags = flags(['-Wall', '-Wextra', '-Werror', '-std=c++11', '-O3'])
-ld_flags = flags(['-flto'])
+ld_flags = '' if args.no_lto else flags(['-flto'])
 
 # --- preamble
 
