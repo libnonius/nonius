@@ -27,7 +27,7 @@ def get_files(root, pattern):
                 yield os.path.join(dir, f)
 
 def object_file(fn):
-    return os.path.join('obj', re.sub(r'\.c\+\+', '.o', fn))
+    return os.path.join('obj', re.sub(r'\.c\+\+$', '.o', fn))
 
 # --- arguments
 
@@ -113,6 +113,24 @@ ninja.build(tar, 'dist',
 
 ninja.build('dist', 'phony',
         inputs = tar)
+
+# --- examples
+
+example_files = list(get_files('examples', '*.c++'))
+examples = []
+for fn in example_files:
+    ninja.build(object_file(fn), 'cxx',
+            inputs = fn)
+    name = re.sub(r'\.c\+\+$', '', os.path.basename(fn))
+    example = os.path.join('bin', 'examples', name)
+    ninja.build(example, 'link',
+            inputs = [object_file(fn), libnonius])
+    ninja.build(name, 'phony',
+            inputs = example)
+    examples += [name]
+
+ninja.build('examples', 'phony',
+            inputs = examples)
 
 # --- default targets
 
