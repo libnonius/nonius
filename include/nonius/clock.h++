@@ -14,19 +14,18 @@
 #ifndef NONIUS_CLOCK_HPP
 #define NONIUS_CLOCK_HPP
 
-#include <chrono>
-#include <ratio>
+#include <boost/chrono.hpp>
 
 namespace nonius {
     template <typename Clock>
     using Duration = typename Clock::duration;
     template <typename Clock>
-    using FloatDuration = std::chrono::duration<double, typename Clock::period>;
+    using FloatDuration = boost::chrono::duration<double, typename Clock::period>;
 
     template <typename Clock>
     using TimePoint = typename Clock::time_point;
 
-    using default_clock = std::chrono::high_resolution_clock;
+    using default_clock = boost::chrono::high_resolution_clock;
 
     template <typename Clock>
     struct now {
@@ -35,7 +34,7 @@ namespace nonius {
         }
     };
 
-    using fp_seconds = std::chrono::duration<double, std::ratio<1>>;
+    using fp_seconds = boost::chrono::duration<double, boost::ratio<1>>;
 } // namespace nonius
 
 #endif // NONIUS_CLOCK_HPP

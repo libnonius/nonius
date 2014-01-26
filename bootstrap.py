@@ -16,6 +16,12 @@ def flags(*iterables):
 def include(d):
     return '-I' + d;
 
+def define(d):
+    return '-D' + d;
+
+def library(l):
+    return '-l' + l;
+
 def dependency_include(d):
     return '-isystem' + os.path.join('deps', d, 'include');
 
@@ -43,7 +49,9 @@ dependencies = ['catch', 'wheels']
 include_flags = flags([include('include')], map(dependency_include, dependencies))
 if(args.boost_dir):
     include_flags += ' ' + include(args.boost_dir)
+define_flags = flags([define('BOOST_CHRONO_HEADER_ONLY')])
 cxx_flags = flags(['-Wall', '-Wextra', '-Werror', '-std=c++11', '-O3'])
+lib_flags = flags([library('boost_system')])
 ld_flags = '' if args.no_lto else flags(['-flto'])
 
 # --- preamble
@@ -61,13 +69,13 @@ ninja.rule('bootstrap',
         description = 'BOOTSTRAP')
 
 ninja.rule('cxx',
-        command = args.cxx + ' -MMD -MF $out.d -c ' + cxx_flags + ' ' + include_flags + ' $in -o $out',
+        command = args.cxx + ' -MMD -MF $out.d -c ' + cxx_flags + ' ' + include_flags + ' ' + define_flags + ' $in -o $out',
         deps = 'gcc',
         depfile = '$out.d',
         description = 'C++ $in')
 
 ninja.rule('link',
-        command = args.cxx + ' ' + cxx_flags + ' ' + ld_flags + ' $in -o $out',
+        command = args.cxx + ' ' + cxx_flags + ' ' + ld_flags + ' $in -o $out' + ' ' + lib_flags,
         description = 'LINK $in')
 
 ninja.rule('lib',

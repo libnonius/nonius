@@ -20,7 +20,8 @@
 #include <nonius/execution_plan.h++>
 #include <nonius/environment.h++>
 
-#include <chrono>
+#include <boost/chrono.hpp>
+
 #include <ratio>
 #include <ios>
 #include <iostream>
@@ -82,9 +83,9 @@ namespace nonius {
 
     private:
         static std::string pretty_duration(fp_seconds secs) {
-            using fp_millis = std::chrono::duration<double, std::milli>;
-            using fp_micros = std::chrono::duration<double, std::micro>;
-            using fp_nanos = std::chrono::duration<double, std::nano>;
+            using fp_millis = boost::chrono::duration<double, boost::milli>;
+            using fp_micros = boost::chrono::duration<double, boost::micro>;
+            using fp_nanos = boost::chrono::duration<double, boost::nano>;
 
             std::ostringstream os;
             os << std::setprecision(std::cout.precision());

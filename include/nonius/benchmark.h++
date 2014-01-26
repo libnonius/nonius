@@ -23,15 +23,16 @@
 #include <nonius/detail/repeat.h++>
 #include <nonius/detail/run_for_at_least.h++>
 
+#include <boost/chrono.hpp>
+
 #include <algorithm>
-#include <chrono>
 #include <functional>
 #include <string>
 
 namespace nonius {
     namespace detail {
         constexpr auto warmup_iterations = 10000;
-        constexpr auto warmup_time = std::chrono::milliseconds(100);
+        constexpr auto warmup_time = boost::chrono::milliseconds(100);
         constexpr auto minimum_ticks = 1000;
     } // namespace detail
 
@@ -47,7 +48,7 @@ namespace nonius {
         execution_plan<FloatDuration<Clock>> prepare(configuration cfg, environment<FloatDuration<Clock>> env) const {
             auto min_time = env.clock_resolution.mean * detail::minimum_ticks;
             auto run_time = std::min(min_time, decltype(min_time)(detail::warmup_time));
-            auto&& test = detail::run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(run_time), 1, *this);
+            auto&& test = detail::run_for_at_least<Clock>(boost::chrono::duration_cast<Duration<Clock>>(run_time), 1, *this);
             int new_iters = std::ceil(min_time * test.iterations / test.elapsed);
             return { new_iters, test.elapsed / test.iterations * new_iters * cfg.samples };
         }
@@ -55,7 +56,7 @@ namespace nonius {
         template <typename Clock>
         std::vector<FloatDuration<Clock>> run(configuration cfg, environment<FloatDuration<Clock>> env, execution_plan<FloatDuration<Clock>> plan) const {
             // warmup a bit
-            detail::run_for_at_least<Clock>(std::chrono::duration_cast<Duration<Clock>>(detail::warmup_time), detail::warmup_iterations, detail::repeat(now<Clock>{}));
+            detail::run_for_at_least<Clock>(boost::chrono::duration_cast<Duration<Clock>>(detail::warmup_time), detail::warmup_iterations, detail::repeat(now<Clock>{}));
 
             std::vector<FloatDuration<Clock>> times;
             times.reserve(cfg.samples);
