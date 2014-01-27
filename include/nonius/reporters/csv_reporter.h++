@@ -21,15 +21,12 @@
 #include <nonius/environment.h++>
 
 #include <boost/chrono.hpp>
-#include <boost/variant.hpp>
 
-#include <ratio>
 #include <ios>
-#include <iostream>
 #include <iomanip>
-#include <fstream>
-
+#include <algorithm>
 #include <string>
+#include <iterator>
 #include <limits>
 #include <unordered_map>
 #include <vector>
@@ -55,7 +52,7 @@ namespace nonius {
             bool first = true;
             for(auto&& kv : data) {
                 if(!first) stream() << ", ";
-                stream() << "\"" << kv.first << "\""; // TODO escape
+                stream() << "\"" << escape(kv.first) << "\""; // TODO escape
                 first = false;
             }
             stream() << "\n";
@@ -71,6 +68,30 @@ namespace nonius {
         }
 
     private:
+        static std::string escape(std::string const& source) {
+            auto first = source.begin();
+            auto last = source.end();
+
+            int quotes = std::count(first, last, '"');
+            if(quotes == 0) return source;
+
+            std::string escaped;
+            escaped.reserve(source.size() + quotes);
+
+            while(first != last) {
+                auto next_quote = std::find(first, last, '"');
+                std::copy(first, next_quote, std::back_inserter(escaped));
+                first = next_quote;
+                if(first != last) {
+                    ++first;
+                    escaped.push_back('"');
+                    escaped.push_back('"');
+                }
+            }
+
+            return escaped;
+        }
+
         int n_samples;
         std::string current;
         std::unordered_map<std::string, std::vector<fp_seconds>> data;
