@@ -23,7 +23,7 @@ def library(l):
     return '-l' + l;
 
 def dependency_include(d):
-    return '-isystem' + os.path.join('deps', d, 'include');
+    return '-isystem ' + os.path.join('deps', d, 'include');
 
 def get_files(root, pattern):
     pattern = fnmatch.translate(pattern)
@@ -48,7 +48,7 @@ args = parser.parse_args()
 dependencies = ['catch', 'wheels']
 include_flags = flags([include('include')], map(dependency_include, dependencies))
 if(args.boost_dir):
-    include_flags += ' ' + include(args.boost_dir)
+    include_flags += ' ' + dependency_include(args.boost_dir)
 define_flags = flags([define('BOOST_CHRONO_HEADER_ONLY')])
 cxx_flags = flags(['-Wall', '-Wextra', '-Werror', '-std=c++11', '-O3'])
 lib_flags = flags([library('boost_system')])

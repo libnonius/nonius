@@ -14,12 +14,15 @@
 #ifndef NONIUS_CONFIGURATION_HPP
 #define NONIUS_CONFIGURATION_HPP
 
+#include <string>
+
 namespace nonius {
     struct configuration {
     public:
         int samples = 100;
         double confidence_interval = 0.95;
         int resamples = 100000;
+        std::string output_file;
     };
 } // namespace nonius
 

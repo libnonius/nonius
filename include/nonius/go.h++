@@ -19,7 +19,7 @@
 #include <nonius/configuration.h++>
 #include <nonius/environment.h++>
 #include <nonius/reporter.h++>
-#include <nonius/stdout_reporter.h++>
+#include <nonius/reporters/standard_reporter.h++>
 #include <nonius/detail/estimate_clock.h++>
 #include <nonius/detail/analyse.h++>
 
@@ -70,7 +70,7 @@ namespace nonius {
     }
     template <typename Clock = default_clock, typename Iterator>
     void go(configuration cfg, Iterator first, Iterator last) {
-        go(cfg, first, last, stdout_reporter{});
+        go(cfg, first, last, standard_reporter{});
     }
 } // namespace nonius
 
