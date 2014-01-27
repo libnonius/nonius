@@ -23,7 +23,6 @@ namespace nonius {
         double confidence_interval = 0.95;
         int resamples = 100000;
         std::string output_file;
-        bool quiet = false;
     };
 } // namespace nonius
 
