@@ -17,7 +17,6 @@
 #include <nonius/clock.h++>
 #include <nonius/benchmark.h++>
 #include <nonius/configuration.h++>
-#include <nonius/reporters/standard_reporter.h++>
 #include <nonius/go.h++>
 
 #endif // NONIUS_HPP

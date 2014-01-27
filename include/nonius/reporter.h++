@@ -20,32 +20,105 @@
 #include <nonius/execution_plan.h++>
 #include <nonius/sample_analysis.h++>
 
+#include <boost/variant.hpp>
+
 #include <vector>
 #include <string>
+#include <ostream>
+#include <fstream>
+#include <iostream>
+#include <memory>
 
 namespace nonius {
     struct reporter {
-        virtual void configure(configuration /*cfg*/) {}
-
-        virtual void estimate_clock_resolution_start() {}
-        virtual void estimate_clock_resolution_complete(environment_estimate<fp_seconds> /*estimate*/) {}
-
-        virtual void estimate_clock_cost_start() {}
-        virtual void estimate_clock_cost_complete(environment_estimate<fp_seconds> /*estimate*/) {}
-
-        virtual void suite_start() {}
-        virtual void benchmark_start(std::string const& /*name*/) {}
-
-        virtual void measurement_start(execution_plan<fp_seconds> /*measurement conditions*/) {}
-        virtual void measurement_complete(std::vector<fp_seconds> const& /*samples*/) {}
-
-        virtual void analysis_start() {} // TODO make generic?
-        virtual void analysis_complete(sample_analysis<fp_seconds> const& /*analysis*/) {}
-
-        virtual void benchmark_complete() {}
-        virtual void suite_complete() {}
-
+    public:
         virtual ~reporter() = default;
+
+        void configure(configuration cfg) {
+            if(cfg.output_file.empty()) {
+                os = &std::cout;
+            } else {
+                os = std::unique_ptr<std::ostream>(new std::ofstream(cfg.output_file));
+            }
+            do_configure(cfg);
+        }
+
+        void estimate_clock_resolution_start() {
+            do_estimate_clock_resolution_start();
+        }
+        void estimate_clock_resolution_complete(environment_estimate<fp_seconds> estimate) {
+            do_estimate_clock_resolution_complete(estimate);
+        }
+
+        void estimate_clock_cost_start() {
+            do_estimate_clock_cost_start();
+        }
+        void estimate_clock_cost_complete(environment_estimate<fp_seconds> estimate) {
+            do_estimate_clock_cost_complete(estimate);
+        }
+
+        void suite_start() {
+            do_suite_start();
+        }
+        void benchmark_start(std::string const& name) {
+            do_benchmark_start(name);
+        }
+
+        void measurement_start(execution_plan<fp_seconds> plan) {
+            do_measurement_start(plan);
+        }
+        void measurement_complete(std::vector<fp_seconds> const& samples) {
+            do_measurement_complete(samples);
+        }
+
+        void analysis_start() {
+            do_analysis_start();
+        }
+        void analysis_complete(sample_analysis<fp_seconds> const& analysis) {
+            do_analysis_complete(analysis);
+        }
+
+        void benchmark_complete() {
+            do_benchmark_complete();
+        }
+        void suite_complete() {
+            do_suite_complete();
+        }
+
+    private:
+        virtual void do_configure(configuration /*cfg*/) {}
+
+        virtual void do_estimate_clock_resolution_start() {}
+        virtual void do_estimate_clock_resolution_complete(environment_estimate<fp_seconds> /*estimate*/) {}
+
+        virtual void do_estimate_clock_cost_start() {}
+        virtual void do_estimate_clock_cost_complete(environment_estimate<fp_seconds> /*estimate*/) {}
+
+        virtual void do_suite_start() {}
+        virtual void do_benchmark_start(std::string const& /*name*/) {}
+
+        virtual void do_measurement_start(execution_plan<fp_seconds> /*plan*/) {}
+        virtual void do_measurement_complete(std::vector<fp_seconds> const& /*samples*/) {}
+
+        virtual void do_analysis_start() {} // TODO make generic?
+        virtual void do_analysis_complete(sample_analysis<fp_seconds> const& /*analysis*/) {}
+
+        virtual void do_benchmark_complete() {}
+        virtual void do_suite_complete() {}
+
+    private:
+        struct stream_visitor : boost::static_visitor<std::ostream&> {
+            std::ostream& operator()(std::ostream* os) const { return *os; }
+            std::ostream& operator()(std::unique_ptr<std::ostream>& os) const { return *os; }
+        };
+
+    protected:
+        std::ostream& stream() {
+            return boost::apply_visitor(stream_visitor(), os);
+        }
+
+    private:
+        boost::variant<std::ostream*, std::unique_ptr<std::ostream>> os;
     };
 } // namespace nonius
 
