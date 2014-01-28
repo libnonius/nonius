@@ -14,18 +14,36 @@
 #ifndef NONIUS_CLOCK_HPP
 #define NONIUS_CLOCK_HPP
 
+#ifdef _MSC_VER // MSVC <chrono> is borken and had little to no testing done before shipping
 #include <boost/chrono.hpp>
+#else
+#include <chrono>
+#include <ratio>
+#endif
 
 namespace nonius {
+#ifdef _MSC_VER // MSVC <chrono> is borken and had little to no testing done before shipping
+    namespace chrono = boost::chrono;
+    template <unsigned Num, unsigned Den = 1>
+    using ratio = boost::ratio<Num, Den>;
+#else
+    namespace chrono = std::chrono;
+    template <unsigned Num, unsigned Den = 1>
+    using ratio = std::ratio<Num, Den>;
+#endif
+    using milli = ratio<1,       1000>;
+    using micro = ratio<1,    1000000>;
+    using nano  = ratio<1, 1000000000>;
+
     template <typename Clock>
     using Duration = typename Clock::duration;
     template <typename Clock>
-    using FloatDuration = boost::chrono::duration<double, typename Clock::period>;
+    using FloatDuration = chrono::duration<double, typename Clock::period>;
 
     template <typename Clock>
     using TimePoint = typename Clock::time_point;
 
-    using default_clock = boost::chrono::high_resolution_clock;
+    using default_clock = chrono::high_resolution_clock;
 
     template <typename Clock>
     struct now {
@@ -34,7 +52,7 @@ namespace nonius {
         }
     };
 
-    using fp_seconds = boost::chrono::duration<double, boost::ratio<1>>;
+    using fp_seconds = chrono::duration<double, ratio<1>>;
 } // namespace nonius
 
 #endif // NONIUS_CLOCK_HPP

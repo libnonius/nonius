@@ -20,8 +20,6 @@
 #include <nonius/execution_plan.h++>
 #include <nonius/environment.h++>
 
-#include <boost/chrono.hpp>
-
 #include <ios>
 #include <iomanip>
 #include <algorithm>

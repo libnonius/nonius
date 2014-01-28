@@ -83,9 +83,9 @@ namespace nonius {
         }
 
         static std::string pretty_duration(fp_seconds secs) {
-            using fp_millis = boost::chrono::duration<double, boost::milli>;
-            using fp_micros = boost::chrono::duration<double, boost::micro>;
-            using fp_nanos = boost::chrono::duration<double, boost::nano>;
+            using fp_millis = chrono::duration<double, milli>;
+            using fp_micros = chrono::duration<double, micro>;
+            using fp_nanos = chrono::duration<double, nano>;
 
             std::ostringstream ss;
             ss << std::setprecision(ss.precision());

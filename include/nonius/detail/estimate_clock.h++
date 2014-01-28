@@ -47,20 +47,20 @@ namespace nonius {
         }
 
         constexpr auto warmup_seed = 10000;
-        constexpr auto clock_resolution_estimation_time = boost::chrono::milliseconds(500);
-        constexpr auto clock_cost_estimation_time_limit = boost::chrono::seconds(1);
+        constexpr auto clock_resolution_estimation_time = chrono::milliseconds(500);
+        constexpr auto clock_cost_estimation_time_limit = chrono::seconds(1);
         constexpr auto clock_cost_estimation_tick_limit = 100000;
-        constexpr auto clock_cost_estimation_time = boost::chrono::milliseconds(10);
+        constexpr auto clock_cost_estimation_time = chrono::milliseconds(10);
         constexpr auto clock_cost_estimation_iterations = 10000;
 
         template <typename Clock>
         int warmup() {
-            return run_for_at_least<Clock>(boost::chrono::duration_cast<Duration<Clock>>(warmup_time), warmup_seed, &resolution<Clock>)
+            return run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(warmup_time), warmup_seed, &resolution<Clock>)
                     .iterations;
         }
         template <typename Clock>
         environment_estimate<FloatDuration<Clock>> estimate_clock_resolution(int iterations) {
-            auto r = run_for_at_least<Clock>(boost::chrono::duration_cast<Duration<Clock>>(clock_resolution_estimation_time), iterations, &resolution<Clock>)
+            auto r = run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(clock_resolution_estimation_time), iterations, &resolution<Clock>)
                     .result;
             return {
                 FloatDuration<Clock>(mean(r.begin(), r.end())),
@@ -80,7 +80,7 @@ namespace nonius {
             };
             time_clock(1);
             int iters = clock_cost_estimation_iterations;
-            auto&& r = run_for_at_least<Clock>(boost::chrono::duration_cast<Duration<Clock>>(clock_cost_estimation_time), iters, time_clock);
+            auto&& r = run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(clock_cost_estimation_time), iters, time_clock);
             std::vector<double> times;
             int nsamples = std::ceil(time_limit / r.elapsed);
             times.reserve(nsamples);
