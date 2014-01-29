@@ -94,6 +94,8 @@ namespace nonius {
         std::string current;
         std::unordered_map<std::string, std::vector<fp_seconds>> data;
     };
+
+    NONIUS_REPORTER("csv", csv_reporter);
 } // namespace nonius
 
 #endif // NONIUS_REPORTERS_CSV_REPORTER_HPP

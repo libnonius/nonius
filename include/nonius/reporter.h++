@@ -28,6 +28,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <unordered_map>
 
 namespace nonius {
     struct reporter {
@@ -120,7 +121,25 @@ namespace nonius {
     private:
         boost::variant<std::ostream*, std::unique_ptr<std::ostream>> os;
     };
+
+    std::unordered_map<std::string, std::unique_ptr<reporter>>& reporter_registry() {
+        static std::unordered_map<std::string, std::unique_ptr<reporter>> registry;
+        return registry;
+    }
+
+    struct reporter_registrar {
+        reporter_registrar(std::string name, reporter* registrant) {
+            reporter_registry().emplace(std::move(name), std::unique_ptr<reporter>(registrant));
+        }
+    };
 } // namespace nonius
+
+#define NONIUS_DETAIL_UNIQUE_NAME_LINE2(name, line) NONIUS_ ## name ## _ ## line
+#define NONIUS_DETAIL_UNIQUE_NAME_LINE(name, line) NONIUS_DETAIL_UNIQUE_NAME_LINE2(name, line)
+#define NONIUS_DETAIL_UNIQUE_NAME(name) NONIUS_DETAIL_UNIQUE_NAME_LINE(name, __LINE__)
+
+#define NONIUS_REPORTER(name, ...) \
+    static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (name, new __VA_ARGS__());
 
 #endif // NONIUS_REPORTER_HPP
 

@@ -139,6 +139,9 @@ namespace nonius {
         int n_samples = 0;
         int n_resamples = 0;
     };
+
+    NONIUS_REPORTER("", standard_reporter);
+    NONIUS_REPORTER("standard", standard_reporter);
 } // namespace nonius
 
 #endif // NONIUS_REPORTERS_STANDARD_REPORTER_HPP

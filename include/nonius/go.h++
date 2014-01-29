@@ -70,7 +70,7 @@ namespace nonius {
     }
     template <typename Clock = default_clock, typename Iterator>
     void go(configuration cfg, Iterator first, Iterator last) {
-        go(cfg, first, last, standard_reporter());
+        go(cfg, first, last, *reporter_registry()[cfg.reporter]);
     }
 } // namespace nonius
 

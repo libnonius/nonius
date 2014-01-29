@@ -19,5 +19,8 @@
 #include <nonius/configuration.h++>
 #include <nonius/go.h++>
 
+#include <nonius/reporters/standard_reporter.h++>
+#include <nonius/reporters/csv_reporter.h++>
+
 #endif // NONIUS_HPP
 

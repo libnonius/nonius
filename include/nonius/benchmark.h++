@@ -37,11 +37,12 @@ namespace nonius {
     } // namespace detail
 
     struct benchmark {
-        std::string name;
-        detail::benchmark_function function;
+        benchmark(std::string name, detail::benchmark_function fun)
+        : name(std::move(name)), fun(std::move(fun)) {}
+
 
         void operator()(int k) const {
-            detail::repeat(std::ref(function))(k);
+            detail::repeat(std::ref(fun))(k);
         }
 
         template <typename Clock>
@@ -66,8 +67,26 @@ namespace nonius {
             });
             return times;
         }
+
+        std::string name;
+        detail::benchmark_function fun;
+    };
+
+    inline std::vector<benchmark>& benchmark_registry() {
+        static std::vector<benchmark> registry;
+        return registry;
+    }
+
+    struct benchmark_registrar {
+        template <typename Fun>
+        benchmark_registrar(std::string name, Fun&& registrant) {
+            benchmark_registry().emplace_back(std::move(name), std::forward<Fun>(registrant));
+        }
     };
 } // namespace nonius
+
+#define NONIUS_BENCHMARK(name, ...) \
+    static ::nonius::benchmark_registrar NONIUS_DETAIL_UNIQUE_NAME(benchmark_registrar) (name, __VA_ARGS__);
 
 #endif // NONIUS_BENCHMARK_HPP
 
