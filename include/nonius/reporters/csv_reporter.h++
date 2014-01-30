@@ -49,7 +49,7 @@ namespace nonius {
             stream().precision(std::numeric_limits<double>::digits10);
             bool first = true;
             for(auto&& kv : data) {
-                if(!first) stream() << ", ";
+                if(!first) stream() << ",";
                 stream() << "\"" << escape(kv.first) << "\""; // TODO escape
                 first = false;
             }
@@ -57,7 +57,7 @@ namespace nonius {
             for(int i = 0; i < n_samples; ++i) {
                 first = true;
                 for(auto&& kv : data) {
-                    if(!first) stream() << ", ";
+                    if(!first) stream() << ",";
                     stream() << kv.second[i].count();
                     first = false;
                 }
