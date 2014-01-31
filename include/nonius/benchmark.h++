@@ -23,8 +23,6 @@
 #include <nonius/detail/repeat.h++>
 #include <nonius/detail/run_for_at_least.h++>
 
-#include <boost/chrono.hpp>
-
 #include <algorithm>
 #include <functional>
 #include <string>

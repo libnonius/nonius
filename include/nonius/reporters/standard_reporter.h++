@@ -19,8 +19,7 @@
 #include <nonius/sample_analysis.h++>
 #include <nonius/execution_plan.h++>
 #include <nonius/environment.h++>
-
-#include <boost/chrono.hpp>
+#include <nonius/clock.h++>
 
 #include <ratio>
 #include <ios>

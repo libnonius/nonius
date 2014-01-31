@@ -19,8 +19,7 @@
 #include <nonius/detail/stats.h++>
 #include <nonius/detail/run_for_at_least.h++>
 #include <nonius/detail/transform_if.h++>
-
-#include <boost/chrono.hpp>
+#include <nonius/clock.h++>
 
 #include <algorithm>
 #include <iterator>
