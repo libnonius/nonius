@@ -98,9 +98,14 @@ for fn in src_files:
     ninja.build(object_file(fn), 'cxx',
             inputs = fn)
 
-libnonius = os.path.join('bin', 'libnonius.a')
-ninja.build(libnonius, 'lib',
-        inputs = obj_files)
+built_libs = []
+if len(obj_files) > 0:
+    ninja.build('lib', 'phony',
+            inputs = libnonius)
+    libnonius = os.path.join('bin', 'libnonius.a')
+    ninja.build(libnonius, 'lib',
+            inputs = obj_files)
+    built_libs = [libnonius]
 
 test_src_files = list(get_files('test', '*.c++'))
 test_obj_files = [object_file(fn) for fn in test_src_files]
@@ -110,15 +115,13 @@ for fn in test_src_files:
 
 test_runner = os.path.join('bin', 'test')
 ninja.build(test_runner, 'link',
-        inputs = test_obj_files + [libnonius])
+        inputs = test_obj_files + built_libs)
 ninja.build('test', 'phony',
         inputs = test_runner)
-ninja.build('lib', 'phony',
-        inputs = libnonius)
 
 tar = os.path.join('dist', 'nonius.tar.bz2')
 ninja.build(tar, 'dist',
-        inputs = hdr_files + ([libnonius] if src_files else []))
+        inputs = hdr_files + (built_libs if src_files else []))
 
 ninja.build('dist', 'phony',
         inputs = tar)
@@ -133,7 +136,7 @@ for fn in example_files:
     name = re.sub(r'\.c\+\+$', '', os.path.basename(fn))
     example = os.path.join('bin', 'examples', name)
     ninja.build(example, 'link',
-            inputs = [object_file(fn), libnonius])
+            inputs = [object_file(fn)] + built_libs)
     ninja.build(name, 'phony',
             inputs = example)
     examples += [name]
@@ -141,7 +144,8 @@ for fn in example_files:
 ninja.build('examples', 'phony',
             inputs = examples)
 
-# --- default targets
-
-ninja.default('lib')
+if len(obj_files) == 0:
+    ninja.default('examples')
+else:
+    ninja.default('lib')
 
