@@ -49,9 +49,9 @@ dependencies = ['catch', 'wheels']
 include_flags = flags([include('include')], map(dependency_include, dependencies))
 if(args.boost_dir):
     include_flags += ' ' + dependency_include(args.boost_dir)
-define_flags = flags([define('BOOST_CHRONO_HEADER_ONLY')])
 cxx_flags = flags(['-Wall', '-Wextra', '-pedantic', '-Werror', '-std=c++11', '-g'])
-lib_flags = flags([library('boost_system')])
+define_flags = ''
+lib_flags = ''
 ld_flags = '' if args.no_lto else flags(['-flto'])
 
 # --- preamble
