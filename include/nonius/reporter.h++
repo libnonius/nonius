@@ -139,7 +139,7 @@ namespace nonius {
 #define NONIUS_DETAIL_UNIQUE_NAME(name) NONIUS_DETAIL_UNIQUE_NAME_LINE(name, __LINE__)
 
 #define NONIUS_REPORTER(name, ...) \
-    static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (name, new __VA_ARGS__());
+    static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (name, new __VA_ARGS__())
 
 #endif // NONIUS_REPORTER_HPP
 
