@@ -26,6 +26,8 @@
 #include <algorithm>
 #include <functional>
 #include <string>
+#include <vector>
+#include <cmath>
 
 namespace nonius {
     namespace detail {
