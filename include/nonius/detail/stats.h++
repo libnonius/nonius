@@ -18,9 +18,6 @@
 #include <nonius/estimate.h++>
 #include <nonius/outlier_classification.h++>
 
-#include <wheels/meta/invoke.h++>
-#include <wheels/expand.h++>
-
 #include <boost/math/distributions/normal.hpp>
 
 #include <algorithm>
@@ -91,12 +88,12 @@ namespace nonius {
             return std::sqrt(variance);
         }
 
-        template <typename... Estimators>
-        using resamples = std::array<sample, sizeof...(Estimators)>;
-
         template <typename URng, typename Iterator, typename Estimator>
-        void do_resample(int resamples, std::uniform_int_distribution<int>& dist, URng& rng, Iterator first, Iterator last, Estimator& estimator, sample& out) {
+        sample resample(URng& rng, int resamples, Iterator first, Iterator last, Estimator& estimator) {
             int n = last - first;
+            std::uniform_int_distribution<int> dist(0, n-1);
+
+            sample out;
             out.reserve(resamples);
             std::generate_n(std::back_inserter(out), resamples, [n, first, &estimator, &dist, &rng] {
                 std::vector<double> resampled;
@@ -105,35 +102,7 @@ namespace nonius {
                 return estimator(resampled.begin(), resampled.end());
             });
             std::sort(out.begin(), out.end());
-        }
-        template <int... I>
-        struct indices {
-            using type = indices<I...>;
-            using next = indices<I..., sizeof...(I)>;
-        };
-        template <int N>
-        struct make_seq {
-            using type = typename make_seq<N-1>::type::next;
-        };
-        template <>
-        struct make_seq<0> : indices<> {};
-        template <int N>
-        using MakeSeq = wheels::meta::Invoke<make_seq<N>>;
-
-        template <typename URng, typename Iterator, int... I, typename... Estimators>
-        void do_resample(indices<I...>, int n_resamples, std::uniform_int_distribution<int>& dist, URng& rng, Iterator first, Iterator last, resamples<Estimators...>& out, Estimators&&... estimators) {
-            WHEELS_EXPAND(do_resample(n_resamples, dist, rng, first, last, estimators, out[I]));
-        }
-        // TODO replace estimator with boost.accumulators
-        template <typename URng, typename Iterator, typename... Estimators>
-        resamples<Estimators...> resample(URng&& rng, int n_resamples, Iterator first, Iterator last, Estimators&&... estimators) {
-            int n = last - first;
-            std::uniform_int_distribution<int> index_dist(0, n-1);
-
-            resamples<Estimators...> results;
-            detail::do_resample(detail::MakeSeq<sizeof...(Estimators)>{}, n_resamples, index_dist, rng, first, last, results, estimators...);
-
-            return results;
+            return out;
         }
 
         template <typename Estimator, typename Iterator>
@@ -150,11 +119,9 @@ namespace nonius {
 
             return results;
         }
-        template <typename... Estimators>
-        using estimates = std::array<estimate<double>, sizeof...(Estimators)>;
 
         template <typename Iterator, typename Estimator>
-        estimate<double> do_bootstrap(double confidence_level, Iterator first, Iterator last, sample const& resample, Estimator&& estimator) {
+        estimate<double> bootstrap(double confidence_level, Iterator first, Iterator last, sample const& resample, Estimator&& estimator) {
             namespace bm = boost::math;
 
             int n_samples = last - first;
@@ -187,18 +154,6 @@ namespace nonius {
 
             if(n_samples == 1) return { point, point, point, confidence_level };
             else return { point, resample[lo], resample[hi], confidence_level };
-        }
-
-        template <typename Iterator, int... I, typename... Estimators>
-        void do_bootstrap(indices<I...>, double confidence_level, Iterator first, Iterator last, resamples<Estimators...> const& resample, estimates<Estimators...>& out, Estimators&&... estimators) {
-            WHEELS_EXPAND(out[I] = do_bootstrap(confidence_level, first, last, resample[I], estimators));
-        }
-
-        template <typename Iterator, typename... Estimators>
-        estimates<Estimators...> bootstrap(double confidence_level, Iterator first, Iterator last, resamples<Estimators...> const& resample, Estimators&&... estimators) {
-            estimates<Estimators...> results;
-            detail::do_bootstrap(detail::MakeSeq<sizeof...(Estimators)>{}, confidence_level, first, last, resample, results, estimators...);
-            return results;
         }
 
         double outlier_variance(estimate<double> mean, estimate<double> stddev, int n) {
@@ -242,11 +197,16 @@ namespace nonius {
             std::mt19937 rng(entropy());
             auto mean = &detail::mean<Iterator>;
             auto stddev = &detail::standard_deviation<Iterator>;
-            auto resamples = resample(rng, n_resamples, first, last, mean, stddev);
-            auto estimates = bootstrap(confidence_level, first, last, resamples, mean, stddev);
-            double outlier_variance = detail::outlier_variance(estimates[0], estimates[1], n);
 
-            return { estimates[0], estimates[1], outlier_variance };
+            auto mean_resample = resample(rng, n_resamples, first, last, mean);
+            auto stddev_resample = resample(rng, n_resamples, first, last, stddev);
+
+            auto mean_estimate = bootstrap(confidence_level, first, last, mean_resample, mean);
+            auto stddev_estimate = bootstrap(confidence_level, first, last, stddev_resample, stddev);
+
+            double outlier_variance = detail::outlier_variance(mean_estimate, stddev_estimate, n);
+
+            return { mean_estimate, stddev_estimate, outlier_variance };
         }
     } // namespace detail
 } // namespace nonius

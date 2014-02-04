@@ -38,21 +38,22 @@ def object_file(fn):
 # --- arguments
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--debug', action='store_true', help='compile with debug information')
 parser.add_argument('--cxx', default='g++', metavar='executable', help='compiler name to use (default: g++)')
-parser.add_argument('--boost-dir', default=None, metavar='path', help='path of boost include files')
+parser.add_argument('--boost-dir', default=None, metavar='path', help='path of boost folder (i.e. the folder with include/ and lib/ subfolders)')
 parser.add_argument('--no-lto', action='store_true', help='do not perform link-time optimisation')
 args = parser.parse_args()
 
 # --- variables
 
-dependencies = ['catch', 'wheels']
+dependencies = ['catch']
 include_flags = flags([include('include')], map(dependency_include, dependencies))
 if(args.boost_dir):
     include_flags += ' ' + dependency_include(args.boost_dir)
-cxx_flags = flags(['-Wall', '-Wextra', '-pedantic', '-Werror', '-std=c++11', '-g'])
+cxx_flags = flags(['-Wall', '-Wextra', '-pedantic', '-Werror', '-std=c++11', '-g' if args.debug else '-O3', ])
 define_flags = ''
 lib_flags = ''
-ld_flags = '' if args.no_lto else flags(['-flto'])
+ld_flags = '' if args.no_lto or args.debug else flags(['-flto'])
 
 # --- preamble
 

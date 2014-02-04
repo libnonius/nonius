@@ -45,12 +45,12 @@ namespace nonius {
             return deltas;
         }
 
-        constexpr auto warmup_seed = 10000;
-        constexpr auto clock_resolution_estimation_time = chrono::milliseconds(500);
-        constexpr auto clock_cost_estimation_time_limit = chrono::seconds(1);
-        constexpr auto clock_cost_estimation_tick_limit = 100000;
-        constexpr auto clock_cost_estimation_time = chrono::milliseconds(10);
-        constexpr auto clock_cost_estimation_iterations = 10000;
+        const auto warmup_seed = 10000;
+        const auto clock_resolution_estimation_time = chrono::milliseconds(500);
+        const auto clock_cost_estimation_time_limit = chrono::seconds(1);
+        const auto clock_cost_estimation_tick_limit = 100000;
+        const auto clock_cost_estimation_time = chrono::milliseconds(10);
+        const auto clock_cost_estimation_iterations = 10000;
 
         template <typename Clock>
         int warmup() {
@@ -81,7 +81,7 @@ namespace nonius {
             int iters = clock_cost_estimation_iterations;
             auto&& r = run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(clock_cost_estimation_time), iters, time_clock);
             std::vector<double> times;
-            int nsamples = std::ceil(time_limit / r.elapsed);
+            int nsamples = static_cast<int>(std::ceil(time_limit / r.elapsed));
             times.reserve(nsamples);
             std::generate_n(std::back_inserter(times), nsamples, [time_clock, &r]{
                         return (time_clock(r.iterations) / r.iterations).count();

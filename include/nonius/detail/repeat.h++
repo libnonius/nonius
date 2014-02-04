@@ -14,8 +14,7 @@
 #ifndef NONIUS_DETAIL_REPEAT_HPP
 #define NONIUS_DETAIL_REPEAT_HPP
 
-#include <wheels/meta/decay.h++>
-
+#include <type_traits>
 #include <utility>
 
 namespace nonius {
@@ -30,7 +29,7 @@ namespace nonius {
             Fun fun;
         };
         template <typename Fun>
-        repeater<wheels::meta::Decay<Fun>> repeat(Fun&& fun) {
+        repeater<typename std::decay<Fun>::type> repeat(Fun&& fun) {
             return { std::forward<Fun>(fun) };
         }
     } // namespace detail

@@ -14,15 +14,18 @@
 #ifndef NONIUS_DETAIL_BENCHMARK_FUNCTION_HPP
 #define NONIUS_DETAIL_BENCHMARK_FUNCTION_HPP
 
-#include <wheels/meta/decay.h++>
-#include <wheels/meta/enable_if.h++>
-#include <wheels/meta/is_related.h++>
-
+#include <type_traits>
 #include <utility>
 #include <memory>
 
 namespace nonius {
     namespace detail {
+        template <typename T>
+        using Decay = typename std::decay<T>::type;
+        template <typename T, typename U>
+        struct is_related
+        : std::is_same<Decay<T>, Decay<U>> {};
+
         struct benchmark_function {
         private:
             struct concept {
@@ -40,9 +43,12 @@ namespace nonius {
             };
         public:
             template <typename Fun,
-                      wheels::meta::DisableIf<wheels::meta::is_related<Fun, benchmark_function>>...>
+                      typename std::enable_if<!is_related<Fun, benchmark_function>::value, int>::type = 0>
             benchmark_function(Fun&& fun)
-            : f(new model<wheels::meta::Decay<Fun>>(std::forward<Fun>(fun))) {}
+            : f(new model<typename std::decay<Fun>::type>(std::forward<Fun>(fun))) {}
+
+            benchmark_function(benchmark_function&& that)
+            : f(std::move(that.f)) {}
 
             void operator()() const { f->call(); }
         private:

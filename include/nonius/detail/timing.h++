@@ -17,9 +17,6 @@
 #include <nonius/clock.h++>
 #include <nonius/detail/complete_invoke.h++>
 
-#include <wheels/fun/result_of.h++>
-#include <wheels/fun/invoke.h++>
-
 #include <tuple>
 #include <type_traits>
 
@@ -31,7 +28,7 @@ namespace nonius {
         int iterations;
     };
     template <typename Clock, typename Sig>
-    using TimingOf = timing<Duration<Clock>, detail::CompleteResultOf<Sig>>;
+    using TimingOf = timing<Duration<Clock>, detail::CompleteType<detail::ResultOf<Sig>>>;
 } // namespace nonius
 
 #endif // NONIUS_DETAIL_TIMING_HPP

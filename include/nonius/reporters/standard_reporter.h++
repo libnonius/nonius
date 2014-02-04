@@ -93,7 +93,11 @@ namespace nonius {
             } else if(secs.count() >= .002) {
                 ss << fp_millis(secs).count() << " ms";
             } else if(secs.count() >= .000002) {
+#ifdef _MSC_VER
+                ss << fp_micros(secs).count() << " us";
+#else
                 ss << fp_micros(secs).count() << u8" μs";
+#endif
             } else {
                 ss << fp_nanos(secs).count() << " ns";
             }

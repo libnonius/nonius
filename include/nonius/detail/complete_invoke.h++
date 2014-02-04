@@ -14,9 +14,7 @@
 #ifndef NONIUS_DETAIL_COMPLETE_INVOKE_HPP
 #define NONIUS_DETAIL_COMPLETE_INVOKE_HPP
 
-#include <wheels/fun/result_of.h++>
-#include <wheels/fun/invoke.h++>
-
+#include <type_traits>
 #include <utility>
 
 namespace nonius {
@@ -31,26 +29,26 @@ namespace nonius {
 
         template <typename Result>
         struct complete_invoker {
-            template <typename... Args>
-            static Result invoke(Args&&... args) {
-                return wheels::fun::invoke(std::forward<Args>(args)...);
+            template <typename Fun, typename... Args>
+            static Result invoke(Fun&& fun, Args&&... args) {
+                return std::forward<Fun>(fun)(std::forward<Args>(args)...);
             }
         };
         template <>
         struct complete_invoker<void> {
-            template <typename... Args>
-            static CompleteType<void> invoke(Args&&... args) {
-                wheels::fun::invoke(std::forward<Args>(args)...);
+            template <typename Fun, typename... Args>
+            static CompleteType<void> invoke(Fun&& fun, Args&&... args) {
+                std::forward<Fun>(fun)(std::forward<Args>(args)...);
                 return {};
             }
         };
         template <typename Sig>
-        using CompleteResultOf = detail::CompleteType<wheels::fun::ResultOf<Sig>>;
+        using ResultOf = typename std::result_of<Sig>::type;
 
         // invoke and not return void :(
         template <typename Fun, typename... Args>
-        CompleteResultOf<Fun(Args...)> complete_invoke(Fun&& fun, Args&&... args) {
-            return complete_invoker<wheels::fun::ResultOf<Fun(Args...)>>::invoke(std::forward<Fun>(fun), std::forward<Args>(args)...);
+        CompleteType<ResultOf<Fun(Args...)>> complete_invoke(Fun&& fun, Args&&... args) {
+            return complete_invoker<ResultOf<Fun(Args...)>>::invoke(std::forward<Fun>(fun), std::forward<Args>(args)...);
         }
     } // namespace detail
 } // namespace nonius

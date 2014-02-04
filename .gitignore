@@ -4,3 +4,8 @@ build.ninja
 __pycache__
 *.swp
 *.pyc
+*.suo
+*.filters
+*.user
+*.sdf
+*.opensdf
