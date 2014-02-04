@@ -73,6 +73,7 @@ namespace nonius {
             detail::option("confidence-interval", "ci", "confidence interval for the bootstrap (between 0 and 1, default: 0.95)", "INTERVAL"),
             detail::option("output", "o", "output file (default: <stdout>)", "FILE"),
             detail::option("reporter", "r", "reporter to use (default: standard)", "REPORTER"),
+            detail::option("no-analysis", "A", "perform only measurements; do not perform any analysis"),
             detail::option("list", "l", "list benchmarks"),
             detail::option("list-reporters", "lr", "list available reporters"),
             detail::option("quiet", "q", "suppress text output"),
@@ -90,13 +91,14 @@ namespace nonius {
                 auto is_reporter = [](std::string const x) { return reporter_registry().count(x) > 0; };
 
                 parse(cfg.help, args, "help");
-                parse(cfg.list_benchmarks, args, "list");
-                parse(cfg.list_reporters, args, "list-reporters");
                 parse(cfg.samples, args, "samples", is_positive);
                 parse(cfg.resamples, args, "resamples", is_positive);
                 parse(cfg.confidence_interval, args, "confidence-interval", is_ci);
                 parse(cfg.output_file, args, "output");
                 parse(cfg.reporter, args, "reporter", is_reporter);
+                parse(cfg.no_analysis, args, "no-analysis");
+                parse(cfg.list_benchmarks, args, "list");
+                parse(cfg.list_reporters, args, "list-reporters");
                 parse(cfg.quiet, args, "quiet");
 
                 return cfg;

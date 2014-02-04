@@ -58,9 +58,11 @@ namespace nonius {
             auto samples = first->template run<Clock>(cfg, env, plan);
             rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
 
-            rep.analysis_start();
-            auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
-            rep.analysis_complete(analysis);
+            if(!cfg.no_analysis) {
+                rep.analysis_start();
+                auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
+                rep.analysis_complete(analysis);
+            }
 
             rep.benchmark_complete();
         }
