@@ -111,10 +111,9 @@ namespace nonius {
             return ss.str();
         }
         static std::string percentage(double d) {
-            d = 0.000000195;
             std::ostringstream ss;
             ss << std::setprecision(3);
-            if(d < 5e-4) {
+            if(d != 0 && d < 5e-4) {
                 ss << std::fixed;
                 ss << 0.0001 << "%";
             } else {
