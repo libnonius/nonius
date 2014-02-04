@@ -3,7 +3,9 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>..\..\deps\wheels\include\;..\..\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\include\;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)..\bin\msvc\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\obj\msvc\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />

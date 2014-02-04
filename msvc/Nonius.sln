@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnonius", "libnonius\libnonius.vcxproj", "{57AFC47E-B3B1-4271-A5A0-E75CFA671395}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example1", "example1\example1.vcxproj", "{EF7FA3DA-2003-4660-95F7-3A06369B92CA}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example2", "example2\example2.vcxproj", "{DAB33ED6-2AC9-488D-9567-D49380C56073}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example3", "example3\example3.vcxproj", "{DA05DA6D-B10E-404D-A0B0-D2CA0092DB06}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{BEB7EAB1-C8BA-4CC8-974B-1E590271DDC6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnonius", "libnonius.vcxproj", "{57AFC47E-B3B1-4271-A5A0-E75CFA671395}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example1", "example1.vcxproj", "{EF7FA3DA-2003-4660-95F7-3A06369B92CA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example2", "example2.vcxproj", "{DAB33ED6-2AC9-488D-9567-D49380C56073}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example3", "example3.vcxproj", "{DA05DA6D-B10E-404D-A0B0-D2CA0092DB06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,8 +40,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{DAB33ED6-2AC9-488D-9567-D49380C56073} = {BEB7EAB1-C8BA-4CC8-974B-1E590271DDC6}
 		{EF7FA3DA-2003-4660-95F7-3A06369B92CA} = {BEB7EAB1-C8BA-4CC8-974B-1E590271DDC6}
+		{DAB33ED6-2AC9-488D-9567-D49380C56073} = {BEB7EAB1-C8BA-4CC8-974B-1E590271DDC6}
 		{DA05DA6D-B10E-404D-A0B0-D2CA0092DB06} = {BEB7EAB1-C8BA-4CC8-974B-1E590271DDC6}
 	EndGlobalSection
 EndGlobal

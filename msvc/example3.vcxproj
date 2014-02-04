@@ -10,40 +10,13 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\include\nonius\benchmark.h++" />
-    <None Include="..\..\include\nonius\clock.h++" />
-    <None Include="..\..\include\nonius\configuration.h++" />
-    <None Include="..\..\include\nonius\detail\analyse.h++" />
-    <None Include="..\..\include\nonius\detail\argparse.h++" />
-    <None Include="..\..\include\nonius\detail\benchmark_function.h++" />
-    <None Include="..\..\include\nonius\detail\complete_invoke.h++" />
-    <None Include="..\..\include\nonius\detail\estimate_clock.h++" />
-    <None Include="..\..\include\nonius\detail\measure.h++" />
-    <None Include="..\..\include\nonius\detail\repeat.h++" />
-    <None Include="..\..\include\nonius\detail\run_for_at_least.h++" />
-    <None Include="..\..\include\nonius\detail\stats.h++" />
-    <None Include="..\..\include\nonius\detail\timing.h++" />
-    <None Include="..\..\include\nonius\detail\transform_if.h++" />
-    <None Include="..\..\include\nonius\environment.h++" />
-    <None Include="..\..\include\nonius\estimate.h++" />
-    <None Include="..\..\include\nonius\execution_plan.h++" />
-    <None Include="..\..\include\nonius\go.h++" />
-    <None Include="..\..\include\nonius\main.h++" />
-    <None Include="..\..\include\nonius\nonius.h++" />
-    <None Include="..\..\include\nonius\outlier_classification.h++" />
-    <None Include="..\..\include\nonius\reporter.h++" />
-    <None Include="..\..\include\nonius\reporters\csv_reporter.h++" />
-    <None Include="..\..\include\nonius\reporters\standard_reporter.h++" />
-    <None Include="..\..\include\nonius\sample_analysis.h++" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{57AFC47E-B3B1-4271-A5A0-E75CFA671395}</ProjectGuid>
-    <RootNamespace>libnonius</RootNamespace>
+    <ProjectGuid>{DA05DA6D-B10E-404D-A0B0-D2CA0092DB06}</ProjectGuid>
+    <RootNamespace>example3</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -60,20 +33,19 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)\common.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)\common.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\bin\msvc\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\obj\msvc\$(Configuration)\$(ProjectName)\</IntDir>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -93,6 +65,11 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(SolutionDir)\..\examples\example3.c++">
+      <FileType>Document</FileType>
+    </ClCompile>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

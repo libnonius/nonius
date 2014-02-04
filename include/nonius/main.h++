@@ -102,7 +102,7 @@ namespace nonius {
                 return cfg;
             } catch(...) {
                 std::cout << help_text(name, command_line_options);
-                std::throw_with_nested(argument_error());
+                throw argument_error();
             }
         }
     } // namespace detail
