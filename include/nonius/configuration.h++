@@ -25,6 +25,7 @@ namespace nonius {
         std::string output_file;
         std::string reporter;
         bool quiet = false;
+        bool help = false;
     };
 } // namespace nonius
 
