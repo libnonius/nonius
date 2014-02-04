@@ -35,7 +35,7 @@ namespace nonius {
     public:
         virtual ~reporter() = default;
 
-        void configure(configuration cfg) {
+        void configure(configuration& cfg) {
             if(cfg.output_file.empty()) {
                 os = &std::cout;
             } else {
@@ -95,7 +95,7 @@ namespace nonius {
         virtual std::string description() = 0;
 
     private:
-        virtual void do_configure(configuration /*cfg*/) {}
+        virtual void do_configure(configuration& /*cfg*/) {}
 
         virtual void do_warmup_start() {}
         virtual void do_warmup_end(int /*iterations*/) {}

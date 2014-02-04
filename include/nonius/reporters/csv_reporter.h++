@@ -36,7 +36,8 @@ namespace nonius {
             return "outputs samples to a CSV file";
         }
 
-        void do_configure(configuration cfg) override {
+        void do_configure(configuration& cfg) override {
+            cfg.no_analysis = true;
             n_samples = cfg.samples;
         }
 

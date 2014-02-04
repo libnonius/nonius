@@ -36,7 +36,7 @@ namespace nonius {
             return "the standard reporter";
         }
 
-        void do_configure(configuration cfg) override {
+        void do_configure(configuration& cfg) override {
             n_samples = cfg.samples;
             n_resamples = cfg.resamples;
         }
