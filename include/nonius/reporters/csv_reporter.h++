@@ -32,6 +32,10 @@
 namespace nonius {
     struct csv_reporter : reporter {
     private:
+        std::string description() override {
+            return "outputs samples to a CSV file";
+        }
+
         void do_configure(configuration cfg) override {
             n_samples = cfg.samples;
         }

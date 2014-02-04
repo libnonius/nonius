@@ -21,6 +21,8 @@
 #include <string>
 #include <stdexcept>
 #include <exception>
+#include <iostream>
+#include <iomanip>
 #include <utility>
 
 namespace nonius {
@@ -65,13 +67,15 @@ namespace nonius {
         };
 
         detail::option_set command_line_options {
-            detail::option("help", "h", "show this help message", ""),
+            detail::option("help", "h", "show this help message"),
             detail::option("samples", "s", "number of samples to collect (default: 100)", "SAMPLES"),
             detail::option("resamples", "rs", "number of resamples for the bootstrap (default: 100000)", "RESAMPLES"),
             detail::option("confidence-interval", "ci", "confidence interval for the bootstrap (between 0 and 1, default: 0.95)", "INTERVAL"),
             detail::option("output", "o", "output file (default: <stdout>)", "FILE"),
             detail::option("reporter", "r", "reporter to use (default: standard)", "REPORTER"),
-            detail::option("quiet", "q", "suppress text output", ""),
+            detail::option("list", "l", "list benchmarks"),
+            detail::option("list-reporters", "lr", "list available reporters"),
+            detail::option("quiet", "q", "suppress text output"),
         };
 
         template <typename Iterator>
@@ -86,6 +90,8 @@ namespace nonius {
                 auto is_reporter = [](std::string const x) { return reporter_registry().count(x) > 0; };
 
                 parse(cfg.help, args, "help");
+                parse(cfg.list_benchmarks, args, "list");
+                parse(cfg.list_reporters, args, "list-reporters");
                 parse(cfg.samples, args, "samples", is_positive);
                 parse(cfg.resamples, args, "resamples", is_positive);
                 parse(cfg.confidence_interval, args, "confidence-interval", is_ci);
@@ -113,6 +119,27 @@ namespace nonius {
 
         if(cfg.help) {
             std::cout << detail::help_text(name, detail::command_line_options);
+            return 0;
+        }
+
+        if(cfg.list_benchmarks) {
+            for(auto&& b : benchmark_registry()) {
+                std::cout << b.name << "\n";
+            }
+            return 0;
+        }
+
+        if(cfg.list_reporters) {
+            using reporter_entry_ref = decltype(*reporter_registry().begin());
+            auto cmp = [](reporter_entry_ref a, reporter_entry_ref b) { return a.first.size() < b.first.size(); };
+            auto width = 2 + std::max_element(reporter_registry().begin(), reporter_registry().end(), cmp)->first.size();
+
+            std::cout << std::left;
+            for(auto&& r : reporter_registry()) {
+                if(!r.first.empty()) {
+                    std::cout << std::setw(width) << r.first << r.second->description() << "\n";
+                }
+            }
             return 0;
         }
 

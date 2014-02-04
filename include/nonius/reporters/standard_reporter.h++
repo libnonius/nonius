@@ -32,6 +32,10 @@
 namespace nonius {
     struct standard_reporter : reporter {
     private:
+        std::string description() override {
+            return "the standard reporter";
+        }
+
         void do_configure(configuration cfg) override {
             n_samples = cfg.samples;
             n_resamples = cfg.resamples;

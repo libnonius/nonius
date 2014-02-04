@@ -86,6 +86,8 @@ namespace nonius {
             do_suite_complete();
         }
 
+        virtual std::string description() = 0;
+
     private:
         virtual void do_configure(configuration /*cfg*/) {}
 
