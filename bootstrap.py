@@ -46,7 +46,7 @@ args = parser.parse_args()
 
 # --- variables
 
-dependencies = ['catch']
+dependencies = ['catch', 'wheels']
 include_flags = flags([include('include')], map(dependency_include, dependencies))
 if(args.boost_dir):
     include_flags += ' ' + dependency_include(args.boost_dir)
@@ -145,8 +145,5 @@ for fn in example_files:
 ninja.build('examples', 'phony',
             inputs = examples)
 
-if len(obj_files) == 0:
-    ninja.default('examples')
-else:
-    ninja.default('lib')
+ninja.default('examples')
 

@@ -27,7 +27,7 @@ namespace nonius {
             while(true) {
                 auto now = Clock::now();
                 if(now - start > how_long * 10) {
-                    throw "took too long to run: seed %d, iters %d"; //fail
+                    throw "took too long to run: seed %d, iters %d"; // TODO proper failure
                 }
                 auto r = detail::measure(fun, seed);
                 if(r.elapsed >= how_long) {
