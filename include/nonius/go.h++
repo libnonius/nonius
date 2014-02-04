@@ -27,8 +27,11 @@ namespace nonius {
     namespace detail {
         template <typename Clock>
         environment<FloatDuration<Clock>> measure_environment(reporter& rep) {
-            rep.estimate_clock_resolution_start();
+            rep.warmup_start();
             auto iters = detail::warmup<Clock>();
+            rep.warmup_end(iters);
+
+            rep.estimate_clock_resolution_start();
             auto resolution = detail::estimate_clock_resolution<Clock>(iters);
             rep.estimate_clock_resolution_complete(resolution);
 

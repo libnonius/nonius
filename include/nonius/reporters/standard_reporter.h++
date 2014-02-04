@@ -41,6 +41,9 @@ namespace nonius {
             n_resamples = cfg.resamples;
         }
 
+        void do_warmup_start() override {
+            stream() << "warming up\n";
+        }
         void do_estimate_clock_resolution_start() override {
             stream() << "estimating clock resolution...\n";
         }
