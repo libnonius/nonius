@@ -24,7 +24,6 @@ namespace nonius {
         int resamples = 100000;
         std::string output_file;
         std::string reporter;
-        bool quiet = false;
         bool list_benchmarks = false;
         bool list_reporters = false;
         bool no_analysis = false;

@@ -76,7 +76,6 @@ namespace nonius {
             detail::option("no-analysis", "A", "perform only measurements; do not perform any analysis"),
             detail::option("list", "l", "list benchmarks"),
             detail::option("list-reporters", "lr", "list available reporters"),
-            detail::option("quiet", "q", "suppress text output"),
         };
 
         template <typename Iterator>
@@ -99,7 +98,6 @@ namespace nonius {
                 parse(cfg.no_analysis, args, "no-analysis");
                 parse(cfg.list_benchmarks, args, "list");
                 parse(cfg.list_reporters, args, "list-reporters");
-                parse(cfg.quiet, args, "quiet");
 
                 return cfg;
             } catch(...) {
