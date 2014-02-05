@@ -33,7 +33,7 @@ namespace nonius {
             return time_point(duration(tick()));
         }
 
-        static void advance(int ticks) {
+        static void advance(int ticks = 1) {
             tick() += ticks;
         }
 

@@ -15,6 +15,7 @@
 #define NONIUS_RUN_FOR_AT_LEAST_HPP
 
 #include <nonius/clock.h++>
+#include <nonius/detail/measure.h++>
 #include <nonius/detail/timing.h++>
 
 #include <utility>
@@ -29,7 +30,7 @@ namespace nonius {
                 if(now - start > how_long * 10) {
                     throw "took too long to run: seed %d, iters %d"; // TODO proper failure
                 }
-                auto r = detail::measure(fun, seed);
+                auto r = detail::measure<Clock>(fun, seed);
                 if(r.elapsed >= how_long) {
                     return { r.elapsed, std::move(r.result), seed };
                 }
