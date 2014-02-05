@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="detail">
+      <UniqueIdentifier>{c674d180-99e2-4960-b323-8d9aacbfcf9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="reporters">
+      <UniqueIdentifier>{4df20c9c-0401-4d92-a1e4-58627bfe1550}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\nonius\detail\analyse.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\argparse.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\benchmark_function.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\complete_invoke.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\estimate_clock.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\measure.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\mismatch.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\repeat.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\run_for_at_least.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\stats.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\timing.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\transform_if.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\reporters\standard_reporter.h++">
+      <Filter>reporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\reporters\csv_reporter.h++">
+      <Filter>reporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\benchmark.h++" />
+    <ClInclude Include="..\include\nonius\clock.h++" />
+    <ClInclude Include="..\include\nonius\configuration.h++" />
+    <ClInclude Include="..\include\nonius\environment.h++" />
+    <ClInclude Include="..\include\nonius\estimate.h++" />
+    <ClInclude Include="..\include\nonius\execution_plan.h++" />
+    <ClInclude Include="..\include\nonius\go.h++" />
+    <ClInclude Include="..\include\nonius\main.h++" />
+    <ClInclude Include="..\include\nonius\nonius.h++" />
+    <ClInclude Include="..\include\nonius\outlier_classification.h++" />
+    <ClInclude Include="..\include\nonius\reporter.h++" />
+    <ClInclude Include="..\include\nonius\sample_analysis.h++" />
+  </ItemGroup>
+</Project>

@@ -7,6 +7,11 @@
     <OutDir>$(SolutionDir)..\bin\msvc\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\obj\msvc\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

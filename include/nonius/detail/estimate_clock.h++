@@ -40,7 +40,7 @@ namespace nonius {
             deltas.reserve(k);
             detail::transform_if(std::next(times.begin()), times.end(), times.begin(),
                               std::back_inserter(deltas),
-                              [](TimePoint<Clock> a, TimePoint<Clock> b) { return (a - b).count(); },
+                              [](TimePoint<Clock> a, TimePoint<Clock> b) { return static_cast<double>((a - b).count()); },
                               [](double d) { return d > 0; });
 
             return deltas;
