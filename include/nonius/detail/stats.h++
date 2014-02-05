@@ -51,8 +51,10 @@ namespace nonius {
 
         template <typename Iterator>
         outlier_classification classify_outliers(Iterator first, Iterator last) {
-            auto q1 = weighted_average_quantile(1, 4, first, last);
-            auto q3 = weighted_average_quantile(3, 4, first, last);
+            std::vector<double> copy(first, last);
+
+            auto q1 = weighted_average_quantile(1, 4, copy.begin(), copy.end());
+            auto q3 = weighted_average_quantile(3, 4, copy.begin(), copy.end());
             auto iqr = q3 - q1;
             auto los = q1 - (iqr * 3.);
             auto lom = q1 - (iqr * 1.5);
@@ -156,7 +158,7 @@ namespace nonius {
             else return { point, resample[lo], resample[hi], confidence_level };
         }
 
-        double outlier_variance(estimate<double> mean, estimate<double> stddev, int n) {
+        inline double outlier_variance(estimate<double> mean, estimate<double> stddev, int n) {
             double sb = stddev.point;
             double mn = mean.point / n;
             double mg_min = mn / 2.;
