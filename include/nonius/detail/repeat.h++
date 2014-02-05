@@ -21,8 +21,8 @@ namespace nonius {
     namespace detail {
         template <typename Fun>
         struct repeater {
-            void operator()(long long k) const {
-                for(long long i = 0; i < k; ++i) {
+            void operator()(int k) const {
+                for(int i = 0; i < k; ++i) {
                     fun();
                 }
             }

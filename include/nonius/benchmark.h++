@@ -43,7 +43,7 @@ namespace nonius {
         benchmark(benchmark&& that)
         : name(std::move(that.name)), fun(std::move(that.fun)) {}
 
-        void operator()(long long k) const {
+        void operator()(int k) const {
             detail::repeat(std::ref(fun))(k);
         }
 
@@ -52,7 +52,7 @@ namespace nonius {
             auto min_time = env.clock_resolution.mean * detail::minimum_ticks;
             auto run_time = std::min(min_time, decltype(min_time)(detail::warmup_time));
             auto&& test = detail::run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(run_time), 1, *this);
-            long long new_iters = static_cast<long long>(std::ceil(min_time * test.iterations / test.elapsed));
+            int new_iters = static_cast<int>(std::ceil(min_time * test.iterations / test.elapsed));
             return { new_iters, test.elapsed / test.iterations * new_iters * cfg.samples };
         }
 
