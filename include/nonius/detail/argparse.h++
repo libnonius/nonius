@@ -97,11 +97,17 @@ namespace nonius {
 
         using arguments = std::unordered_map<std::string, std::string>;
 
+        struct argument_error {
+            virtual ~argument_error() = default;
+        };
+
         template <typename Iterator>
         void parse_short(option const& o, arguments& args, Iterator& first, Iterator last) {
             if(!o.argument.empty()) {
                 if(++first != last) {
                     args.emplace(o.long_form, *first);
+                } else {
+                    throw argument_error();
                 }
             } else {
                 args.emplace(o.long_form, "");

@@ -62,10 +62,6 @@ namespace nonius {
             return parse(variable, args, option, [](T const&) { return true; });
         }
 
-        struct argument_error {
-            virtual ~argument_error() = default;
-        };
-
         detail::option_set command_line_options {
             detail::option("help", "h", "show this help message"),
             detail::option("samples", "s", "number of samples to collect (default: 100)", "SAMPLES"),
