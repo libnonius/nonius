@@ -125,7 +125,7 @@ namespace nonius {
         static std::string percentage_ratio(double part, double whole) {
             return percentage(part / whole);
         }
-        void print_environment_estimate(environment_estimate<fp_seconds> e, int iterations) {
+        void print_environment_estimate(environment_estimate<fp_seconds> e, long long iterations) {
             stream() << std::setprecision(7);
             stream().unsetf(std::ios::floatfield);
             stream() << "mean is " << pretty_duration(e.mean) << " (" << iterations << " iterations)\n";

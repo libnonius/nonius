@@ -25,7 +25,7 @@ namespace nonius {
     struct timing {
         Duration elapsed;
         Result result;
-        int iterations;
+        long long iterations;
     };
     template <typename Clock, typename Sig>
     using TimingOf = timing<Duration<Clock>, detail::CompleteType<detail::ResultOf<Sig>>>;

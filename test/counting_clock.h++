@@ -9,36 +9,36 @@
 // You should have received a copy of the CC0 Public Domain Dedication along with this software.
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>
 
-// Clock that advances manually
+// Clock that ticks every time you call now()
 
-#ifndef NONIUS_TEST_MANUAL_CLOCK_HPP
-#define NONIUS_TEST_MANUAL_CLOCK_HPP
+#ifndef NONIUS_TEST_COUNTING_CLOCK_HPP
+#define NONIUS_TEST_COUNTING_CLOCK_HPP
 
 #include <nonius/clock.h++>
 
 namespace nonius {
-    struct manual_clock {
+    struct counting_clock {
     public:
         using duration = chrono::nanoseconds;
-        using time_point = chrono::time_point<manual_clock, duration>;
+        using time_point = chrono::time_point<counting_clock, duration>;
         using rep = duration::rep;
         using period = duration::period;
         enum { is_steady = true };
 
         static time_point now() {
-            return time_point(duration(tick()));
+            static rep ticks = 0;
+            return time_point(duration(ticks += rate()));
         }
 
-        static void advance(int ticks = 1) {
-            tick() += ticks;
-        }
+        static void set_rate(rep new_rate) { rate() = new_rate; }
 
     private:
-        static rep& tick() {
-            static rep the_tick = 0;
-            return the_tick;
+        static rep& rate() {
+            static rep the_rate = 1;
+            return the_rate;
         }
     };
 } // namespace nonius
 
-#endif // NONIUS_TEST_MANUAL_CLOCK_HPP
+#endif // NONIUS_TEST_COUNTING_CLOCK_HPP
+

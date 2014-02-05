@@ -47,7 +47,7 @@ namespace nonius {
         void warmup_start() {
             do_warmup_start();
         }
-        void warmup_end(int iterations) {
+        void warmup_end(long long iterations) {
             do_warmup_end(iterations);
         }
         void estimate_clock_resolution_start() {
@@ -98,7 +98,7 @@ namespace nonius {
         virtual void do_configure(configuration& /*cfg*/) {}
 
         virtual void do_warmup_start() {}
-        virtual void do_warmup_end(int /*iterations*/) {}
+        virtual void do_warmup_end(long long /*iterations*/) {}
 
         virtual void do_estimate_clock_resolution_start() {}
         virtual void do_estimate_clock_resolution_complete(environment_estimate<fp_seconds> /*estimate*/) {}

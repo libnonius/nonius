@@ -31,7 +31,7 @@
 namespace nonius {
     namespace detail {
         template <typename Clock>
-        std::vector<double> resolution(int k) {
+        std::vector<double> resolution(long long k) {
             std::vector<TimePoint<Clock>> times;
             times.reserve(k+1);
             std::generate_n(std::back_inserter(times), k+1, now<Clock>{});
@@ -54,12 +54,12 @@ namespace nonius {
         const auto clock_cost_estimation_iterations = 10000;
 
         template <typename Clock>
-        int warmup() {
+        long long warmup() {
             return run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(warmup_time), warmup_seed, &resolution<Clock>)
                     .iterations;
         }
         template <typename Clock>
-        environment_estimate<FloatDuration<Clock>> estimate_clock_resolution(int iterations) {
+        environment_estimate<FloatDuration<Clock>> estimate_clock_resolution(long long iterations) {
             auto r = run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(clock_resolution_estimation_time), iterations, &resolution<Clock>)
                     .result;
             return {
@@ -70,16 +70,16 @@ namespace nonius {
         template <typename Clock>
         environment_estimate<FloatDuration<Clock>> estimate_clock_cost(FloatDuration<Clock> resolution) {
             auto time_limit = std::min(resolution * clock_cost_estimation_tick_limit, FloatDuration<Clock>(clock_cost_estimation_time_limit));
-            auto time_clock = [](int k) {
+            auto time_clock = [](long long k) {
                 return detail::measure<Clock>([k]{
-                    for(int i = 0; i < k; ++i) {
+                    for(long long i = 0; i < k; ++i) {
                         volatile auto ignored = Clock::now();
                         (void)ignored;
                     }
                 }).elapsed;
             };
             time_clock(1);
-            int iters = clock_cost_estimation_iterations;
+            long long iters = clock_cost_estimation_iterations;
             auto&& r = run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(clock_cost_estimation_time), iters, time_clock);
             std::vector<double> times;
             int nsamples = static_cast<int>(std::ceil(time_limit / r.elapsed));

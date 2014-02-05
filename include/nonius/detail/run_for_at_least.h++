@@ -23,7 +23,7 @@
 namespace nonius {
     namespace detail {
         template <typename Clock = default_clock, typename Fun>
-        TimingOf<Clock, Fun(int)> run_for_at_least(Duration<Clock> how_long, int seed, Fun&& fun) {
+        TimingOf<Clock, Fun(int)> run_for_at_least(Duration<Clock> how_long, long long seed, Fun&& fun) {
             auto start = Clock::now();
             while(true) {
                 auto now = Clock::now();

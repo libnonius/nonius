@@ -17,7 +17,7 @@
 namespace nonius {
     template <typename Duration>
     struct execution_plan {
-        int iterations_per_sample;
+        long long iterations_per_sample;
         Duration estimated_duration;
 
         template <typename Duration2>
