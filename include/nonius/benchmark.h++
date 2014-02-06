@@ -88,7 +88,7 @@ namespace nonius {
 } // namespace nonius
 
 #define NONIUS_BENCHMARK(name, ...) \
-    static ::nonius::benchmark_registrar NONIUS_DETAIL_UNIQUE_NAME(benchmark_registrar) (name, __VA_ARGS__);
+    namespace { static ::nonius::benchmark_registrar NONIUS_DETAIL_UNIQUE_NAME(benchmark_registrar) (name, __VA_ARGS__); }
 
 #endif // NONIUS_BENCHMARK_HPP
 

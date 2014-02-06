@@ -133,7 +133,7 @@ namespace nonius {
         boost::variant<std::ostream*, std::unique_ptr<std::ostream>> os;
     };
 
-    std::unordered_map<std::string, std::unique_ptr<reporter>>& reporter_registry() {
+    inline std::unordered_map<std::string, std::unique_ptr<reporter>>& reporter_registry() {
         static std::unordered_map<std::string, std::unique_ptr<reporter>> registry;
         return registry;
     }
@@ -150,7 +150,8 @@ namespace nonius {
 #define NONIUS_DETAIL_UNIQUE_NAME(name) NONIUS_DETAIL_UNIQUE_NAME_LINE(name, __LINE__)
 
 #define NONIUS_REPORTER(name, ...) \
-    static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (name, new __VA_ARGS__())
+    namespace { static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (name, new __VA_ARGS__()); } \
+    static_assert(true, "")
 
 #endif // NONIUS_REPORTER_HPP
 
