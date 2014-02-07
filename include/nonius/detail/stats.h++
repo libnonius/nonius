@@ -30,6 +30,8 @@
 #include <tuple>
 #include <cmath>
 #include <utility>
+#include <future>
+#include <cstddef>
 
 namespace nonius {
     namespace detail {
@@ -193,18 +195,27 @@ namespace nonius {
         template <typename Iterator>
         bootstrap_analysis analyse_samples(double confidence_level, int n_resamples, Iterator first, Iterator last) {
             static std::random_device entropy;
+            static std::mt19937 rng;
 
             int n = last - first;
 
-            std::mt19937 rng(entropy());
             auto mean = &detail::mean<Iterator>;
             auto stddev = &detail::standard_deviation<Iterator>;
 
-            auto mean_resample = resample(rng, n_resamples, first, last, mean);
-            auto stddev_resample = resample(rng, n_resamples, first, last, stddev);
+            auto estimate = [=](double(*f)(Iterator, Iterator)) {
+                auto seed = entropy();
+                return std::async(std::launch::async, [=]{
+                    std::mt19937 rng(seed);
+                    auto resampled = resample(rng, n_resamples, first, last, f);
+                    return bootstrap(confidence_level, first, last, resampled, f);
+                });
+            };
 
-            auto mean_estimate = bootstrap(confidence_level, first, last, mean_resample, mean);
-            auto stddev_estimate = bootstrap(confidence_level, first, last, stddev_resample, stddev);
+            auto mean_future = estimate(mean);
+            auto stddev_future = estimate(stddev);
+
+            auto mean_estimate = mean_future.get();
+            auto stddev_estimate = stddev_future.get();
 
             double outlier_variance = detail::outlier_variance(mean_estimate, stddev_estimate, n);
 

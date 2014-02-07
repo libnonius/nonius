@@ -53,7 +53,7 @@ if(args.boost_dir):
 cxx_flags = flags(['-Wall', '-Wextra', '-pedantic', '-Werror', '-std=c++11', '-g' if args.debug else '-O3', ])
 define_flags = ''
 lib_flags = ''
-ld_flags = '' if args.no_lto or args.debug else flags(['-flto'])
+ld_flags = flags(['-pthread'] + [] if args.no_lto or args.debug else ['-flto'])
 
 # --- preamble
 
