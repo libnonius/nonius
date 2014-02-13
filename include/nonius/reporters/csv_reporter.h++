@@ -49,6 +49,10 @@ namespace nonius {
             data[current] = samples;
         }
 
+        void do_benchmark_failure(std::exception_ptr) override {
+            error_stream() << "benchmark code failed to run successfully\naborting benchmark\n";
+        }
+
         void do_suite_complete() override {
             stream() << std::fixed;
             stream().precision(std::numeric_limits<double>::digits10);

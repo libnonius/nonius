@@ -55,7 +55,7 @@ namespace nonius {
                 if(is_valid(value)) {
                     variable = value;
                 } else {
-                    throw std::out_of_range("invalid command-line argument");
+                    throw argument_error();
                 }
             }
         }
@@ -105,6 +105,49 @@ namespace nonius {
         }
     } // namespace detail
 
+    int print_help(std::string const& name) {
+        std::cout << detail::help_text(name, detail::command_line_options);
+        return 0;
+    }
+    int list_benchmarks() {
+        std::cout << "All available benchmarks:\n";
+        for(auto&& b : benchmark_registry()) {
+            std::cout << "  " << b.name << "\n";
+        }
+        std::cout << benchmark_registry().size() << " benchmarks\n\n";
+        return 0;
+    }
+    int list_reporters() {
+        using reporter_entry_ref = decltype(*reporter_registry().begin());
+        auto cmp = [](reporter_entry_ref a, reporter_entry_ref b) { return a.first.size() < b.first.size(); };
+        auto width = 2 + std::max_element(reporter_registry().begin(), reporter_registry().end(), cmp)->first.size();
+
+        std::cout << "Available reporters:\n";
+        std::cout << std::left;
+        for(auto&& r : reporter_registry()) {
+            if(!r.first.empty()) {
+                std::cout << "  " << std::setw(width) << r.first << r.second->description() << "\n";
+            }
+        }
+        std::cout << '\n';
+        return 0;
+    }
+    int run_it(configuration cfg) {
+        try {
+            nonius::go(cfg, benchmark_registry().begin(), benchmark_registry().end());
+        } catch(...) {
+            std::cerr << "PANIC: clock is on fire\n";
+            try {
+                throw;
+            } catch(std::exception const& e) {
+                std::cerr << "  " << e.what() << "\n";
+            } catch(...) {}
+            return 23;
+        }
+        return 0;
+
+    }
+
     template <typename Iterator>
     int main(std::string const& name, Iterator first, Iterator last) {
         configuration cfg;
@@ -115,40 +158,10 @@ namespace nonius {
             return 17;
         }
 
-        if(cfg.help) {
-            std::cout << detail::help_text(name, detail::command_line_options);
-            return 0;
-        }
-
-        if(cfg.list_benchmarks) {
-            for(auto&& b : benchmark_registry()) {
-                std::cout << b.name << "\n";
-            }
-            return 0;
-        }
-
-        if(cfg.list_reporters) {
-            using reporter_entry_ref = decltype(*reporter_registry().begin());
-            auto cmp = [](reporter_entry_ref a, reporter_entry_ref b) { return a.first.size() < b.first.size(); };
-            auto width = 2 + std::max_element(reporter_registry().begin(), reporter_registry().end(), cmp)->first.size();
-
-            std::cout << std::left;
-            for(auto&& r : reporter_registry()) {
-                if(!r.first.empty()) {
-                    std::cout << std::setw(width) << r.first << r.second->description() << "\n";
-                }
-            }
-            return 0;
-        }
-
-        try {
-            nonius::go(cfg, benchmark_registry().begin(), benchmark_registry().end());
-        } catch(...) {
-            // TODO output failure information
-            return 23;
-        }
-
-        return 0;
+        if(cfg.help) return print_help(name);
+        else if(cfg.list_benchmarks) return list_benchmarks();
+        else if(cfg.list_reporters) return list_reporters();
+        else return run_it(cfg);
     }
     inline int main(int argc, char** argv) {
         std::string name(argv[0]);

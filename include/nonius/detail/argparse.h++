@@ -137,7 +137,7 @@ namespace nonius {
                     }
                 }
                 if(!parsed) {
-                    throw "Bad";
+                    throw argument_error();
                 }
             }
             return args;

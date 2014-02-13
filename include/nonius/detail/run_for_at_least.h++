@@ -15,6 +15,7 @@
 #define NONIUS_RUN_FOR_AT_LEAST_HPP
 
 #include <nonius/clock.h++>
+#include <nonius/timeout_error.h++>
 #include <nonius/detail/measure.h++>
 #include <nonius/detail/timing.h++>
 
@@ -24,17 +25,18 @@ namespace nonius {
     namespace detail {
         template <typename Clock = default_clock, typename Fun>
         TimingOf<Clock, Fun(int)> run_for_at_least(Duration<Clock> how_long, int seed, Fun&& fun) {
+            auto iters = seed;
             auto start = Clock::now();
             while(true) {
                 auto now = Clock::now();
                 if(now - start > how_long * 10) {
-                    throw "took too long to run: seed %d, iters %d"; // TODO proper failure
+                    throw timeout_error(seed, iters);
                 }
-                auto r = detail::measure<Clock>(fun, seed);
+                auto r = detail::measure<Clock>(fun, iters);
                 if(r.elapsed >= how_long) {
-                    return { r.elapsed, std::move(r.result), seed };
+                    return { r.elapsed, std::move(r.result), iters };
                 }
-                seed *= 2;
+                iters *= 2;
             }
         }
     } // namespace detail

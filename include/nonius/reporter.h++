@@ -29,6 +29,7 @@
 #include <iostream>
 #include <memory>
 #include <unordered_map>
+#include <exception>
 
 namespace nonius {
     struct reporter {
@@ -85,6 +86,9 @@ namespace nonius {
             do_analysis_complete(analysis);
         }
 
+        void benchmark_failure(std::exception_ptr error) {
+            do_benchmark_failure(error);
+        }
         void benchmark_complete() {
             do_benchmark_complete();
         }
@@ -115,6 +119,7 @@ namespace nonius {
         virtual void do_analysis_start() {} // TODO make generic?
         virtual void do_analysis_complete(sample_analysis<fp_seconds> const& /*analysis*/) {}
 
+        virtual void do_benchmark_failure(std::exception_ptr /*error*/) {}
         virtual void do_benchmark_complete() {}
         virtual void do_suite_complete() {}
 
@@ -125,6 +130,9 @@ namespace nonius {
         };
 
     protected:
+        std::ostream& error_stream() {
+            return std::cerr;
+        }
         std::ostream& stream() {
             return boost::apply_visitor(stream_visitor(), os);
         }

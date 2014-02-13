@@ -60,6 +60,7 @@ namespace nonius {
 
         void do_benchmark_start(std::string const& name) override {
             stream() << "\nbenchmarking " << name << "\n";
+            current = name;
         }
 
         void do_measurement_start(execution_plan<fp_seconds> plan) override {
@@ -69,6 +70,10 @@ namespace nonius {
         }
         void do_analysis_start() override {
             stream() << "bootstrapping with " << n_resamples << " resamples\n";
+        }
+        void do_benchmark_failure(std::exception_ptr) override {
+            error_stream() << current << " failed to run successfully\n";
+            stream() << "benchmark aborted\n";
         }
         void do_analysis_complete(sample_analysis<fp_seconds> const& analysis) override {
             print_statistic_estimate("mean", analysis.mean);
@@ -153,6 +158,8 @@ namespace nonius {
 
         int n_samples = 0;
         int n_resamples = 0;
+
+        std::string current;
     };
 
     NONIUS_REPORTER("", standard_reporter);

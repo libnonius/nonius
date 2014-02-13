@@ -22,6 +22,10 @@
 #include <nonius/reporters/standard_reporter.h++>
 #include <nonius/detail/estimate_clock.h++>
 #include <nonius/detail/analyse.h++>
+#include <nonius/detail/complete_invoke.h++>
+
+#include <exception>
+#include <utility>
 
 namespace nonius {
     namespace detail {
@@ -42,6 +46,23 @@ namespace nonius {
             return { resolution, cost };
         }
     } // namespace detail
+
+    struct benchmark_user_error : virtual std::exception {
+        char const* what() const noexcept override {
+            return "a benchmark failed to run successfully";
+        }
+    };
+
+    template <typename Fun>
+    detail::CompleteType<detail::ResultOf<Fun()>> user_code(reporter& rep, Fun&& fun) {
+        try {
+            return detail::complete_invoke(std::forward<Fun>(fun));
+        } catch(...) {
+            rep.benchmark_failure(std::current_exception());
+            throw benchmark_user_error();
+        }
+    }
+
     template <typename Clock = default_clock, typename Iterator>
     void go(configuration cfg, Iterator first, Iterator last, reporter& rep) {
         rep.configure(cfg);
@@ -51,20 +72,24 @@ namespace nonius {
         rep.suite_start();
 
         for(; first != last; ++first) {
-            rep.benchmark_start(first->name);
+            try {
+                rep.benchmark_start(first->name);
 
-            auto plan = first->template prepare<Clock>(cfg, env);
-            rep.measurement_start(plan);
-            auto samples = first->template run<Clock>(cfg, env, plan);
-            rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
+                auto plan = user_code(rep, [&first, &cfg, &env]{ return first->template prepare<Clock>(cfg, env); });
+                rep.measurement_start(plan);
+                auto samples = user_code(rep, [&first, &cfg, &env, &plan]{ return first->template run<Clock>(cfg, env, plan); });
+                rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
 
-            if(!cfg.no_analysis) {
-                rep.analysis_start();
-                auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
-                rep.analysis_complete(analysis);
+                if(!cfg.no_analysis) {
+                    rep.analysis_start();
+                    auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
+                    rep.analysis_complete(analysis);
+                }
+
+                rep.benchmark_complete();
+            } catch(benchmark_user_error const&) {
+                continue;
             }
-
-            rep.benchmark_complete();
         }
 
         rep.suite_complete();
