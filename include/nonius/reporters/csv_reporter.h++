@@ -50,7 +50,7 @@ namespace nonius {
         }
 
         void do_benchmark_failure(std::exception_ptr) override {
-            error_stream() << "benchmark code failed to run successfully\naborting benchmark\n";
+            error_stream() << current << " failed to run successfully\n";
         }
 
         void do_suite_complete() override {
