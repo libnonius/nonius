@@ -19,6 +19,7 @@
 #include <nonius/sample_analysis.h++>
 #include <nonius/execution_plan.h++>
 #include <nonius/environment.h++>
+#include <nonius/detail/pretty_print.h++>
 
 #include <ios>
 #include <iomanip>
@@ -39,12 +40,29 @@ namespace nonius {
         void do_configure(configuration& cfg) override {
             cfg.no_analysis = true;
             n_samples = cfg.samples;
+            verbose = cfg.verbose;
+        }
+
+        void do_warmup_start() override {
+            if(verbose) progress_stream() << "warming up\n";
+        }
+        void do_estimate_clock_resolution_start() override {
+            if(verbose) progress_stream() << "estimating clock resolution\n";
+        }
+        void do_estimate_clock_cost_start() override {
+            if(verbose) progress_stream() << "estimating cost of a clock call\n";
         }
 
         void do_benchmark_start(std::string const& name) override {
+            if(verbose) progress_stream() << "\nbenchmarking " << name << "\n";
             current = name;
         }
 
+        void do_measurement_start(execution_plan<fp_seconds> plan) override {
+            stream() << std::setprecision(7);
+            stream().unsetf(std::ios::floatfield);
+            if(verbose) progress_stream() << "collecting " << n_samples << " samples, " << plan.iterations_per_sample << " iterations each, in estimated " << detail::pretty_duration(plan.estimated_duration) << "\n";
+        }
         void do_measurement_complete(std::vector<fp_seconds> const& samples) override {
             data[current] = samples;
         }
@@ -54,6 +72,7 @@ namespace nonius {
         }
 
         void do_suite_complete() override {
+            if(verbose) progress_stream() << "\ngenerating CSV report\n";
             stream() << std::fixed;
             stream().precision(std::numeric_limits<double>::digits10);
             bool first = true;
@@ -72,6 +91,7 @@ namespace nonius {
                 }
                 stream() << "\n";
             }
+            if(verbose) progress_stream() << "done\n";
         }
 
     private:
@@ -100,6 +120,7 @@ namespace nonius {
         }
 
         int n_samples;
+        bool verbose;
         std::string current;
         std::unordered_map<std::string, std::vector<fp_seconds>> data;
     };

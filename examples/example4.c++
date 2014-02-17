@@ -2,7 +2,6 @@
 
 #include <list>
 #include <forward_list>
-#include <thread>
 
 NONIUS_BENCHMARK("list<long long>", [](nonius::chronometer meter) {
     std::list<long long> l;

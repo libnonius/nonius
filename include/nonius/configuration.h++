@@ -27,6 +27,8 @@ namespace nonius {
         bool list_benchmarks = false;
         bool list_reporters = false;
         bool no_analysis = false;
+        bool verbose = false;
+        bool summary = false;
         bool help = false;
     };
 } // namespace nonius

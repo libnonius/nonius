@@ -64,22 +64,27 @@ namespace nonius {
             return parse(variable, args, option, [](T const&) { return true; });
         }
 
-        detail::option_set command_line_options {
-            detail::option("help", "h", "show this help message"),
-            detail::option("samples", "s", "number of samples to collect (default: 100)", "SAMPLES"),
-            detail::option("resamples", "rs", "number of resamples for the bootstrap (default: 100000)", "RESAMPLES"),
-            detail::option("confidence-interval", "ci", "confidence interval for the bootstrap (between 0 and 1, default: 0.95)", "INTERVAL"),
-            detail::option("output", "o", "output file (default: <stdout>)", "FILE"),
-            detail::option("reporter", "r", "reporter to use (default: standard)", "REPORTER"),
-            detail::option("no-analysis", "A", "perform only measurements; do not perform any analysis"),
-            detail::option("list", "l", "list benchmarks"),
-            detail::option("list-reporters", "lr", "list available reporters"),
-        };
+        inline detail::option_set const& command_line_options() {
+            static detail::option_set the_options {
+                detail::option("help", "h", "show this help message"),
+                detail::option("samples", "s", "number of samples to collect (default: 100)", "SAMPLES"),
+                detail::option("resamples", "rs", "number of resamples for the bootstrap (default: 100000)", "RESAMPLES"),
+                detail::option("confidence-interval", "ci", "confidence interval for the bootstrap (between 0 and 1, default: 0.95)", "INTERVAL"),
+                detail::option("output", "o", "output file (default: <stdout>)", "FILE"),
+                detail::option("reporter", "r", "reporter to use (default: standard)", "REPORTER"),
+                detail::option("no-analysis", "A", "perform only measurements; do not perform any analysis"),
+                detail::option("list", "l", "list benchmarks"),
+                detail::option("list-reporters", "lr", "list available reporters"),
+                detail::option("verbose", "v", "show verbose output (mutually exclusive with -q)"),
+                detail::option("summary", "q", "show summary output (mutually exclusive with -v)"),
+            };
+            return the_options;
+        }
 
         template <typename Iterator>
         configuration parse_args(std::string const& name, Iterator first, Iterator last) {
             try {
-                auto args = detail::parse_arguments(command_line_options, first, last);
+                auto args = detail::parse_arguments(command_line_options(), first, last);
 
                 configuration cfg;
 
@@ -96,20 +101,23 @@ namespace nonius {
                 parse(cfg.no_analysis, args, "no-analysis");
                 parse(cfg.list_benchmarks, args, "list");
                 parse(cfg.list_reporters, args, "list-reporters");
+                parse(cfg.verbose, args, "verbose");
+                parse(cfg.summary, args, "summary");
+                if(cfg.verbose && cfg.summary) throw argument_error();
 
                 return cfg;
             } catch(...) {
-                std::cout << help_text(name, command_line_options);
+                std::cout << help_text(name, command_line_options());
                 throw argument_error();
             }
         }
     } // namespace detail
 
-    int print_help(std::string const& name) {
-        std::cout << detail::help_text(name, detail::command_line_options);
+    inline int print_help(std::string const& name) {
+        std::cout << detail::help_text(name, detail::command_line_options());
         return 0;
     }
-    int list_benchmarks() {
+    inline int list_benchmarks() {
         std::cout << "All available benchmarks:\n";
         for(auto&& b : benchmark_registry()) {
             std::cout << "  " << b.name << "\n";
@@ -117,7 +125,7 @@ namespace nonius {
         std::cout << benchmark_registry().size() << " benchmarks\n\n";
         return 0;
     }
-    int list_reporters() {
+    inline int list_reporters() {
         using reporter_entry_ref = decltype(*reporter_registry().begin());
         auto cmp = [](reporter_entry_ref a, reporter_entry_ref b) { return a.first.size() < b.first.size(); };
         auto width = 2 + std::max_element(reporter_registry().begin(), reporter_registry().end(), cmp)->first.size();
@@ -132,7 +140,7 @@ namespace nonius {
         std::cout << '\n';
         return 0;
     }
-    int run_it(configuration cfg) {
+    inline int run_it(configuration cfg) {
         try {
             nonius::go(cfg, benchmark_registry().begin(), benchmark_registry().end());
         } catch(...) {

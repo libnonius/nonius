@@ -130,6 +130,9 @@ namespace nonius {
         };
 
     protected:
+        std::ostream& progress_stream() {
+            return std::cout;
+        }
         std::ostream& error_stream() {
             return std::cerr;
         }
