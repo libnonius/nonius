@@ -50,6 +50,18 @@ namespace nonius {
         CompleteType<ResultOf<Fun(Args...)>> complete_invoke(Fun&& fun, Args&&... args) {
             return complete_invoker<ResultOf<Fun(Args...)>>::invoke(std::forward<Fun>(fun), std::forward<Args>(args)...);
         }
+
+        template <typename> struct always_true : std::true_type {};
+        struct is_callable_tester {
+            template <typename Fun, typename... Args>
+            always_true<ResultOf<Fun(Args...)>> static test(int);
+            template <typename...>
+            std::false_type static test(...);
+        };
+        template <typename T>
+        struct is_callable;
+        template <typename Fun, typename... Args>
+        struct is_callable<Fun(Args...)> : decltype(is_callable_tester::test<Fun, Args...>(0)) {};
     } // namespace detail
 } // namespace nonius
 

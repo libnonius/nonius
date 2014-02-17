@@ -14,6 +14,9 @@
 #ifndef NONIUS_DETAIL_BENCHMARK_FUNCTION_HPP
 #define NONIUS_DETAIL_BENCHMARK_FUNCTION_HPP
 
+#include <nonius/chronometer.h++>
+#include <nonius/detail/complete_invoke.h++>
+
 #include <type_traits>
 #include <utility>
 #include <memory>
@@ -29,7 +32,7 @@ namespace nonius {
         struct benchmark_function {
         private:
             struct concept {
-                virtual void call() const = 0;
+                virtual void call(chronometer meter) const = 0;
                 virtual ~concept() = default;
             };
             template <typename Fun>
@@ -37,7 +40,15 @@ namespace nonius {
                 model(Fun&& fun) : fun(std::move(fun)) {}
                 model(Fun const& fun) : fun(fun) {}
 
-                void call() const override { fun(); }
+                void call(chronometer meter) const override {
+                    call(meter, is_callable<Fun(chronometer)>());
+                }
+                void call(chronometer meter, std::true_type) const {
+                    fun(meter);
+                }
+                void call(chronometer meter, std::false_type) const {
+                    meter.measure(fun);
+                }
 
                 Fun fun;
             };
@@ -50,7 +61,7 @@ namespace nonius {
             benchmark_function(benchmark_function&& that)
             : f(std::move(that.f)) {}
 
-            void operator()() const { f->call(); }
+            void operator()(chronometer meter) const { f->call(meter); }
         private:
             std::unique_ptr<concept> f;
         };
