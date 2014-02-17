@@ -59,8 +59,8 @@ namespace nonius {
         }
 
         void do_measurement_start(execution_plan<fp_seconds> plan) override {
-            stream() << std::setprecision(7);
-            stream().unsetf(std::ios::floatfield);
+            report_stream() << std::setprecision(7);
+            report_stream().unsetf(std::ios::floatfield);
             if(verbose) progress_stream() << "collecting " << n_samples << " samples, " << plan.iterations_per_sample << " iterations each, in estimated " << detail::pretty_duration(plan.estimated_duration) << "\n";
         }
         void do_measurement_complete(std::vector<fp_seconds> const& samples) override {
@@ -73,23 +73,23 @@ namespace nonius {
 
         void do_suite_complete() override {
             if(verbose) progress_stream() << "\ngenerating CSV report\n";
-            stream() << std::fixed;
-            stream().precision(std::numeric_limits<double>::digits10);
+            report_stream() << std::fixed;
+            report_stream().precision(std::numeric_limits<double>::digits10);
             bool first = true;
             for(auto&& kv : data) {
-                if(!first) stream() << ",";
-                stream() << "\"" << escape(kv.first) << "\""; // TODO escape
+                if(!first) report_stream() << ",";
+                report_stream() << "\"" << escape(kv.first) << "\""; // TODO escape
                 first = false;
             }
-            stream() << "\n";
+            report_stream() << "\n";
             for(int i = 0; i < n_samples; ++i) {
                 first = true;
                 for(auto&& kv : data) {
-                    if(!first) stream() << ",";
-                    stream() << kv.second[i].count();
+                    if(!first) report_stream() << ",";
+                    report_stream() << kv.second[i].count();
                     first = false;
                 }
-                stream() << "\n";
+                report_stream() << "\n";
             }
             if(verbose) progress_stream() << "done\n";
         }

@@ -17,6 +17,7 @@
 #include <nonius/nonius.h++>
 #include <nonius/reporters/standard_reporter.h++>
 #include <nonius/reporters/csv_reporter.h++>
+#include <nonius/reporters/junit_reporter.h++>
 #include <nonius/detail/argparse.h++>
 
 #include <vector>

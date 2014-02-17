@@ -136,7 +136,7 @@ namespace nonius {
         std::ostream& error_stream() {
             return std::cerr;
         }
-        std::ostream& stream() {
+        std::ostream& report_stream() {
             return boost::apply_visitor(stream_visitor(), os);
         }
 
