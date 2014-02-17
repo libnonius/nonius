@@ -83,9 +83,9 @@ ninja.rule('lib',
         command = 'ar rcs $out $in',
         description = 'AR $in')
 
-ninja.rule('dist',
-        command = 'tar cjf $out $in',
-        description = 'TAR $in')
+ninja.rule('header',
+        command = './single_header.py $in $out',
+        description = 'HEADER $in')
 
 # --- build edges
 
@@ -120,12 +120,12 @@ ninja.build(test_runner, 'link',
 ninja.build('test', 'phony',
         inputs = test_runner)
 
-tar = os.path.join('dist', 'nonius.tar.bz2')
-ninja.build(tar, 'dist',
-        inputs = hdr_files + (built_libs if src_files else []))
+header = os.path.join('dist', 'nonius.h++')
+ninja.build(header, 'header',
+        inputs = os.path.join('include', 'nonius', 'nonius_single.h++'))
 
-ninja.build('dist', 'phony',
-        inputs = tar)
+ninja.build('header', 'phony',
+        inputs = header)
 
 # --- examples
 
