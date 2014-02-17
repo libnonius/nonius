@@ -50,7 +50,7 @@ dependencies = ['catch', 'wheels']
 include_flags = flags([include('include')], map(dependency_include, dependencies))
 if(args.boost_dir):
     include_flags += ' ' + dependency_include(args.boost_dir)
-cxx_flags = flags(['-Wall', '-Wextra', '-pedantic', '-Werror', '-std=c++11', '-g' if args.debug else '-O3', ])
+cxx_flags = flags(['-Wall', '-Wextra', '-pedantic', '-Werror', '-std=c++11', '-pthread', '-g' if args.debug else '-O3'])
 define_flags = ''
 lib_flags = ''
 ld_flags = flags(['-pthread'] + [] if args.no_lto or args.debug else ['-flto'])
