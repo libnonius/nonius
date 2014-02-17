@@ -73,7 +73,7 @@ namespace nonius {
             return proj(*it);
         }
 
-        std::ostream& operator<<(std::ostream& os, help_text h) {
+        inline std::ostream& operator<<(std::ostream& os, help_text h) {
             os << "Usage: " << h.name << " [OPTIONS]\n\n";
 
             auto lwidth = 2 + get_max_width(h.options.begin(), h.options.end(), [](option const& o) { return 2 + o.long_form.size() + 1 + o.argument.size(); });
@@ -113,7 +113,7 @@ namespace nonius {
                 args.emplace(o.long_form, "");
             }
         }
-        void parse_long(option const& o, arguments& args, std::string&& arg) {
+        inline void parse_long(option const& o, arguments& args, std::string&& arg) {
             args.emplace(o.long_form, std::move(arg));
         }
 

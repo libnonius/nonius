@@ -19,7 +19,6 @@
 #include <nonius/benchmark.h++>
 #include <nonius/detail/stats.h++>
 #include <nonius/detail/run_for_at_least.h++>
-#include <nonius/detail/transform_if.h++>
 #include <nonius/clock.h++>
 
 #include <algorithm>
@@ -38,10 +37,9 @@ namespace nonius {
 
             std::vector<double> deltas;
             deltas.reserve(k);
-            detail::transform_if(std::next(times.begin()), times.end(), times.begin(),
+            std::transform(std::next(times.begin()), times.end(), times.begin(),
                               std::back_inserter(deltas),
-                              [](TimePoint<Clock> a, TimePoint<Clock> b) { return static_cast<double>((a - b).count()); },
-                              [](double d) { return d > 0; });
+                              [](TimePoint<Clock> a, TimePoint<Clock> b) { return static_cast<double>((a - b).count()); });
 
             return deltas;
         }
