@@ -15,6 +15,7 @@
 #define NONIUS_TIMEOUT_ERROR_HPP
 
 #include <nonius/timeout_error.h++>
+#include <nonius/detail/noexcept.h++>
 
 #include <sstream>
 #include <string>
@@ -29,7 +30,7 @@ namespace nonius {
             message = ss.str();
         }
 
-        char const* what() const noexcept override {
+        char const* what() const NONIUS_NOEXCEPT override {
             return message.c_str();
         }
 

@@ -64,4 +64,8 @@
     <ClInclude Include="..\include\nonius\reporter.h++" />
     <ClInclude Include="..\include\nonius\sample_analysis.h++" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\nonius\chronometer.h++" />
+    <None Include="..\include\nonius\timeout_error.h++" />
+  </ItemGroup>
 </Project>

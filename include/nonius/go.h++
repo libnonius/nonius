@@ -23,6 +23,7 @@
 #include <nonius/detail/estimate_clock.h++>
 #include <nonius/detail/analyse.h++>
 #include <nonius/detail/complete_invoke.h++>
+#include <nonius/detail/noexcept.h++>
 
 #include <exception>
 #include <utility>
@@ -48,7 +49,7 @@ namespace nonius {
     } // namespace detail
 
     struct benchmark_user_error : virtual std::exception {
-        char const* what() const noexcept override {
+        char const* what() const NONIUS_NOEXCEPT override {
             return "a benchmark failed to run successfully";
         }
     };

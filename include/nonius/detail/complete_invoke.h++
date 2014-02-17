@@ -54,7 +54,7 @@ namespace nonius {
         template <typename> struct always_true : std::true_type {};
         struct is_callable_tester {
             template <typename Fun, typename... Args>
-            always_true<ResultOf<Fun(Args...)>> static test(int);
+            always_true<decltype(std::declval<Fun>()(std::declval<Args>()...))> static test(int);
             template <typename...>
             std::false_type static test(...);
         };
