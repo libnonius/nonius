@@ -3,27 +3,25 @@
 ## What is nonius?
 
 Nonius is a framework for benchmarking small snippets of C++ code. It is very
-heavily inspired by [Criterion][criterion] a similar Haskell-based tool. It runs
-your code, measures the time it takes to run, and then performs some statistical
-analysis on those measurements.
+heavily inspired by [Criterion], a similar Haskell-based tool. It
+runs your code, measures the time it takes to run, and then performs some
+statistical analysis on those measurements.
 
- [criterion]: http://www.serpentine.com/blog/2009/09/29/criterion-a-new-benchmarking-library-for-haskell/
+ [Criterion]: http://www.serpentine.com/blog/2009/09/29/criterion-a-new-benchmarking-library-for-haskell/
 
 ## How do I use it?
 
 The library itself is header-only, so you don't have to build anything. It
-requires a C++11 capable compiler (like GCC 4.8) and it depends on my other
-library [wheels] for some small tools, and on [Boost] for some statistical
-functions.
+requires a C++11 capable compiler; it was tested with GCC 4.8.1, clang 3.4, and
+VC++ 18.0. It depends on [Boost] for a few mathematical functions, and, for
+VC++, the timing functions as well. Boost.Chrono is not a header-only library,
+but since it is only used with VC++ everything gets linked automatically.
 
 You can grab a distribution zip from the [CI server] and just drop it in your
-favourite include folder. That includes any needed headers from wheels.
+favourite include folder.
 
-You can build the examples provided by running `bootstrap.py` first and then
-`ninja examples`. There will be an executable file for each example in the
-`bin/examples` directory.
+There are examples of both simple and advanced usage in the `examples` folder.
 
- [wheels]: http://github.com/rmartinho/wheels
  [Boost]: http://www.boost.org
  [CI server]: http://teamcity.loungecpp.net/project.html?projectId=Nonius
 
