@@ -42,9 +42,6 @@
     <ClInclude Include="..\include\nonius\detail\timing.h++">
       <Filter>detail</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\nonius\detail\transform_if.h++">
-      <Filter>detail</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\nonius\reporters\standard_reporter.h++">
       <Filter>reporters</Filter>
     </ClInclude>
@@ -63,9 +60,28 @@
     <ClInclude Include="..\include\nonius\outlier_classification.h++" />
     <ClInclude Include="..\include\nonius\reporter.h++" />
     <ClInclude Include="..\include\nonius\sample_analysis.h++" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\include\nonius\chronometer.h++" />
-    <None Include="..\include\nonius\timeout_error.h++" />
+    <ClInclude Include="..\include\nonius\detail\cpptempl.h">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\timeout_error.h++" />
+    <ClInclude Include="..\include\nonius\chronometer.h++" />
+    <ClInclude Include="..\include\nonius\detail\escape.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\html_report_template.g.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\noexcept.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\detail\pretty_print.h++">
+      <Filter>detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\reporters\html_reporter.h++">
+      <Filter>reporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\nonius\reporters\junit_reporter.h++">
+      <Filter>reporters</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
