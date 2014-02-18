@@ -39,7 +39,7 @@ namespace nonius {
     private:
         static std::string const& template_string() {
             static char const* template_parts[] = {
-// generated content
+// generated content broken into pieces because MSVC is in the 1990s.
 #include <nonius/detail/html_report_template.g.h++>
             };
             static std::string const the_template = []() -> std::string {

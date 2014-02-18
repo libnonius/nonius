@@ -73,6 +73,8 @@
 #include <sstream>
 #include <boost/algorithm/string.hpp>
 
+#include <nonius/detail/noexcept.h++>
+
 namespace cpptempl
 {
     // various typedefs
@@ -134,9 +136,8 @@ namespace cpptempl
     class TemplateException : public std::exception
     {
     public:
-        TemplateException(std::string reason) : m_reason(reason){}
-        ~TemplateException() throw() {}
-        const char* what() throw() {
+        TemplateException(std::string reason) : m_reason(std::move(reason)){}
+        const char* what() NONIUS_NOEXCEPT {
             return m_reason.c_str();
         }
     private:
