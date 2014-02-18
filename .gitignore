@@ -3,6 +3,7 @@ obj/
 build.ninja
 __pycache__
 *.swp
+*.swo
 *.pyc
 *.suo
 *.filters

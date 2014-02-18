@@ -28,29 +28,36 @@
 #include <sstream>
 #include <string>
 #include <memory>
+#include <utility>
 
 namespace nonius {
     namespace detail {
+        inline double get_magnitude(fp_seconds secs) {
+            if(secs.count() >= 2.e0) {
+                return 1.e0;
+            } else if(secs.count() >= 2.e-3) {
+                return 1.e3;
+            } else if(secs.count() >= 2.e-6) {
+                return 1.e6;
+            } else {
+                return 1.e9;
+            }
+        }
+        inline std::string units_for_magnitude(double magnitude) {
+            if(magnitude <= 1.e0) return "s";
+            else if(magnitude <= 1.e3) return "ms";
+            else if(magnitude <= 1.e6) return "μs";
+            else return "ns";
+        }
         inline std::string pretty_duration(fp_seconds secs) {
-            using fp_millis = chrono::duration<double, milli>;
-            using fp_micros = chrono::duration<double, micro>;
-            using fp_nanos = chrono::duration<double, nano>;
-
+            auto magnitude = get_magnitude(secs);
+            auto units = units_for_magnitude(magnitude);
+#ifdef _MSC_VER
+            if(units == "μs") units = "us";
+#endif
             std::ostringstream ss;
             ss << std::setprecision(ss.precision());
-            if(secs.count() >= 2.) {
-                ss << secs.count() << " s";
-            } else if(secs.count() >= .002) {
-                ss << fp_millis(secs).count() << " ms";
-            } else if(secs.count() >= .000002) {
-#ifdef _MSC_VER
-                ss << fp_micros(secs).count() << " us";
-#else
-                ss << fp_micros(secs).count() << u8" μs";
-#endif
-            } else {
-                ss << fp_nanos(secs).count() << " ns";
-            }
+            ss << (secs.count() * magnitude) << ' ' << units;
             return ss.str();
         }
         inline std::string percentage(double d) {

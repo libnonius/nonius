@@ -9,6 +9,7 @@ import string
 inputPath = sys.argv[1]
 rootPath = os.path.dirname(inputPath) + "/"
 outputPath = sys.argv[2]
+depPath = 'deps/cpptemplate'
 
 includesParser = re.compile( r'\s*#include\s*<nonius/(.*)>' )
 guardParser = re.compile( r'\s*#.*NONIUS_.*_HPP')
@@ -52,6 +53,8 @@ def parseFile( path, filename ):
                 write( "// #included from: {0}\n".format( header ) )
                 if os.path.exists( path + headerPath + sep + headerFile ):
                     parseFile( path + headerPath + sep, headerFile )
+                elif os.path.exists( depPath + sep + headerFile ):
+                    parseFile( depPath + sep, headerFile )
                 else:
                     parseFile( rootPath + headerPath + sep, headerFile )
         else:

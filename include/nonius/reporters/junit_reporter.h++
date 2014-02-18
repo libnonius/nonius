@@ -20,6 +20,7 @@
 #include <nonius/execution_plan.h++>
 #include <nonius/environment.h++>
 #include <nonius/detail/pretty_print.h++>
+#include <nonius/detail/escape.h++>
 
 #include <ios>
 #include <iomanip>
@@ -128,42 +129,14 @@ namespace nonius {
         }
 
         static std::string escape(std::string const& source) {
-            static const std::string magic = "'\"<>&";
-
-            auto first = source.begin();
-            auto last = source.end();
-
-            int n_magic = std::count_if(first, last, [](char c) { return magic.find(c) != std::string::npos; });
-
-            std::string escaped;
-            escaped.reserve(source.size() + n_magic*6);
-
-            while(first != last) {
-                auto next_magic = std::find_first_of(first, last, magic.begin(), magic.end());
-                std::copy(first, next_magic, std::back_inserter(escaped));
-                first = next_magic;
-                if(first != last) {
-                    switch(*first) {
-                    case '\'':
-                        escaped += "&apos;";
-                        break;
-                    case '"':
-                        escaped += "&quot;";
-                        break;
-                    case '<':
-                        escaped += "&lt;";
-                        break;
-                    case '>':
-                        escaped += "&gt;";
-                        break;
-                    case '&':
-                        escaped += "&amp;";
-                        break;
-                    }
-                    ++first;
-                }
-            }
-            return escaped;
+            static const std::unordered_map<char, std::string> escapes {
+                { '\'', "&apos;" },
+                { '"',  "&quot;" },
+                { '<',  "&lt;"   },
+                { '>',  "&gt;"   },
+                { '&',  "&amp;"  },
+            };
+            return detail::escape(source, escapes);
         }
 
         int n_samples;
