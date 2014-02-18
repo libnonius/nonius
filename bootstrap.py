@@ -58,10 +58,13 @@ if(args.boost_dir):
     include_flags += ' ' + dependency_include(args.boost_dir)
 cxx_flags = flags(['-pedantic', '-std=c++11', '-pthread', '-g' if args.debug else '-O3'])
 warning_flags = flags(map(warning, ['all', 'extra', 'error']))
-ignored_warning_flags = flags(map(no_warning, ['overlength-strings']))
+ignored_warning_flags = flags(map(no_warning, []))
 define_flags = ''
 lib_flags = ''
 ld_flags = flags(['-pthread'] + [] if args.no_lto or args.debug else ['-flto'])
+
+stringize_tool = 'tools/stringize.py' 
+single_header_tool = 'tools/single_header.py'
 
 # --- preamble
 
@@ -78,25 +81,25 @@ ninja.rule('bootstrap',
         description = 'BOOTSTRAP')
 
 ninja.rule('cxx',
-        command = args.cxx + ' -MMD -MF $out.d -c ' + cxx_flags + ' ' + ignored_warning_flags + ' ' + include_flags + ' ' + define_flags + ' $in -o $out',
+        command = ' '.join([args.cxx, '-MMD', '-MF $out.d', '-c', cxx_flags, warning_flags, include_flags, define_flags, '$in', '-o $out']),
         deps = 'gcc',
         depfile = '$out.d',
         description = 'C++ $in')
 
 ninja.rule('link',
-        command = args.cxx + ' ' + cxx_flags + ' ' + ld_flags + ' $in -o $out' + ' ' + lib_flags,
+        command = ' '.join([args.cxx, cxx_flags, warning_flags, ld_flags, '$in', '-o $out', lib_flags]),
         description = 'LINK $in')
 
 ninja.rule('lib',
-        command = 'ar rcs $out $in',
+        command = ' '.join(['ar', 'rcs', '$out', '$in']),
         description = 'AR $in')
 
 ninja.rule('stringize',
-        command = 'tools/stringize.py $in $out',
+        command = ' '.join([stringize_tool, '$in', '$out']),
         description = 'STRINGIZE $in')
 
 ninja.rule('header',
-        command = 'tools/single_header.py $in $out',
+        command = ' '.join([single_header_tool, '$in', '$out']),
         description = 'HEADER $in')
 
 # --- build edges
@@ -135,7 +138,7 @@ ninja.build('test', 'phony',
 header = os.path.join('dist', 'nonius.h++')
 ninja.build(header, 'header',
         inputs = os.path.join('include', 'nonius', 'nonius_single.h++'),
-        implicit = 'tools/single_header.py')
+        implicit = single_header_tool)
 
 ninja.build('header', 'phony',
         inputs = header)
@@ -143,7 +146,7 @@ ninja.build('header', 'phony',
 html_report_template = 'include/nonius/detail/html_report_template.g.h++'
 ninja.build(html_report_template, 'stringize',
         inputs = 'tpl/html_report.tpl',
-        implicit = 'tools/stringize.py')
+        implicit = stringize_tool)
 
 ninja.build('templates', 'phony',
         inputs = [html_report_template])

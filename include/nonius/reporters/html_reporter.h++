@@ -38,9 +38,17 @@ namespace nonius {
     struct html_reporter : reporter {
     private:
         static std::string const& template_string() {
-            static std::string const the_template =
+            static char const* template_parts[] = {
+// generated content
 #include <nonius/detail/html_report_template.g.h++>
-            ;
+            };
+            static std::string const the_template = []() -> std::string {
+                std::string s;
+                for(auto part : template_parts) {
+                    s += part;
+                }
+                return s;
+            }();
             return the_template;
         }
 
