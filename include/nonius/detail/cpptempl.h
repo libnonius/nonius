@@ -137,7 +137,7 @@ namespace cpptempl
     {
     public:
         TemplateException(std::string reason) : m_reason(std::move(reason)){}
-        const char* what() const NONIUS_NOEXCEPT {
+        char const* what() const NONIUS_NOEXCEPT override {
             return m_reason.c_str();
         }
     private:
