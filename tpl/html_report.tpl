@@ -4,6 +4,11 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>{$title} - nonius report</title>
   <style type="text/css">
+#all-together {
+  min-width: 310px;
+  height: 400px;
+  margin: 0 auto;
+}
   </style>
   <script type="text/javascript">
 /*! jQuery v1.11.0 | (c) 2005, 2014 jQuery Foundation, Inc. | jquery.org/license */
@@ -381,7 +386,7 @@ $(function () {
  </head>
 
  <body>
-  <div id="all-together" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+  <div id="all-together"></div>
  </body>
 </html>
 

@@ -76,7 +76,7 @@ ninja.variable('builddir', 'obj' + os.sep)
 # --- rules
 
 ninja.rule('bootstrap',
-        command = ' '.join(sys.argv),
+        command = ' '.join(['python'] + sys.argv),
         generator = True,
         description = 'BOOTSTRAP')
 
@@ -95,11 +95,11 @@ ninja.rule('lib',
         description = 'AR $in')
 
 ninja.rule('stringize',
-        command = ' '.join([stringize_tool, '$in', '$out']),
+        command = ' '.join(['python', stringize_tool, '$in', '$out']),
         description = 'STRINGIZE $in')
 
 ninja.rule('header',
-        command = ' '.join([single_header_tool, '$in', '$out']),
+        command = ' '.join(['python', single_header_tool, '$in', '$out']),
         description = 'HEADER $in')
 
 # --- build edges
@@ -149,7 +149,7 @@ ninja.build(html_report_template, 'stringize',
         implicit = stringize_tool)
 
 ninja.build('templates', 'phony',
-        inputs = [html_report_template])
+        inputs = html_report_template)
 
 
 # --- examples

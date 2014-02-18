@@ -103,7 +103,7 @@ for generating HTML from a template.
 [Nonius][wikipedia] is a device created in 1542 by the Portuguese inventor
 Pedro Nunes (Petrus Nonius in Latin) that improved the accuracy of the
 astrolabe. It was adapted in 1631 by the French mathematician Pierre Vernier to
-created the vernier scale.
+create the vernier scale.
 
  [wikipedia]: http://en.wikipedia.org/wiki/Nonius_%28device%29
 
