@@ -16,6 +16,12 @@ def flags(*iterables):
 def include(d):
     return '-I' + d;
 
+def warning(d):
+    return '-W' + d;
+
+def no_warning(d):
+    return '-Wno-' + d;
+
 def define(d):
     return '-D' + d;
 
@@ -50,7 +56,9 @@ dependencies = ['catch', 'wheels']
 include_flags = flags([include('include')], map(dependency_include, dependencies), ['-isystemdeps/cpptemplate'])
 if(args.boost_dir):
     include_flags += ' ' + dependency_include(args.boost_dir)
-cxx_flags = flags(['-Wall', '-Wextra', '-pedantic', '-Werror', '-std=c++11', '-pthread', '-g' if args.debug else '-O3'])
+cxx_flags = flags(['-pedantic', '-std=c++11', '-pthread', '-g' if args.debug else '-O3'])
+warning_flags = flags(map(warning, ['all', 'extra', 'error']))
+ignored_warning_flags = flags(map(no_warning, ['overlength-strings']))
 define_flags = ''
 lib_flags = ''
 ld_flags = flags(['-pthread'] + [] if args.no_lto or args.debug else ['-flto'])
@@ -70,7 +78,7 @@ ninja.rule('bootstrap',
         description = 'BOOTSTRAP')
 
 ninja.rule('cxx',
-        command = args.cxx + ' -MMD -MF $out.d -c ' + cxx_flags + ' ' + include_flags + ' ' + define_flags + ' $in -o $out',
+        command = args.cxx + ' -MMD -MF $out.d -c ' + cxx_flags + ' ' + ignored_warning_flags + ' ' + include_flags + ' ' + define_flags + ' $in -o $out',
         deps = 'gcc',
         depfile = '$out.d',
         description = 'C++ $in')

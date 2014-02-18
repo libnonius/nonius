@@ -89,9 +89,9 @@ namespace cpptempl
         template<typename T> data_ptr(const T& data) {
             this->operator =(data);
         }
-        data_ptr(DataValue* data) : ptr(data) {}
-        data_ptr(DataList* data) : ptr(data) {}
-        data_ptr(DataMap* data) : ptr(data) {}
+        data_ptr(DataValue* data);
+        data_ptr(DataList* data);
+        data_ptr(DataMap* data);
         data_ptr(const data_ptr& data) {
             ptr = data.ptr;
         }
@@ -179,6 +179,10 @@ namespace cpptempl
         data_map& getmap();
         bool empty();
     };
+
+    inline data_ptr::data_ptr(DataValue* data) : ptr(data) {}
+    inline data_ptr::data_ptr(DataList* data) : ptr(data) {}
+    inline data_ptr::data_ptr(DataMap* data) : ptr(data) {}
 
     // convenience functions for making data objects
     inline data_ptr make_data(std::string val)
