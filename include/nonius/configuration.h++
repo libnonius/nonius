@@ -22,6 +22,7 @@ namespace nonius {
         int samples = 100;
         double confidence_interval = 0.95;
         int resamples = 100000;
+        std::string title = "nonius benchmarks";
         std::string output_file;
         std::string reporter;
         bool list_benchmarks = false;

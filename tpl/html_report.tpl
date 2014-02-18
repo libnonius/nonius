@@ -2,7 +2,7 @@
 <html>
  <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Nonius report</title>
+  <title>{$title} - nonius report</title>
   <style type="text/css">
   </style>
   <script type="text/javascript">

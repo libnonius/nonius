@@ -50,6 +50,7 @@ namespace nonius {
 
         void do_configure(configuration& cfg) override {
             cfg.no_analysis = true;
+            title = cfg.title;
             n_samples = cfg.samples;
             verbose = cfg.verbose;
         }
@@ -90,7 +91,7 @@ namespace nonius {
             auto magnitude = ideal_magnitude();
 
             cpptempl::data_map map;
-            map["title"] = "Benchmarks";
+            map["title"] = escape(title);
             map["units"] = detail::units_for_magnitude(magnitude);
             for(auto d : data) {
                 cpptempl::data_map item;
@@ -137,6 +138,7 @@ namespace nonius {
 
         int n_samples;
         bool verbose;
+        std::string title;
         std::string current;
         std::unordered_map<std::string, std::vector<fp_seconds>> data;
     };

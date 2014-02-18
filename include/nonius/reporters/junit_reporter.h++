@@ -44,6 +44,7 @@ namespace nonius {
             confidence_interval = cfg.confidence_interval;
             resamples = cfg.resamples;
             verbose = cfg.verbose;
+            title = cfg.title;
         }
 
         struct result {
@@ -88,7 +89,7 @@ namespace nonius {
             if(verbose) progress_stream() << "\ngenerating JUnit report\n";
 
             report_stream() << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-            report_stream() << "<testsuite name=\"Nonius benchmarks\" tests=\"" << data.size() << "\"";
+            report_stream() << "<testsuite name=\"" << escape(title) << "\" tests=\"" << data.size() << "\"";
             int failures = std::count_if(data.begin(), data.end(),
                     [](std::pair<std::string const&, result> const& p) {
                         return static_cast<bool>(p.second.failure);
@@ -142,8 +143,9 @@ namespace nonius {
         int n_samples;
         double confidence_interval;
         int resamples;
-
         bool verbose;
+        std::string title;
+
         std::string current;
         std::unordered_map<std::string, result> data;
     };

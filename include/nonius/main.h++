@@ -74,6 +74,7 @@ namespace nonius {
                 detail::option("confidence-interval", "ci", "confidence interval for the bootstrap (between 0 and 1, default: 0.95)", "INTERVAL"),
                 detail::option("output", "o", "output file (default: <stdout>)", "FILE"),
                 detail::option("reporter", "r", "reporter to use (default: standard)", "REPORTER"),
+                detail::option("title", "t", "set report title", "TITLE"),
                 detail::option("no-analysis", "A", "perform only measurements; do not perform any analysis"),
                 detail::option("list", "l", "list benchmarks"),
                 detail::option("list-reporters", "lr", "list available reporters"),
@@ -105,6 +106,7 @@ namespace nonius {
                 parse(cfg.list_reporters, args, "list-reporters");
                 parse(cfg.verbose, args, "verbose");
                 parse(cfg.summary, args, "summary");
+                parse(cfg.title, args, "title");
                 if(cfg.verbose && cfg.summary) throw argument_error();
 
                 return cfg;

@@ -2,7 +2,7 @@
 "<html>\n"
 " <head>\n"
 "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
-"  <title>Nonius report</title>\n"
+"  <title>{$title} - nonius report</title>\n"
 "  <style type=\"text/css\">\n"
 "  </style>\n"
 "  <script type=\"text/javascript\">\n"
