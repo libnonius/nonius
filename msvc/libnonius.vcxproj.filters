@@ -84,4 +84,7 @@
       <Filter>reporters</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\nonius\constructor.h++" />
+  </ItemGroup>
 </Project>
