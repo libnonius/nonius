@@ -384,7 +384,7 @@ namespace cpptempl
         // quoted string
         if (key[0] == '\"')
         {
-            return make_data(boost::trim_copy_if(key, boost::is_any_of("\""))) ;
+			return make_data(boost::trim_copy_if(key, [](char c){ return c == '"'; }));
         }
         // check for dotted notation, i.e [foo.bar]
         size_t index = key.find(".") ;

@@ -19,6 +19,7 @@
 #include <nonius/configuration.h++>
 #include <nonius/environment.h++>
 #include <nonius/reporter.h++>
+#include <nonius/reporters/standard_reporter.h++>
 #include <nonius/detail/estimate_clock.h++>
 #include <nonius/detail/analyse.h++>
 #include <nonius/detail/complete_invoke.h++>
