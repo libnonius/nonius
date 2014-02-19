@@ -83,8 +83,6 @@
     <ClInclude Include="..\include\nonius\reporters\junit_reporter.h++">
       <Filter>reporters</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\include\nonius\constructor.h++" />
+    <ClInclude Include="..\include\nonius\constructor.h++" />
   </ItemGroup>
 </Project>

@@ -119,7 +119,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\include\nonius\constructor.h++" />
+    <ClInclude Include="..\include\nonius\constructor.h++">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{57AFC47E-B3B1-4271-A5A0-E75CFA671395}</ProjectGuid>
