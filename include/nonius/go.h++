@@ -26,6 +26,7 @@
 #include <nonius/detail/noexcept.h++>
 
 #include <exception>
+#include <iostream>
 #include <utility>
 
 namespace nonius {
@@ -99,9 +100,16 @@ namespace nonius {
     void go(configuration cfg, Iterator first, Iterator last, reporter&& rep) {
         go(cfg, first, last, rep);
     }
+    struct no_such_reporter : virtual std::exception {
+        char const* what() const NONIUS_NOEXCEPT override {
+            return "reporter could not be found";
+        }
+    };
     template <typename Clock = default_clock, typename Iterator>
     void go(configuration cfg, Iterator first, Iterator last) {
-        go(cfg, first, last, *reporter_registry()[cfg.reporter]);
+        auto it = reporter_registry().find(cfg.reporter);
+        if(it == reporter_registry().end()) throw no_such_reporter();
+        go(cfg, first, last, *it->second);
     }
 } // namespace nonius
 
