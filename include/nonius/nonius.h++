@@ -16,6 +16,7 @@
 
 #include <nonius/clock.h++>
 #include <nonius/benchmark.h++>
+#include <nonius/constructor.h++>
 #include <nonius/configuration.h++>
 #include <nonius/chronometer.h++>
 #include <nonius/go.h++>
