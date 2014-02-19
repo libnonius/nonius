@@ -19,11 +19,13 @@
 #include <nonius/environment.h++>
 #include <nonius/execution_plan.h++>
 #include <nonius/sample_analysis.h++>
+#include <nonius/detail/noexcept.h++>
 
 #include <boost/variant.hpp>
 
 #include <vector>
 #include <string>
+#include <ios>
 #include <ostream>
 #include <fstream>
 #include <iostream>
@@ -32,6 +34,12 @@
 #include <exception>
 
 namespace nonius {
+    struct bad_stream : virtual std::exception {
+        char const* what() const NONIUS_NOEXCEPT override {
+            return "failed to open file";
+        }
+    };
+
     struct reporter {
     public:
         virtual ~reporter() = default;
@@ -42,6 +50,8 @@ namespace nonius {
             } else {
                 os = std::unique_ptr<std::ostream>(new std::ofstream(cfg.output_file));
             }
+            report_stream().exceptions(std::ios::failbit);
+            if(!report_stream()) throw bad_stream();
             do_configure(cfg);
         }
 

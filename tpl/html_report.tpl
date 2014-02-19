@@ -328,7 +328,7 @@ $(function () {
             },
             yAxis: {
                 title: { text: 'Time ({$units})' },
-                startOnTick: true,
+                startOnTick: false,
                 endOnTick: true,
                 showLastLabel: true,
             },
@@ -369,7 +369,7 @@ $(function () {
                     },
                     tooltip: {
                         headerFormat: '<b>{series.name}</b><br>',
-                        pointFormat: 'Run #{point.x}: {point.y} {$units}'
+                        pointFormat: 'Run #{point.x}: <b>{point.y} {$units}</b>'
                     }
                 }
             },
