@@ -23,6 +23,7 @@
 #include <nonius/detail/benchmark_function.h++>
 #include <nonius/detail/repeat.h++>
 #include <nonius/detail/run_for_at_least.h++>
+#include <nonius/detail/unique_name.h++>
 
 #include <algorithm>
 #include <functional>

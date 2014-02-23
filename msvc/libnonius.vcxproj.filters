@@ -85,4 +85,9 @@
     </ClInclude>
     <ClInclude Include="..\include\nonius\constructor.h++" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\nonius\detail\unique_name.h++">
+      <Filter>detail</Filter>
+    </None>
+  </ItemGroup>
 </Project>

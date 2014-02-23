@@ -123,6 +123,9 @@
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\nonius\detail\unique_name.h++" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{57AFC47E-B3B1-4271-A5A0-E75CFA671395}</ProjectGuid>
     <RootNamespace>libnonius</RootNamespace>

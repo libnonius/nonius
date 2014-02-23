@@ -20,6 +20,7 @@
 #include <nonius/execution_plan.h++>
 #include <nonius/sample_analysis.h++>
 #include <nonius/detail/noexcept.h++>
+#include <nonius/detail/unique_name.h++>
 
 #include <boost/variant.hpp>
 
@@ -165,10 +166,6 @@ namespace nonius {
         }
     };
 } // namespace nonius
-
-#define NONIUS_DETAIL_UNIQUE_NAME_LINE2(name, line) NONIUS_ ## name ## _ ## line
-#define NONIUS_DETAIL_UNIQUE_NAME_LINE(name, line) NONIUS_DETAIL_UNIQUE_NAME_LINE2(name, line)
-#define NONIUS_DETAIL_UNIQUE_NAME(name) NONIUS_DETAIL_UNIQUE_NAME_LINE(name, __LINE__)
 
 #define NONIUS_REPORTER(name, ...) \
     namespace { static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (name, new __VA_ARGS__()); } \
