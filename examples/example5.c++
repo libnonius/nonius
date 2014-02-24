@@ -15,17 +15,18 @@ NONIUS_BENCHMARK("construct large", [](nonius::chronometer meter)
     meter.measure([&](int i) { storage[i].construct("It was big. Really, really big. No, bigger than that. Even bigger. Keep going. More. No, more. Look, we're talking krakens and dreadnoughts for jewelry. It was big!"); });
 })
 
-
 NONIUS_BENCHMARK("destroy small", [](nonius::chronometer meter)
 {
     std::vector<nonius::destructable_object<std::string>> storage(meter.runs());
-    std::for_each(storage.begin(), storage.end(), [](nonius::destructable_object<std::string>& object) { object.construct("small"); });
+    for(auto&& o : storage)
+        o.construct("small");
     meter.measure([&](int i) { storage[i].destruct(); });
 })
 
 NONIUS_BENCHMARK("destroy large", [](nonius::chronometer meter)
 {
     std::vector<nonius::destructable_object<std::string>> storage(meter.runs());
-    std::for_each(storage.begin(), storage.end(), [](nonius::destructable_object<std::string>& object) { object.construct("It was big. Really, really big. No, bigger than that. Even bigger. Keep going. More. No, more. Look, we're talking krakens and dreadnoughts for jewelry. It was big!"); });
+    for(auto&& o : storage)
+        o.construct("It was big. Really, really big. No, bigger than that. Even bigger. Keep going. More. No, more. Look, we're talking krakens and dreadnoughts for jewelry. It was big!");
     meter.measure([&](int i) { storage[i].destruct(); });
 })
