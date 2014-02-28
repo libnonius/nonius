@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="css/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="css/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="css/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Nonius by rmartinho</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Nonius</h1>
+          <h2>A C++ benchmarking framework</h2>
+        </header>
+
+        <hr>
+
+        <section id="main_content">
+
+<h2>
+<a name="what-is-nonius" class="anchor" href="#what-is-nonius"><span class="octicon octicon-link"></span></a>What is nonius?</h2>
+
+<p>Nonius is a framework for benchmarking small snippets of C++ code. It is very
+heavily inspired by <a href="http://www.serpentine.com/blog/2009/09/29/criterion-a-new-benchmarking-library-for-haskell/">Criterion</a>, a similar Haskell-based tool. It
+runs your code, measures the time it takes to run, and then performs some
+statistical analysis on those measurements.</p>
+
+<h2>
+<a name="how-do-i-use-it" class="anchor" href="#how-do-i-use-it"><span class="octicon octicon-link"></span></a>How do I use it?</h2>
+
+<p>The library itself is header-only, so you don't have to build anything. It
+requires a C++11 capable compiler; it was tested with GCC 4.8.1, clang 3.4, and
+VC++ 18.0. Most development takes place in the <code>devel</code> branch with GCC with
+clang. The <code>msvc</code> branch tracks the latest successfully tested revision on
+VC++ and the <code>stable</code> branch tracks the latest revision that was tested
+successfully on all three compilers.</p>
+
+<p>It depends on <a href="http://www.boost.org">Boost</a> for a few mathematical functions, for some
+string algorithms, and, in VC++, for the timing functions as well. Boost.Chrono
+is not a header-only library, but since it is only used with VC++ everything
+gets linked automatically without intervention.</p>
+
+<p>In the <a href="http://teamcity.loungecpp.net/project.html?projectId=Nonius">CI server</a> you can grab a single header file with everything, ready to
+be #included in your files.</p>
+
+<p>There are examples of both simple and advanced usage in the <code>examples</code> folder.</p>
+
+<p>If you just want to run a quick benchmark you can put everything in one file,
+as in the examples. If you prefer to separate things into different files, it
+is recommended that you create one small file with the runner code by #defining
+the macro <code>NONIUS_RUNNER</code> and then #including the nonius single header. In other
+files you don't #define that macro; just #include the header and write the
+benchmarks. Then compile and link everything together.</p>
+
+<p>Nonius standard runner has several command-line options for configuring a run.
+Pass the <code>--help</code> flag to the compiled runner to see the various flags and a
+short description of each. The standard runner includes all your benchmarks and
+four reporters: plain text, CSV with raw timings, JUnit-compatible XML, and a
+nice HTML file with a scatter plot of the timings.</p>
+
+<h2>
+<a name="woah-what-do-all-these-numbers-mean" class="anchor" href="#woah-what-do-all-these-numbers-mean"><span class="octicon octicon-link"></span></a>Woah, what do all these numbers mean?</h2>
+
+<p>If you execute the standard runner without requesting a particular reporter,
+nonius will use plain text to report the results.</p>
+
+<p>The first thing that nonius does when benchmarking is to find out where it is
+running. It estimates the resolution and the cost of using the clock. It will
+print out the mean of the samples it took, and also some information about the
+spread of those values, namely any outliers seen.</p>
+
+<p>Outliers are classified as "low" or "high" depending on whether they are above
+or below the mean. They can be "mild" or "severe" if they are relatively far
+from the rest of the measurements. If you request verbose output the default
+reporter will provide outlier classification.</p>
+
+<p>After ascertaining the characteristics of the environment, the benchmarks are
+run in sequence. Each one consists of taking a number of samples determined by
+the configuration (defaults to 100). Each sample consists of running the code
+being measured for a number of times that makes sure it takes enough time that
+the clock resolution does not affect the measurement.</p>
+
+<p>After the measurements are performed, a statistical <a href="http://en.wikipedia.org/wiki/Bootstrapping_%28statistics%29">bootstrapping</a> is performed
+on the data. The number of resamples is configurable but defaults to 100000.
+After the bootstrapping is done, the mean and standard deviation estimates are
+printed out, along with their confidence interval, followed by information about
+the outliers. The very last information tells us if the outliers might be
+important: if they affect the variance greatly, our measurements might not be
+very trustworthy. It could be that there is another factor affecting our
+measurements (say, some other application that was doing some heavy task at the
+same time), or maybe the code being measure varies wildly in performance.
+Nonius will provide the data; it's up to you to make sense of it.</p>
+
+<h2>
+<a name="are-there-any-restrictions-on-the-use-of-nonius" class="anchor" href="#are-there-any-restrictions-on-the-use-of-nonius"><span class="octicon octicon-link"></span></a>Are there any restrictions on the use of nonius?</h2>
+
+<p>Nonius is released under the <a href="http://creativecommons.org/publicdomain/zero/1.0/">CC0</a> license, which is essentially a public
+domain dedication with legalese to emulate the public domain as much as
+possible under jurisdictions that do not have such a concept. That means you
+can really do whatever you want with the code in nonius, because I waived as
+many of my rights on it as I am allowed.</p>
+
+<p>However, currently nonius makes use of some code distributed under the
+<a href="http://creativecommons.org/licenses/by-nc/3.0/">CC-BY-NC</a> and the <a href="https://bitbucket.org/ginstrom/cpptemplate/raw/d4263ca998038f7ae18aeb9d2358f0c11f00552d/LICENSE.txt">MIT</a> licenses. The <code>html</code> reporter uses the <a href="http://www.highcharts.com/">Highcharts JS</a>
+and <a href="http://jquery.org/">jQuery</a> libraries for the interactive charts and the <a href="https://bitbucket.org/ginstrom/cpptemplate">cpptemplate</a> library
+for generating HTML from a template.</p>
+
+<h2>
+<a name="what-does-nonius-mean" class="anchor" href="#what-does-nonius-mean"><span class="octicon octicon-link"></span></a>What does "nonius" mean?</h2>
+
+<p><a href="http://en.wikipedia.org/wiki/Nonius_%28device%29">Nonius</a> is a device created in 1542 by the Portuguese inventor
+Pedro Nunes (Petrus Nonius in Latin) that improved the accuracy of the
+astrolabe. It was adapted in 1631 by the French mathematician Pierre Vernier to
+create the vernier scale.</p>
+        </section>
+
+        <footer>
+          Nonius is maintained by <a href="https://github.com/rmartinho">rmartinho</a><br>
+          Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+      </div>
+    </div>
+  </body>
+</html>
