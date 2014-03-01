@@ -10,7 +10,7 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Nonius by rmartinho</title>
+    <title>Nonius</title>
   </head>
 
   <body>
@@ -26,20 +26,18 @@
 
         <section id="main_content">
 
-<h2>
-<a name="what-is-nonius" class="anchor" href="#what-is-nonius"><span class="octicon octicon-link"></span></a>What is nonius?</h2>
+<h2>What is nonius?</h2>
 
 <p>Nonius is a framework for benchmarking small snippets of C++ code. It is very
 heavily inspired by <a href="http://www.serpentine.com/blog/2009/09/29/criterion-a-new-benchmarking-library-for-haskell/">Criterion</a>, a similar Haskell-based tool. It
 runs your code, measures the time it takes to run, and then performs some
 statistical analysis on those measurements.</p>
 
-<h2>
-<a name="how-do-i-use-it" class="anchor" href="#how-do-i-use-it"><span class="octicon octicon-link"></span></a>How do I use it?</h2>
+<h2>How do I use it?</h2>
 
 <p>The library itself is header-only, so you don't have to build anything. It
-requires a C++11 capable compiler; it was tested with GCC 4.8.1, clang 3.4, and
-VC++ 18.0. Most development takes place in the <code>devel</code> branch with GCC with
+requires a C++11 capable compiler; it was tested with GCC 4.8.3, clang 3.5, and
+VC++ 19.0. Most development takes place in the <code>devel</code> branch with GCC with
 clang. The <code>msvc</code> branch tracks the latest successfully tested revision on
 VC++ and the <code>stable</code> branch tracks the latest revision that was tested
 successfully on all three compilers.</p>
@@ -49,8 +47,9 @@ string algorithms, and, in VC++, for the timing functions as well. Boost.Chrono
 is not a header-only library, but since it is only used with VC++ everything
 gets linked automatically without intervention.</p>
 
-<p>In the <a href="http://teamcity.loungecpp.net/project.html?projectId=Nonius">CI server</a> you can grab a single header file with everything, ready to
-be #included in your files.</p>
+<p>In the <a href="https://github.com/rmartinho/nonius/releases">releases</a>
+page you can grab a single header file with everything, ready to be #included
+in your files.</p>
 
 <p>There are examples of both simple and advanced usage in the <code>examples</code> folder.</p>
 
@@ -67,8 +66,7 @@ short description of each. The standard runner includes all your benchmarks and
 four reporters: plain text, CSV with raw timings, JUnit-compatible XML, and a
 nice HTML file with a scatter plot of the timings.</p>
 
-<h2>
-<a name="woah-what-do-all-these-numbers-mean" class="anchor" href="#woah-what-do-all-these-numbers-mean"><span class="octicon octicon-link"></span></a>Woah, what do all these numbers mean?</h2>
+<h2>Woah, what do all these numbers mean?</h2>
 
 <p>If you execute the standard runner without requesting a particular reporter,
 nonius will use plain text to report the results.</p>
@@ -100,8 +98,7 @@ measurements (say, some other application that was doing some heavy task at the
 same time), or maybe the code being measure varies wildly in performance.
 Nonius will provide the data; it's up to you to make sense of it.</p>
 
-<h2>
-<a name="are-there-any-restrictions-on-the-use-of-nonius" class="anchor" href="#are-there-any-restrictions-on-the-use-of-nonius"><span class="octicon octicon-link"></span></a>Are there any restrictions on the use of nonius?</h2>
+<h2>Are there any restrictions on the use of nonius?</h2>
 
 <p>Nonius is released under the <a href="http://creativecommons.org/publicdomain/zero/1.0/">CC0</a> license, which is essentially a public
 domain dedication with legalese to emulate the public domain as much as
@@ -114,8 +111,7 @@ many of my rights on it as I am allowed.</p>
 and <a href="http://jquery.org/">jQuery</a> libraries for the interactive charts and the <a href="https://bitbucket.org/ginstrom/cpptemplate">cpptemplate</a> library
 for generating HTML from a template.</p>
 
-<h2>
-<a name="what-does-nonius-mean" class="anchor" href="#what-does-nonius-mean"><span class="octicon octicon-link"></span></a>What does "nonius" mean?</h2>
+<h2>What does "nonius" mean?</h2>
 
 <p><a href="http://en.wikipedia.org/wiki/Nonius_%28device%29">Nonius</a> is a device created in 1542 by the Portuguese inventor
 Pedro Nunes (Petrus Nonius in Latin) that improved the accuracy of the
