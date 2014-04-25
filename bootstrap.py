@@ -135,14 +135,6 @@ ninja.build(test_runner, 'link',
 ninja.build('test', 'phony',
         inputs = test_runner)
 
-header = os.path.join('dist', 'nonius.h++')
-ninja.build(header, 'header',
-        inputs = os.path.join('include', 'nonius', 'nonius_single.h++'),
-        implicit = single_header_tool)
-
-ninja.build('header', 'phony',
-        inputs = header)
-
 html_report_template = 'include/nonius/detail/html_report_template.g.h++'
 ninja.build(html_report_template, 'stringize',
         inputs = 'tpl/html_report.tpl',
@@ -151,6 +143,14 @@ ninja.build(html_report_template, 'stringize',
 ninja.build('templates', 'phony',
         inputs = html_report_template)
 
+header = os.path.join('dist', 'nonius.h++')
+ninja.build(header, 'header',
+        inputs = os.path.join('include', 'nonius', 'nonius_single.h++'),
+        implicit = single_header_tool,
+        order_only = 'templates')
+
+ninja.build('header', 'phony',
+        inputs = header)
 
 # --- examples
 
