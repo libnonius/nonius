@@ -25,6 +25,7 @@
 #include <nonius/detail/complete_invoke.h++>
 #include <nonius/detail/noexcept.h++>
 
+#include <set>
 #include <exception>
 #include <iostream>
 #include <utility>
@@ -96,6 +97,22 @@ namespace nonius {
 
         rep.suite_complete();
     }
+    struct duplicate_benchmarks : virtual std::exception {
+        char const* what() const NONIUS_NOEXCEPT override {
+            return "two or more benchmarks with the same name were registered";
+        }
+    };
+    template <typename Clock = default_clock, typename Iterator>
+    void validate_benchmarks(Iterator first, Iterator last) {
+        struct strings_eq_through_pointer {
+            bool operator()(std::string* a, std::string* b) const { return *a < *b; };
+        };
+        std::set<std::string*, strings_eq_through_pointer> names;
+        for(; first != last; ++first) {
+            if(!names.insert(&first->name).second)
+                throw duplicate_benchmarks();
+        }
+    }
     template <typename Clock = default_clock, typename Iterator>
     void go(configuration cfg, Iterator first, Iterator last, reporter&& rep) {
         go(cfg, first, last, rep);
@@ -109,6 +126,7 @@ namespace nonius {
     void go(configuration cfg, Iterator first, Iterator last) {
         auto it = reporter_registry().find(cfg.reporter);
         if(it == reporter_registry().end()) throw no_such_reporter();
+        validate_benchmarks(first, last);
         go(cfg, first, last, *it->second);
     }
 } // namespace nonius
