@@ -5,11 +5,11 @@
 
 int main() {
     nonius::configuration cfg;
-    nonius::benchmark benchmarks[] = {
+    nonius::benchmark_registry benchmarks = {
         nonius::benchmark("to_string(42)", []{ return std::to_string(42); }),
         nonius::benchmark("to_string(4.2)", []{ return std::to_string(4.2); }),
     };
 
-    nonius::go(cfg, std::begin(benchmarks), std::end(benchmarks));
+    nonius::go(cfg, benchmarks);
 }
 

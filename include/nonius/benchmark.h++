@@ -42,9 +42,6 @@ namespace nonius {
         benchmark(std::string name, detail::benchmark_function fun)
         : name(std::move(name)), fun(std::move(fun)) {}
 
-        benchmark(benchmark&& that)
-        : name(std::move(that.name)), fun(std::move(that.fun)) {}
-
         void operator()(chronometer meter) const {
             fun(meter);
         }
@@ -81,21 +78,23 @@ namespace nonius {
         detail::benchmark_function fun;
     };
 
-    inline std::vector<benchmark>& benchmark_registry() {
-        static std::vector<benchmark> registry;
+    using benchmark_registry = std::vector<benchmark>;
+
+    inline benchmark_registry& global_benchmark_registry() {
+        static benchmark_registry registry;
         return registry;
     }
 
     struct benchmark_registrar {
         template <typename Fun>
-        benchmark_registrar(std::string name, Fun&& registrant) {
-            benchmark_registry().emplace_back(std::move(name), std::forward<Fun>(registrant));
+        benchmark_registrar(benchmark_registry& registry, std::string name, Fun&& registrant) {
+            registry.emplace_back(std::move(name), std::forward<Fun>(registrant));
         }
     };
 } // namespace nonius
 
 #define NONIUS_BENCHMARK(name, ...) \
-    namespace { static ::nonius::benchmark_registrar NONIUS_DETAIL_UNIQUE_NAME(benchmark_registrar) (name, __VA_ARGS__); }
+    namespace { static ::nonius::benchmark_registrar NONIUS_DETAIL_UNIQUE_NAME(benchmark_registrar) (::nonius::global_benchmark_registry(), name, __VA_ARGS__); }
 
 #endif // NONIUS_BENCHMARK_HPP
 

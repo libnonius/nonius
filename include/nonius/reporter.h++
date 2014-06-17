@@ -155,20 +155,22 @@ namespace nonius {
         boost::variant<std::ostream*, std::unique_ptr<std::ostream>> os;
     };
 
-    inline std::unordered_map<std::string, std::unique_ptr<reporter>>& reporter_registry() {
-        static std::unordered_map<std::string, std::unique_ptr<reporter>> registry;
+    using reporter_registry = std::unordered_map<std::string, std::unique_ptr<reporter>>;
+
+    inline reporter_registry& global_reporter_registry() {
+        static reporter_registry registry;
         return registry;
     }
 
     struct reporter_registrar {
-        reporter_registrar(std::string name, reporter* registrant) {
-            reporter_registry().emplace(std::move(name), std::unique_ptr<reporter>(registrant));
+        reporter_registrar(reporter_registry& registry, std::string name, reporter* registrant) {
+            registry.emplace(std::move(name), std::unique_ptr<reporter>(registrant));
         }
     };
 } // namespace nonius
 
 #define NONIUS_REPORTER(name, ...) \
-    namespace { static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (name, new __VA_ARGS__()); } \
+    namespace { static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (::nonius::global_reporter_registry(), name, new __VA_ARGS__()); } \
     static_assert(true, "")
 
 #endif // NONIUS_REPORTER_HPP

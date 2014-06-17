@@ -104,10 +104,10 @@ namespace nonius {
     };
     template <typename Clock = default_clock, typename Iterator>
     void validate_benchmarks(Iterator first, Iterator last) {
-        struct strings_eq_through_pointer {
+        struct strings_lt_through_pointer {
             bool operator()(std::string* a, std::string* b) const { return *a < *b; };
         };
-        std::set<std::string*, strings_eq_through_pointer> names;
+        std::set<std::string*, strings_lt_through_pointer> names;
         for(; first != last; ++first) {
             if(!names.insert(&first->name).second)
                 throw duplicate_benchmarks();
@@ -122,12 +122,12 @@ namespace nonius {
             return "reporter could not be found";
         }
     };
-    template <typename Clock = default_clock, typename Iterator>
-    void go(configuration cfg, Iterator first, Iterator last) {
-        auto it = reporter_registry().find(cfg.reporter);
-        if(it == reporter_registry().end()) throw no_such_reporter();
-        validate_benchmarks(first, last);
-        go(cfg, first, last, *it->second);
+    template <typename Clock = default_clock>
+    void go(configuration cfg, benchmark_registry& benchmarks = global_benchmark_registry(), reporter_registry& reporters = global_reporter_registry()) {
+        auto it = reporters.find(cfg.reporter);
+        if(it == reporters.end()) throw no_such_reporter();
+        validate_benchmarks(benchmarks.begin(), benchmarks.end());
+        go(cfg, benchmarks.begin(), benchmarks.end(), *it->second);
     }
 } // namespace nonius
 

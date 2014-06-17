@@ -93,7 +93,7 @@ namespace nonius {
 
                 auto is_positive = [](int x) { return x > 0; };
                 auto is_ci = [](double x) { return x > 0 && x < 1; };
-                auto is_reporter = [](std::string const x) { return reporter_registry().count(x) > 0; };
+                auto is_reporter = [](std::string const x) { return global_reporter_registry().count(x) > 0; };
 
                 parse(cfg.help, args, "help");
                 parse(cfg.samples, args, "samples", is_positive);
@@ -123,20 +123,20 @@ namespace nonius {
     }
     inline int list_benchmarks() {
         std::cout << "All available benchmarks:\n";
-        for(auto&& b : benchmark_registry()) {
+        for(auto&& b : global_benchmark_registry()) {
             std::cout << "  " << b.name << "\n";
         }
-        std::cout << benchmark_registry().size() << " benchmarks\n\n";
+        std::cout << global_benchmark_registry().size() << " benchmarks\n\n";
         return 0;
     }
     inline int list_reporters() {
-        using reporter_entry_ref = decltype(*reporter_registry().begin());
+        using reporter_entry_ref = decltype(*global_reporter_registry().begin());
         auto cmp = [](reporter_entry_ref a, reporter_entry_ref b) { return a.first.size() < b.first.size(); };
-        auto width = 2 + std::max_element(reporter_registry().begin(), reporter_registry().end(), cmp)->first.size();
+        auto width = 2 + std::max_element(global_reporter_registry().begin(), global_reporter_registry().end(), cmp)->first.size();
 
         std::cout << "Available reporters:\n";
         std::cout << std::left;
-        for(auto&& r : reporter_registry()) {
+        for(auto&& r : global_reporter_registry()) {
             if(!r.first.empty()) {
                 std::cout << "  " << std::setw(width) << r.first << r.second->description() << "\n";
             }
@@ -146,7 +146,7 @@ namespace nonius {
     }
     inline int run_it(configuration cfg) {
         try {
-            nonius::go(cfg, benchmark_registry().begin(), benchmark_registry().end());
+            nonius::go(cfg);
         } catch(...) {
             std::cerr << "PANIC: clock is on fire\n";
             try {
@@ -157,7 +157,6 @@ namespace nonius {
             return 23;
         }
         return 0;
-
     }
 
     template <typename Iterator>
