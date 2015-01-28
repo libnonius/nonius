@@ -99,7 +99,7 @@ namespace nonius {
             auto first = source.begin();
             auto last = source.end();
 
-            int quotes = std::count(first, last, '"');
+            std::ptrdiff_t quotes = std::count(first, last, '"');
             if(quotes == 0) return source;
 
             std::string escaped;

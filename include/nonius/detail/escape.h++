@@ -29,7 +29,7 @@ namespace nonius {
             auto first = source.begin();
             auto last = source.end();
 
-            int n_magic = std::count_if(first, last, [&magic](char c) { return magic.find(c) != std::string::npos; });
+            std::ptrdiff_t n_magic = std::count_if(first, last, [&magic](char c) { return magic.find(c) != std::string::npos; });
 
             std::string escaped;
             escaped.reserve(source.size() + n_magic*6);
