@@ -90,7 +90,7 @@ namespace nonius {
 
             report_stream() << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
             report_stream() << "<testsuite name=\"" << escape(title) << "\" tests=\"" << data.size() << "\"";
-            int failures = std::count_if(data.begin(), data.end(),
+            std::ptrdiff_t failures = std::count_if(data.begin(), data.end(),
                     [](std::pair<std::string const&, result> const& p) {
                         return static_cast<bool>(p.second.failure);
                     });

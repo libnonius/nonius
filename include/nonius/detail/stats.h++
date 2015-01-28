@@ -39,7 +39,7 @@ namespace nonius {
 
         template <typename Iterator>
         double weighted_average_quantile(int k, int q, Iterator first, Iterator last) {
-            int count = last - first;
+            std::ptrdiff_t count = last - first;
             double idx = (count - 1) * k /(double) q;
             int j = (int)idx;
             double g = idx - j;
@@ -77,7 +77,7 @@ namespace nonius {
 
         template <typename Iterator>
         double mean(Iterator first, Iterator last) {
-            int count = last - first;
+            std::ptrdiff_t count = last - first;
             double sum = std::accumulate(first, last, 0.);
             return sum / count;
         }
@@ -94,8 +94,8 @@ namespace nonius {
 
         template <typename URng, typename Iterator, typename Estimator>
         sample resample(URng& rng, int resamples, Iterator first, Iterator last, Estimator& estimator) {
-            int n = last - first;
-            std::uniform_int_distribution<int> dist(0, n-1);
+            std::ptrdiff_t n = last - first;
+            std::uniform_int_distribution<std::ptrdiff_t> dist(0, n-1);
 
             sample out;
             out.reserve(resamples);
@@ -111,7 +111,7 @@ namespace nonius {
 
         template <typename Estimator, typename Iterator>
         sample jackknife(Estimator&& estimator, Iterator first, Iterator last) {
-            int n = last - first;
+            std::ptrdiff_t n = last - first;
             auto second = std::next(first);
             sample results;
             results.reserve(n);
@@ -128,7 +128,7 @@ namespace nonius {
         estimate<double> bootstrap(double confidence_level, Iterator first, Iterator last, sample const& resample, Estimator&& estimator) {
             namespace bm = boost::math;
 
-            int n_samples = last - first;
+            std::ptrdiff_t n_samples = last - first;
 
             double point = estimator(first, last);
             sample jack = jackknife(estimator, first, last);
@@ -142,25 +142,25 @@ namespace nonius {
                     });
 
             double accel = sum_cubes / (6 * std::pow(sum_squares, 1.5));
-            int n = resample.size();
+            std::ptrdiff_t n = resample.size();
             double prob_n = std::count_if(resample.begin(), resample.end(), [point](double x) { return x < point; }) /(double) n;
             double bias = bm::quantile(bm::normal{}, prob_n);
             double z1 = bm::quantile(bm::normal{}, (1. - confidence_level) / 2.);
 
-            auto cumn = [n](double x) -> int { return std::lround(bm::cdf(bm::normal{}, x) * n); };
+            auto cumn = [n](double x) -> std::ptrdiff_t { return std::lround(bm::cdf(bm::normal{}, x) * n); };
             auto a = [bias, accel](double b) { return bias + b / (1. - accel * b); };
             double b1 = bias + z1;
             double b2 = bias - z1;
             double a1 = a(b1);
             double a2 = a(b2);
-            int lo = std::max(cumn(a1), 0);
-            int hi = std::min(cumn(a2), n - 1);
+            std::ptrdiff_t lo = std::max(cumn(a1), static_cast<std::ptrdiff_t>(0));
+            std::ptrdiff_t hi = std::min(cumn(a2), n - 1);
 
             if(n_samples == 1) return { point, point, point, confidence_level };
             else return { point, resample[lo], resample[hi], confidence_level };
         }
 
-        inline double outlier_variance(estimate<double> mean, estimate<double> stddev, int n) {
+        inline double outlier_variance(estimate<double> mean, estimate<double> stddev, std::ptrdiff_t n) {
             double sb = stddev.point;
             double mn = mean.point / n;
             double mg_min = mn / 2.;
@@ -197,7 +197,7 @@ namespace nonius {
             static std::random_device entropy;
             static std::mt19937 rng;
 
-            int n = last - first;
+            std::ptrdiff_t n = last - first;
 
             auto mean = &detail::mean<Iterator>;
             auto stddev = &detail::standard_deviation<Iterator>;
@@ -205,8 +205,8 @@ namespace nonius {
             auto estimate = [=](double(*f)(Iterator, Iterator)) {
                 auto seed = entropy();
                 return std::async(std::launch::async, [=]{
-                    std::mt19937 rng(seed);
-                    auto resampled = resample(rng, n_resamples, first, last, f);
+                    std::mt19937 resamplerng(seed);
+                    auto resampled = resample(resamplerng, n_resamples, first, last, f);
                     return bootstrap(confidence_level, first, last, resampled, f);
                 });
             };
