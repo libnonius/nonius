@@ -68,7 +68,7 @@ namespace nonius {
         };
     
         template <typename Iterator, typename Projection>
-        int get_max_width(Iterator first, Iterator last, Projection proj) {
+        std::ptrdiff_t get_max_width(Iterator first, Iterator last, Projection proj) {
             auto it = std::max_element(first, last, [&proj](option const& a, option const& b) { return proj(a) < proj(b); });
             return proj(*it);
         }
