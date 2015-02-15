@@ -195,7 +195,6 @@ namespace nonius {
         template <typename Iterator>
         bootstrap_analysis analyse_samples(double confidence_level, int n_resamples, Iterator first, Iterator last) {
             static std::random_device entropy;
-            static std::mt19937 rng;
 
             int n = last - first;
 
