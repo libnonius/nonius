@@ -12,8 +12,8 @@ statistical analysis on those measurements.
 ## How do I use it?
 
 The library itself is header-only, so you don't have to build anything. It
-requires a C++11 capable compiler; it was tested with GCC 4.8.1, clang 3.4, and
-VC++ 18.0. Most development takes place in the `devel` branch with GCC with
+requires a C++11 capable compiler; it was tested with GCC 4.8.3, clang 3.5, and
+VC++ 19.0. Most development takes place in the `devel` branch with GCC with
 clang. The `msvc` branch tracks the latest successfully tested revision on
 VC++ and the `stable` branch tracks the latest revision that was tested
 successfully on all three compilers.
@@ -23,7 +23,7 @@ string algorithms, and, in VC++, for the timing functions as well. Boost.Chrono
 is not a header-only library, but since it is only used with VC++ everything
 gets linked automatically without intervention.
 
-In the [CI server] you can grab a single header file with everything, ready to
+In the [releases] page you can grab a single header file with everything, ready to
 be #included in your files.
 
 There are examples of both simple and advanced usage in the `examples` folder.
@@ -42,7 +42,7 @@ four reporters: plain text, CSV with raw timings, JUnit-compatible XML, and a
 nice HTML file with a scatter plot of the timings.
 
  [Boost]: http://www.boost.org
- [CI server]: http://teamcity.loungecpp.net/project.html?projectId=Nonius
+ [CI server]: https://github.com/rmartinho/nonius/releases
 
 ## Woah, what do all these numbers mean?
 
