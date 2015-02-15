@@ -92,7 +92,8 @@ class MsvcLikeToolchain:
         return []
 
     def max_warnings(self):
-        return ['/W3', '/WX']
+        return ['/W3', '/WX',
+                '/wd4244', '/wd4267'] # there's too much noise
 
     def compiler_output(self, file):
         return ['/Fo' + file]
