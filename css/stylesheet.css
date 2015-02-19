@@ -284,9 +284,13 @@ ul li {
   padding-left: 20px;
 }
 
+ol {
+  padding: 10px;
+}
+
 ol li {
-  list-style: decimal inside;
-  padding-left: 3px;
+  list-style: decimal;
+  padding-left: 10px;
 }
 
 dl dt {
