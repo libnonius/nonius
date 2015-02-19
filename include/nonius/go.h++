@@ -19,12 +19,15 @@
 #include <nonius/configuration.h++>
 #include <nonius/environment.h++>
 #include <nonius/reporter.h++>
+#include <nonius/reporters/standard_reporter.h++>
 #include <nonius/detail/estimate_clock.h++>
 #include <nonius/detail/analyse.h++>
 #include <nonius/detail/complete_invoke.h++>
 #include <nonius/detail/noexcept.h++>
 
+#include <set>
 #include <exception>
+#include <iostream>
 #include <utility>
 
 namespace nonius {
@@ -94,13 +97,37 @@ namespace nonius {
 
         rep.suite_complete();
     }
+    struct duplicate_benchmarks : virtual std::exception {
+        char const* what() const NONIUS_NOEXCEPT override {
+            return "two or more benchmarks with the same name were registered";
+        }
+    };
+    template <typename Clock = default_clock, typename Iterator>
+    void validate_benchmarks(Iterator first, Iterator last) {
+        struct strings_lt_through_pointer {
+            bool operator()(std::string* a, std::string* b) const { return *a < *b; };
+        };
+        std::set<std::string*, strings_lt_through_pointer> names;
+        for(; first != last; ++first) {
+            if(!names.insert(&first->name).second)
+                throw duplicate_benchmarks();
+        }
+    }
     template <typename Clock = default_clock, typename Iterator>
     void go(configuration cfg, Iterator first, Iterator last, reporter&& rep) {
         go(cfg, first, last, rep);
     }
-    template <typename Clock = default_clock, typename Iterator>
-    void go(configuration cfg, Iterator first, Iterator last) {
-        go(cfg, first, last, *reporter_registry()[cfg.reporter]);
+    struct no_such_reporter : virtual std::exception {
+        char const* what() const NONIUS_NOEXCEPT override {
+            return "reporter could not be found";
+        }
+    };
+    template <typename Clock = default_clock>
+    void go(configuration cfg, benchmark_registry& benchmarks = global_benchmark_registry(), reporter_registry& reporters = global_reporter_registry()) {
+        auto it = reporters.find(cfg.reporter);
+        if(it == reporters.end()) throw no_such_reporter();
+        validate_benchmarks(benchmarks.begin(), benchmarks.end());
+        go(cfg, benchmarks.begin(), benchmarks.end(), *it->second);
     }
 } // namespace nonius
 

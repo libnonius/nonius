@@ -12,6 +12,13 @@
 // Test runner
 
 #define CATCH_CONFIG_MAIN
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4297)
+#endif // _MSC_VER
 #include <catch.hpp>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif // _MSC_VER
 #include <wheels/test/catch_teamcity.h++>
 

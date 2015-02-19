@@ -19,11 +19,14 @@
 #include <nonius/environment.h++>
 #include <nonius/execution_plan.h++>
 #include <nonius/sample_analysis.h++>
+#include <nonius/detail/noexcept.h++>
+#include <nonius/detail/unique_name.h++>
 
 #include <boost/variant.hpp>
 
 #include <vector>
 #include <string>
+#include <ios>
 #include <ostream>
 #include <fstream>
 #include <iostream>
@@ -32,6 +35,12 @@
 #include <exception>
 
 namespace nonius {
+    struct bad_stream : virtual std::exception {
+        char const* what() const NONIUS_NOEXCEPT override {
+            return "failed to open file";
+        }
+    };
+
     struct reporter {
     public:
         virtual ~reporter() = default;
@@ -42,6 +51,8 @@ namespace nonius {
             } else {
                 os = std::unique_ptr<std::ostream>(new std::ofstream(cfg.output_file));
             }
+            report_stream().exceptions(std::ios::failbit);
+            if(!report_stream()) throw bad_stream();
             do_configure(cfg);
         }
 
@@ -144,24 +155,22 @@ namespace nonius {
         boost::variant<std::ostream*, std::unique_ptr<std::ostream>> os;
     };
 
-    inline std::unordered_map<std::string, std::unique_ptr<reporter>>& reporter_registry() {
-        static std::unordered_map<std::string, std::unique_ptr<reporter>> registry;
+    using reporter_registry = std::unordered_map<std::string, std::unique_ptr<reporter>>;
+
+    inline reporter_registry& global_reporter_registry() {
+        static reporter_registry registry;
         return registry;
     }
 
     struct reporter_registrar {
-        reporter_registrar(std::string name, reporter* registrant) {
-            reporter_registry().emplace(std::move(name), std::unique_ptr<reporter>(registrant));
+        reporter_registrar(reporter_registry& registry, std::string name, reporter* registrant) {
+            registry.emplace(std::move(name), std::unique_ptr<reporter>(registrant));
         }
     };
 } // namespace nonius
 
-#define NONIUS_DETAIL_UNIQUE_NAME_LINE2(name, line) NONIUS_ ## name ## _ ## line
-#define NONIUS_DETAIL_UNIQUE_NAME_LINE(name, line) NONIUS_DETAIL_UNIQUE_NAME_LINE2(name, line)
-#define NONIUS_DETAIL_UNIQUE_NAME(name) NONIUS_DETAIL_UNIQUE_NAME_LINE(name, __LINE__)
-
 #define NONIUS_REPORTER(name, ...) \
-    namespace { static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (name, new __VA_ARGS__()); } \
+    namespace { static ::nonius::reporter_registrar NONIUS_DETAIL_UNIQUE_NAME(reporter_registrar) (::nonius::global_reporter_registry(), name, new __VA_ARGS__()); } \
     static_assert(true, "")
 
 #endif // NONIUS_REPORTER_HPP

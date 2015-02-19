@@ -33,12 +33,15 @@ namespace nonius {
         private:
             struct concept {
                 virtual void call(chronometer meter) const = 0;
+                virtual concept* clone() const = 0;
                 virtual ~concept() = default;
             };
             template <typename Fun>
             struct model : public concept {
                 model(Fun&& fun) : fun(std::move(fun)) {}
                 model(Fun const& fun) : fun(fun) {}
+
+                model<Fun>* clone() const override { return new model<Fun>(*this); }
 
                 void call(chronometer meter) const override {
                     call(meter, is_callable<Fun(chronometer)>());
@@ -60,6 +63,9 @@ namespace nonius {
 
             benchmark_function(benchmark_function&& that)
             : f(std::move(that.f)) {}
+
+            benchmark_function(benchmark_function const& that)
+            : f(that.f->clone()) {}
 
             void operator()(chronometer meter) const { f->call(meter); }
         private:
