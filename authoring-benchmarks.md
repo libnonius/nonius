@@ -59,12 +59,14 @@ That helps with keeping the code in a natural fashion.
 
 Here's an example:
 
-    // may measure nothing at all by skipping the long calculation since its
-    // result is not used
-    NONIUS_BENCHMARK("no return", [] { long_calculation(); })
+{% highlight cpp %}
+// may measure nothing at all by skipping the long calculation since its
+// result is not used
+NONIUS_BENCHMARK("no return", [] { long_calculation(); })
 
-    // the result of long_calculation() is guaranteed to be computed somehow
-    NONIUS_BENCHMARK("with return", [] { return long_calculation(); })
+// the result of long_calculation() is guaranteed to be computed somehow
+NONIUS_BENCHMARK("with return", [] { return long_calculation(); })
+{% endhighlight %}
 
 However, there's no other form of control over the optimizer whatsoever. It is
 up to you to write a benchmark that actually measures what you want and doesn't
@@ -74,15 +76,7 @@ To sum up, there are two simple rules: whatever you would do in handwritten code
 to control optimization still works in nonius; and nonius makes return values
 from user code into observable effects that can't be optimized away.
 
-## Interface
-
-The recommended way to use nonius is with the single header form. You can just
-`#include <nonius.h++>` and everything is available.
-
-There are two distinct parts of the nonius interface: specifying benchmarks, and
-running benchmarks.
-
-### Specification
+## Benchmark specification
 
 Nonius includes an imperative interface to specify benchmarks for execution, but
 the declarative interface is much simpler. As of this writing the imperative
@@ -103,12 +97,14 @@ advanced features are available. The simple callables are invoked once per run,
 while the advanced callables are invoked exactly twice: once during the
 estimation phase, and another time during the execution phase.
 
+{% highlight cpp %}
     NONIUS_BENCHMARK("simple", [] { return long_computation(); });
 
     NONIUS_BENCHMARK("advanced", [](nonius::chronometer meter) {
         set_up();
         meter.measure([] { return long_computation(); });
     });
+{% endhighlight %}
 
 These advanced callables no longer consist entirely of user code to be measured.
 In these cases, the code to be measured is provided via the
@@ -125,7 +121,9 @@ that needs to be done outside the measurement can be done outside the call to
 The callable object passed in to `measure` can optionally accept an `int`
 parameter.
 
+{% highlight cpp %}
     meter.measure([](int i) { return long_computation(i); });
+{% endhighlight %}
 
 If it accepts an `int` parameter, the sequence number of each run will be passed
 in, starting with 0. This is useful if you want to measure some mutating code,
@@ -133,9 +131,11 @@ for example. The number of runs can be known beforehand by calling
 `nonius::chronometer::runs`; with this one can set up a different instance to be
 mutated by each run.
 
+{% highlight cpp %}
     std::vector<std::string> v(meter.runs());
     std::fill(v.begin(), v.end(), test_string());
     meter.measure([&v](int i) { in_place_escape(v[i]); });
+{% endhighlight %}
 
 Note that it is not possible to simply use the same instance for different runs
 and resetting it between each run since that would pollute the measurements with
@@ -184,42 +184,3 @@ it does not destroy anything automatically. Instead, you are required to call
 the `nonius::destructable_object::destruct` member function, which is what you
 can use to measure the destruction time.
 
-### Execution
-
-Nonius includes an implementation of `main()` that provides a command-line
-runner. This means you can just make your benchmarks into an executable and
-you're good to go. If you want that default implementation of `main`, just
-`#define NONIUS_RUNNER` before #including the nonius header.
-
-You can also write your own main if you need something fancy, but for now that
-API is subject to change and not documented.
-
-Invoking the standard runner with the `--help` flag provides information about
-the options available. Here are some examples of common choices:
-
-> Run all benchmarks and provide a simple textual report
->
->     $ runner
->
-> Run all benchmarks and provide extra details
->
->     $ runner -v
->
-> Run all benchmarks collecting 500 samples instead of the default 100, and
-> report extra details
->
->     $ runner -v -s 500
->
-> Run all benchmarks and output all samples to a CSV file named `results.csv`
->
->     $ runner -r csv -o results.csv
->
-> Run all benchmarks and output a JUnit compatible report named `results.xml`
->
->     $ runner -r junit -o results.xml
->
-> Run all benchmarks and output an HTML report named `results.html` with the
-> title "Some benchmarks", using 250 samples per benchmark
->
->     $ runner -r html -o results.html -t "Some benchmarks" -s 250
->

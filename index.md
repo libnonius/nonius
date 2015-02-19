@@ -53,6 +53,9 @@ things into different files, it is recommended that you create one small file
 with the runner infrastructure by #defining the macro `NONIUS_RUNNER` and
 then #including the nonius header.
 
+You can also write your own `main` function instead, if you need something
+fancy, but for now that API is subject to change and not documented.
+
 {% highlight cpp %}
 // runner file contents
 #define NONIUS_RUNNER
@@ -77,14 +80,40 @@ enable optimisations!
 
 ### Running benchmarks
 
-The standard runner has several command-line options for configuring a run.
-Pass the `--help` flag to the compiled runner to see the various flags and a
-short description of each. The runner includes all your benchmarks and it comes
-equipped with four reporters: plain text, CSV with raw timings, JUnit-compatible
-XML, and an HTML file with a scatter plot of the timings.
+Invoking the standard runner with the `--help` flag provides information about
+the options available. Here are some examples of common choices:
 
-If you execute the runner without requesting a particular reporter, nonius will
-use plain text to report the results.
+> Run all benchmarks and provide a simple textual report
+>
+>     $ runner
+>
+> Run all benchmarks and provide extra details
+>
+>     $ runner -v
+>
+> Run all benchmarks collecting 500 samples instead of the default 100, and
+> report extra details
+>
+>     $ runner -v -s 500
+>
+> Run all benchmarks and output all samples to a CSV file named `results.csv`
+>
+>     $ runner -r csv -o results.csv
+>
+> Run all benchmarks and output a JUnit compatible report named `results.xml`
+>
+>     $ runner -r junit -o results.xml
+>
+> Run all benchmarks and output an HTML report named `results.html` with the
+> title "Some benchmarks", using 250 samples per benchmark
+>
+>     $ runner -r html -o results.html -t "Some benchmarks" -s 250
+>
+
+The runner includes all your benchmarks and it comes equipped with four
+reporters: plain text, CSV with raw timings, JUnit-compatible XML, and an HTML
+file with a scatter plot of the timings. If you execute the runner without
+requesting a particular reporter, it will use plain text to report the results.
 
 The first thing that nonius does when running is testing the clock. By default
 it uses the clock provided by `std::chrono::high_resolution_clock`. The runner

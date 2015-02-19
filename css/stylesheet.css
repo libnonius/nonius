@@ -285,12 +285,11 @@ ul li {
 }
 
 ol {
-  padding: 10px;
+  padding-left: 10px;
 }
-
 ol li {
   list-style: decimal;
-  padding-left: 10px;
+  padding-left: 3px;
 }
 
 dl dt {
