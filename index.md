@@ -155,7 +155,7 @@ mean: 41.3622 ns, lb 41.3479 ns, ub 41.4251 ns, ci 0.95
 std dev: 0.130953 ns, lb 0.0209896 ns, ub 0.309054 ns, ci 0.95
 {% endhighlight %}
 
-After all that, the runner will tell you if about any samples that are outliers
+After all that, the runner will tell you about any samples that are outliers
 and whether those might be important: if they affect the variance greatly, our
 measurements might not be very trustworthy. It could be that there is another
 factor affecting our measurements (say, some other application that was doing
