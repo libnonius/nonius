@@ -173,7 +173,7 @@ ninja.rule('cxx',
 
 ninja.rule('link',
         command = ' '.join([linker, ld_flags, '$in', flags(tools.linker_output('$out')), lib_flags]),
-        description = 'LINK $in')
+        description = 'LINK $out')
 
 ninja.rule('stringize',
         command = ' '.join(['python', stringize_tool, '$in', '$out']),
@@ -181,7 +181,7 @@ ninja.rule('stringize',
 
 ninja.rule('header',
         command = ' '.join(['python', single_header_tool, '$in', '$out']),
-        description = 'HEADER $in')
+        description = 'HEADER $out')
 
 # --- build edges
 
@@ -245,5 +245,5 @@ for fn in example_files:
 ninja.build('examples', 'phony',
             inputs = examples)
 
-ninja.default('examples')
+ninja.default('header')
 
