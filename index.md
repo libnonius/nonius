@@ -37,11 +37,15 @@ VC++ everything gets linked automatically without intervention.
 
 ### Authoring benchmarks
 
-There are examples of both simple and advanced usage in the [examples] folder.
-For now that is the primary documentation. Once I am content with a stable
-interface there will be more detailed explanations.
+Writing benchmarks with nonius is not complicated, but there are several things
+to keep in mind when doing so. There is a separate [guide] about the subject,
+and there are examples of both simple and advanced usage in the [examples]
+folder.
 
+ [guide]: authoring-benchmarks
  [examples]: https://github.com/rmartinho/nonius/tree/devel/examples
+
+### Compiling benchmarks
 
 If you just want to run a quick benchmark you can put everything in one file, as
 in the examples. If you have something more complicated and prefer to separate
@@ -68,7 +72,8 @@ the benchmarks.
 Then you compile and link everything together as normal. Keep in mind that the
 statistical analysis is multithreaded so you may need to pass extra flags to
 your compiler (like `-pthread` in GCC). That gives you an executable with your
-benchmarks and with the nonius standard benchmark runner.
+benchmarks and with the nonius standard benchmark runner. And don't forget to
+enable optimisations!
 
 ### Running benchmarks
 
@@ -99,7 +104,7 @@ benchmarking code that takes significantly more than the clock resolution to
 run, it will probably run it once for each sample. However, if one run of that
 code is too fast, nonius will scale it by running the code more than once per
 sample. This obviously implies that your benchmarks should be completely
-reentrant. There is also the underlying assumption that the time it takes to run
+repeatable. There is also the underlying assumption that the time it takes to run
 the code does not vary wildly.
 
 {% highlight console %}
