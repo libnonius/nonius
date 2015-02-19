@@ -360,7 +360,7 @@
 "                text: '{$title}'\n"
 "            },\n"
 "            subtitle: {\n"
-"                text: 'generated with <a href=\"http://github.com/rmartinho/nonius\">nonius</a>'\n"
+"                text: 'generated with <a href=\"http://flamingdangerzone.com/nonius\">nonius</a>'\n"
 "            },\n"
 "            yAxis: {\n"
 "                title: { text: 'Time ({$units})' },\n"
