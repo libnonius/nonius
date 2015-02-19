@@ -2,22 +2,24 @@
 title: Nonius
 layout: default
 ---
+
 ## What is nonius?
 
 Nonius is a framework for benchmarking small snippets of C++ code. It is very
 heavily inspired by [Criterion], a similar Haskell-based tool. It runs your
 code, measures the time it takes to run, and then performs some statistical
-analysis on those measurements.
+analysis on those measurements. The [source code] can be found on GitHub.
 
  [Criterion]: http://www.serpentine.com/blog/2009/09/29/criterion-a-new-benchmarking-library-for-haskell/
+ [source code]: https://github.com/rmartinho/nonius
 
 ## How do I use it?
 
 ### Installation and dependencies
 
 The library itself is header-only so you don't have to build it. It comes as a
-single header that you can drop the header somewhere and #include it in your
-code. You can grab the header from the [releases] page.
+single header that you can drop somewhere and #include it in your code. You can
+grab the header from the [releases] page.
 
  [releases]: https://github.com/rmartinho/nonius/releases
 
@@ -26,7 +28,7 @@ You will need a C++11 capable compiler; it has been tested with GCC 4.8.3,
 clang 3.5, and VC++ 18.0. Older versions of these compilers may work, but there
 are no guarantees. Newer versions of these compilers are also supported.
 
-The library depends on [Booost] for a few mathematical functions, for some
+The library depends on [Boost] for a few mathematical functions, for some
 string algorithms, and, in some versions of VC++, for the timing functions as
 well. Boost.Chrono is not a header-only library, but since it is only used with
 VC++ everything gets linked automatically without intervention.
@@ -35,9 +37,11 @@ VC++ everything gets linked automatically without intervention.
 
 ### Authoring benchmarks
 
-There are examples of both simple and advanced usage in the `examples` folder.
+There are examples of both simple and advanced usage in the [examples] folder.
 For now that is the primary documentation. Once I am content with a stable
 interface there will be more detailed explanations.
+
+ [examples]: https://github.com/rmartinho/nonius/tree/devel/examples
 
 If you just want to run a quick benchmark you can put everything in one file, as
 in the examples. If you have something more complicated and prefer to separate
@@ -134,6 +138,15 @@ Outliers are classified as "low" or "high" depending on whether they are above
 or below the mean. They can be "mild" or "severe" if they are relatively far
 from the rest of the measurements. If you request verbose output the default
 reporter will give you outlier classification.
+
+{% highlight console %}
+found 19 outliers among 100 samples (19%)
+  2 (2%) low mild
+  3 (3%) high mild
+  14 (14%) high severe
+variance introduced by outliers: 0.99%
+variance is unaffected by outliers
+{% endhighlight %}
 
 ## Licensing
 
