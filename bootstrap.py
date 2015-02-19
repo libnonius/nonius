@@ -166,7 +166,7 @@ ninja.rule('bootstrap',
         description = 'BOOTSTRAP')
 
 ninja.rule('cxx',
-        command = ' '.join([compiler, flags(tools.dependencies_output('$out.d')), cxx_flags, warning_flags, include_flags, define_flags, '$in', flags(tools.compiler_output('$out'))]),
+        command = ' '.join([compiler, flags(tools.dependencies_output('$out.d')), cxx_flags, warning_flags, include_flags, define_flags, '$extraflags', '$in', flags(tools.compiler_output('$out'))]),
         deps = tools.ninja_deps_style(),
         depfile = '$out.d',
         description = 'C++ $in')
@@ -231,6 +231,8 @@ examples = []
 for fn in example_files:
     ninja.build(object_file(fn), 'cxx',
             inputs = fn,
+            implicit = header,
+            variables = { 'extraflags': tools.include('dist') },
             order_only = 'templates')
     name = re.sub(r'\.c\+\+$', '', os.path.basename(fn))
     example = os.path.join('bin', 'examples', name) + tools.executable_extension()

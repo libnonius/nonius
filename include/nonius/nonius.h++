@@ -21,5 +21,10 @@
 #include <nonius/chronometer.h++>
 #include <nonius/go.h++>
 
+#include <nonius/reporters/standard_reporter.h++>
+#include <nonius/reporters/csv_reporter.h++>
+#include <nonius/reporters/junit_reporter.h++>
+#include <nonius/reporters/html_reporter.h++>
+
 #endif // NONIUS_HPP
 
