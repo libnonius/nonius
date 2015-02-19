@@ -98,12 +98,12 @@ while the advanced callables are invoked exactly twice: once during the
 estimation phase, and another time during the execution phase.
 
 {% highlight cpp %}
-    NONIUS_BENCHMARK("simple", [] { return long_computation(); });
+NONIUS_BENCHMARK("simple", [] { return long_computation(); });
 
-    NONIUS_BENCHMARK("advanced", [](nonius::chronometer meter) {
-        set_up();
-        meter.measure([] { return long_computation(); });
-    });
+NONIUS_BENCHMARK("advanced", [](nonius::chronometer meter) {
+    set_up();
+    meter.measure([] { return long_computation(); });
+});
 {% endhighlight %}
 
 These advanced callables no longer consist entirely of user code to be measured.
@@ -122,7 +122,7 @@ The callable object passed in to `measure` can optionally accept an `int`
 parameter.
 
 {% highlight cpp %}
-    meter.measure([](int i) { return long_computation(i); });
+meter.measure([](int i) { return long_computation(i); });
 {% endhighlight %}
 
 If it accepts an `int` parameter, the sequence number of each run will be passed
@@ -132,9 +132,9 @@ for example. The number of runs can be known beforehand by calling
 mutated by each run.
 
 {% highlight cpp %}
-    std::vector<std::string> v(meter.runs());
-    std::fill(v.begin(), v.end(), test_string());
-    meter.measure([&v](int i) { in_place_escape(v[i]); });
+std::vector<std::string> v(meter.runs());
+std::fill(v.begin(), v.end(), test_string());
+meter.measure([&v](int i) { in_place_escape(v[i]); });
 {% endhighlight %}
 
 Note that it is not possible to simply use the same instance for different runs
