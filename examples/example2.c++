@@ -1,5 +1,4 @@
-#include <nonius/nonius.h++>
-#include <nonius/reporters/csv_reporter.h++>
+#include <nonius.h++>
 
 #include <iterator>
 #include <string>

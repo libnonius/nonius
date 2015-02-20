@@ -324,7 +324,7 @@ $(function () {
                 text: '{$title}'
             },
             subtitle: {
-                text: 'generated with <a href="http://github.com/rmartinho/nonius">nonius</a>'
+                text: 'generated with <a href="http://flamingdangerzone.com/nonius">nonius</a>'
             },
             yAxis: {
                 title: { text: 'Time ({$units})' },

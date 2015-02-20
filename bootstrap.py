@@ -166,14 +166,14 @@ ninja.rule('bootstrap',
         description = 'BOOTSTRAP')
 
 ninja.rule('cxx',
-        command = ' '.join([compiler, flags(tools.dependencies_output('$out.d')), cxx_flags, warning_flags, include_flags, define_flags, '$in', flags(tools.compiler_output('$out'))]),
+        command = ' '.join([compiler, flags(tools.dependencies_output('$out.d')), cxx_flags, warning_flags, include_flags, define_flags, '$extraflags', '$in', flags(tools.compiler_output('$out'))]),
         deps = tools.ninja_deps_style(),
         depfile = '$out.d',
         description = 'C++ $in')
 
 ninja.rule('link',
         command = ' '.join([linker, ld_flags, '$in', flags(tools.linker_output('$out')), lib_flags]),
-        description = 'LINK $in')
+        description = 'LINK $out')
 
 ninja.rule('stringize',
         command = ' '.join(['python', stringize_tool, '$in', '$out']),
@@ -181,7 +181,7 @@ ninja.rule('stringize',
 
 ninja.rule('header',
         command = ' '.join(['python', single_header_tool, '$in', '$out']),
-        description = 'HEADER $in')
+        description = 'HEADER $out')
 
 # --- build edges
 
@@ -231,6 +231,8 @@ examples = []
 for fn in example_files:
     ninja.build(object_file(fn), 'cxx',
             inputs = fn,
+            implicit = header,
+            variables = { 'extraflags': tools.include('dist') },
             order_only = 'templates')
     name = re.sub(r'\.c\+\+$', '', os.path.basename(fn))
     example = os.path.join('bin', 'examples', name) + tools.executable_extension()
@@ -243,5 +245,5 @@ for fn in example_files:
 ninja.build('examples', 'phony',
             inputs = examples)
 
-ninja.default('examples')
+ninja.default('header')
 
