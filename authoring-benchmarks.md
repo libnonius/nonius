@@ -3,6 +3,8 @@ title: Nonius - Authoring benchmarks
 layout: default
 ---
 
+## Authoring benchmarks
+
 Writing benchmarks is not easy. Nonius simplifies certain aspects but you'll
 always need to take care about various aspects. Understanding a few things about
 the way nonius runs your code will be very helpful when writing your benchmarks.
@@ -18,7 +20,7 @@ guide.
   measure a single run. All samples for a given benchmark execution are obtained
   with the same number of runs.
 
-## Execution procedure
+### Execution procedure
 
 Now I can explain how a benchmark is executed in nonius. There are three main
 steps, though the first does not need to be repeated for every benchmark.
@@ -43,40 +45,7 @@ known beforehand since it depends on the time it takes to execute the code.
 User code that cannot be executed repeatedly will lead to bogus results or
 crashes.
 
-## The optimizer
-
-Sometimes the optimizer will optimize away the very code that you want to
-measure. There are several ways to use results that will prevent the optimiser
-from removing them. You can use the `volatile` keyword, or you can output the
-value to standard output or to a file, both of which force the program to
-actually generate the value somehow.
-
-Nonius adds a third option. The values returned by any function provided as user
-code are guaranteed to be evaluated and not optimised out. This means that if
-your user code consists of computing a certain value, you don't need to bother
-with using `volatile` or forcing output. Just `return` it from the function.
-That helps with keeping the code in a natural fashion.
-
-Here's an example:
-
-{% highlight cpp %}
-// may measure nothing at all by skipping the long calculation since its
-// result is not used
-NONIUS_BENCHMARK("no return", [] { long_calculation(); })
-
-// the result of long_calculation() is guaranteed to be computed somehow
-NONIUS_BENCHMARK("with return", [] { return long_calculation(); })
-{% endhighlight %}
-
-However, there's no other form of control over the optimizer whatsoever. It is
-up to you to write a benchmark that actually measures what you want and doesn't
-just measure the time to do a whole bunch of nothing.
-
-To sum up, there are two simple rules: whatever you would do in handwritten code
-to control optimization still works in nonius; and nonius makes return values
-from user code into observable effects that can't be optimized away.
-
-## Benchmark specification
+### Benchmark specification
 
 Nonius includes an imperative interface to specify benchmarks for execution, but
 the declarative interface is much simpler. As of this writing the imperative
@@ -183,4 +152,37 @@ If you want to measure a destructor, though, we need to use
 it does not destroy anything automatically. Instead, you are required to call
 the `nonius::destructable_object::destruct` member function, which is what you
 can use to measure the destruction time.
+
+### The optimizer
+
+Sometimes the optimizer will optimize away the very code that you want to
+measure. There are several ways to use results that will prevent the optimiser
+from removing them. You can use the `volatile` keyword, or you can output the
+value to standard output or to a file, both of which force the program to
+actually generate the value somehow.
+
+Nonius adds a third option. The values returned by any function provided as user
+code are guaranteed to be evaluated and not optimised out. This means that if
+your user code consists of computing a certain value, you don't need to bother
+with using `volatile` or forcing output. Just `return` it from the function.
+That helps with keeping the code in a natural fashion.
+
+Here's an example:
+
+{% highlight cpp %}
+// may measure nothing at all by skipping the long calculation since its
+// result is not used
+NONIUS_BENCHMARK("no return", [] { long_calculation(); })
+
+// the result of long_calculation() is guaranteed to be computed somehow
+NONIUS_BENCHMARK("with return", [] { return long_calculation(); })
+{% endhighlight %}
+
+However, there's no other form of control over the optimizer whatsoever. It is
+up to you to write a benchmark that actually measures what you want and doesn't
+just measure the time to do a whole bunch of nothing.
+
+To sum up, there are two simple rules: whatever you would do in handwritten code
+to control optimization still works in nonius; and nonius makes return values
+from user code into observable effects that can't be optimized away.
 
