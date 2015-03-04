@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import ninja_syntax
 import itertools
 import os
 import fnmatch
@@ -8,103 +7,14 @@ import re
 import sys
 import argparse
 
+import ninja_syntax
+import gcc
+import msvc
+
 # --- util functions
 
 def flags(*iterables):
     return ' '.join(itertools.chain(*iterables))
-
-class GccLikeToolchain:
-    def compiler(self):
-        return 'g++'
-    def linker(self):
-        return 'g++'
-
-    def include(self, d):
-        return '-I' + d;
-    def dependency_include(self, d):
-        return '-isystem' + d
-
-    def define(self, d):
-        return '-D' + d;
-
-    def library(self, l):
-        return '-l' + l;
-
-    def common_cxx_flags(self):
-        return ['-std=c++11', '-pthread']
-    def cxx_flags(self):
-        return ['-c'] + self.common_cxx_flags()
-    def link_flags(self):
-        return self.common_cxx_flags() + self.max_warnings()
-
-    def debug_flags(self):
-        return ['-g', '-Og']
-    def optimisation_flags(self):
-        return ['-O3']
-    def compiler_lto_flags(self):
-        return ['-flto']
-    def linker_lto_flags(self):
-        return ['-flto']
-
-    def max_warnings(self):
-        return ['-pedantic', '-Wall', '-Wextra', '-Werror']
-
-    def compiler_output(self, file):
-        return ['-o ' + file]
-    def linker_output(self, file):
-        return self.compiler_output(file)
-    def executable_extension(self):
-        return ''
-    def dependencies_output(self, file):
-        return ['-MMD', '-MF ' + file]
-    def ninja_deps_style(self):
-        return 'gcc'
-
-class MsvcLikeToolchain:
-    def compiler(self):
-        return 'cl'
-    def linker(self):
-        return 'link'
-
-    def include(self, d):
-        return '/I' + d;
-    def dependency_include(self, d):
-        return self.include(d)
-
-    def define(self, d):
-        return '/D' + d;
-
-    def library(self, l):
-        return l;
-
-    def cxx_flags(self):
-        return ['/nologo', '/c', '/TP', '/EHsc']
-    def link_flags(self):
-        return ['/NOLOGO']
-
-    def debug_flags(self):
-        return ['/MDd', '/ZI', '/Od', '/RTC1']
-    def optimisation_flags(self):
-        return ['/MD', '/O2', '/Oy-', '/Oi']
-    def compiler_lto_flags(self):
-        return ['/GL']
-    def linker_lto_flags(self):
-        return []
-
-    def max_warnings(self):
-        return ['/W3', '/WX',
-                '/wd4244', '/wd4267'] # there's too much noise
-
-    def compiler_output(self, file):
-        return ['/Fo' + file]
-    def linker_output(self, file):
-        return ['/OUT:' + file]
-    def executable_extension(self):
-        return '.exe'
-    def dependencies_output(self, file):
-        return ['/showIncludes']
-    def ninja_deps_style(self):
-        return 'msvc'
 
 def get_files(root, pattern):
     pattern = fnmatch.translate(pattern)
@@ -126,7 +36,7 @@ parser.add_argument('--boost-dir', default=None, metavar='path', help='path of b
 parser.add_argument('--no-lto', action='store_true', help='do not perform link-time optimisation')
 args = parser.parse_args()
 
-tools = MsvcLikeToolchain() if args.msvc else GccLikeToolchain()
+tools = msvc.Toolchain() if args.msvc else gcc.Toolchain()
 compiler = args.cxx if args.cxx else tools.compiler()
 linker = args.cxx if args.cxx else tools.linker()
 

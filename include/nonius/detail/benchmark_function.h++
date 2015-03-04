@@ -67,6 +67,16 @@ namespace nonius {
             benchmark_function(benchmark_function const& that)
             : f(that.f->clone()) {}
 
+            benchmark_function& operator=(benchmark_function&& that) {
+                f = std::move(that.f);
+                return *this;
+            }
+
+            benchmark_function& operator=(benchmark_function const& that) {
+                f.reset(that.f->clone());
+                return *this;
+            }
+
             void operator()(chronometer meter) const { f->call(meter); }
         private:
             std::unique_ptr<concept> f;

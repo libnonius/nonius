@@ -14,7 +14,6 @@
 #ifndef NONIUS_TIMEOUT_ERROR_HPP
 #define NONIUS_TIMEOUT_ERROR_HPP
 
-#include <nonius/timeout_error.h++>
 #include <nonius/detail/noexcept.h++>
 
 #include <sstream>
