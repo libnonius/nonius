@@ -12,6 +12,7 @@
 // Tests for statistical stuff
 
 #include <nonius/detail/stats.h++>
+#include <nonius/detail/kde.h++>
 
 #include <catch.hpp>
 
@@ -94,5 +95,15 @@ TEST_CASE("classify_outliers") {
         REQUIRE(o.samples_seen == x.size());
         require_outliers(o, 1, 0, 1, 0);
     }
+}
+
+TEST_CASE("kde") {
+    std::vector<double> x { 10., 20., 14., 16., 30., 24. };
+
+    auto r = nonius::detail::kde(10, x.begin(), x.end());
+    for(auto d : r.mesh)
+        std::cout << d << '\n';
+
+    //REQUIRE(m == 19.);
 }
 
