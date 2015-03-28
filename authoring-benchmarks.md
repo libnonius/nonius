@@ -47,11 +47,8 @@ crashes.
 
 ### Benchmark specification
 
-Nonius includes an imperative interface to specify benchmarks for execution, but
-the declarative interface is much simpler. As of this writing the imperative
-interface is still subject to change, so it won't be documented.
-
-The declarative interface consists of the `NONIUS_BENCHMARK` macro. This macro
+Nonius includes a simple declarative interface to specify benchmarks for
+execution. This declarative interface consists of the `NONIUS_BENCHMARK` macro. This macro
 expands to some machinery that registers the benchmark in a global registry that
 can be accessed by the standard runner.
 
