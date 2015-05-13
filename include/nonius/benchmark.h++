@@ -69,7 +69,9 @@ namespace nonius {
                     detail::chronometer_model<Clock> model;
                     (*this)(chronometer(model, plan.iterations_per_sample));
                     auto elapsed = model.finished - model.started;
-                    return ((elapsed - env.clock_cost.mean) / plan.iterations_per_sample);
+                    auto sample_time = elapsed - env.clock_cost.mean;
+                    if(sample_time < FloatDuration<Clock>::zero()) sample_time = FloatDuration<Clock>::zero();
+                    return (sample_time / plan.iterations_per_sample);
             });
             return times;
         }

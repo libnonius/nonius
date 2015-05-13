@@ -1,6 +1,6 @@
 // Nonius - C++ benchmarking tool
 //
-// Written in 2014 by Martinho Fernandes <martinho.fernandes@gmail.com>
+// Written in 2014-2015 by Martinho Fernandes <martinho.fernandes@gmail.com>
 //
 // To the extent possible under law, the author(s) have dedicated all copyright and related
 // and neighboring rights to this software to the public domain worldwide. This software is
@@ -131,6 +131,9 @@ namespace nonius {
             int n_samples = last - first;
 
             double point = estimator(first, last);
+            // Degenerate case with a single sample
+            if(n_samples == 1) return { point, point, point, confidence_level };
+
             sample jack = jackknife(estimator, first, last);
             double jack_mean = mean(jack.begin(), jack.end());
             double sum_squares, sum_cubes;
@@ -144,6 +147,9 @@ namespace nonius {
             double accel = sum_cubes / (6 * std::pow(sum_squares, 1.5));
             int n = resample.size();
             double prob_n = std::count_if(resample.begin(), resample.end(), [point](double x) { return x < point; }) /(double) n;
+            // degenerate case with uniform samples
+            if(prob_n == 0) return { point, point, point, confidence_level };
+
             double bias = bm::quantile(bm::normal{}, prob_n);
             double z1 = bm::quantile(bm::normal{}, (1. - confidence_level) / 2.);
 
@@ -156,8 +162,7 @@ namespace nonius {
             int lo = std::max(cumn(a1), 0);
             int hi = std::min(cumn(a2), n - 1);
 
-            if(n_samples == 1) return { point, point, point, confidence_level };
-            else return { point, resample[lo], resample[hi], confidence_level };
+            return { point, resample[lo], resample[hi], confidence_level };
         }
 
         inline double outlier_variance(estimate<double> mean, estimate<double> stddev, int n) {
