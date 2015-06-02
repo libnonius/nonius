@@ -22,9 +22,18 @@
 #include <nonius/go.h++>
 
 #include <nonius/reporters/standard_reporter.h++>
+
+#ifndef NONIUS_DISABLE_EXTRA_REPORTERS
+#ifndef NONIUS_DISABLE_CSV_REPORTER
 #include <nonius/reporters/csv_reporter.h++>
+#endif // NONIUS_DISABLE_CSV_REPORTER
+#ifndef NONIUS_DISABLE_JUNIT_REPORTER
 #include <nonius/reporters/junit_reporter.h++>
+#endif // NONIUS_DISABLE_JUNIT_REPORTER
+#ifndef NONIUS_DISABLE_HTML_REPORTER
 #include <nonius/reporters/html_reporter.h++>
+#endif // NONIUS_DISABLE_HTML_REPORTER
+#endif // NONIUS_DISABLE_EXTRA_REPORTERS
 
 #endif // NONIUS_HPP
 
