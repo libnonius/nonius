@@ -31,7 +31,9 @@ are no guarantees. Newer versions of these compilers are also supported.
 The library depends on [Boost] for a few mathematical functions, for some
 string algorithms, and, in some versions of VC++, for the timing functions as
 well. Boost.Chrono is not a header-only library, but since it is only used with
-VC++ everything gets linked automatically without intervention.
+VC++ everything gets linked automatically without intervention. If desired,
+usage of Boost.Chrono can be forced by #defining the macro
+`NONIUS_USE_BOOST_CHRONO`.
 
  [Boost]: http://www.boost.org
 
@@ -114,6 +116,11 @@ The runner includes all your benchmarks and it comes equipped with four
 reporters: plain text, CSV with raw timings, JUnit-compatible XML, and an HTML
 file with a scatter plot of the timings. If you execute the runner without
 requesting a particular reporter, it will use plain text to report the results.
+When compiling you can selectively disable any or all of the extra reporters
+by #defining some macros before #including the runner.
+`NONIUS_DISABLE_EXTRA_REPORTERS` disables everything but plain text;
+`NONIUS_DISABLE_X_REPORTER`, where `X` is one of `CSV`, `JUNIT`, or `HTML`
+disables a particular reporter.
 
 The first thing that nonius does when running is testing the clock. By default
 it uses the clock provided by `std::chrono::high_resolution_clock`. The runner
