@@ -165,7 +165,7 @@ namespace nonius {
             return { point, resample[lo], resample[hi], confidence_level };
         }
 
-        inline double outlier_variance(estimate<double> mean, estimate<double> stddev, std::size_t n) {
+        inline double outlier_variance(estimate<double> mean, estimate<double> stddev, int n) {
             double sb = stddev.point;
             double mn = mean.point / n;
             double mg_min = mn / 2.;
@@ -177,7 +177,7 @@ namespace nonius {
                 double k = mn - x;
                 double d = k * k;
                 double nd = n * d;
-                double k0 = (-1) * n * nd;
+                double k0 = -n * nd;
                 double k1 = sb2 - n * sg2 + nd;
                 double det = k1 * k1 - 4 * sg2 * k0;
                 return (int)(-2. * k0 / (k1 + std::sqrt(det)));

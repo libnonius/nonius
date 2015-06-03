@@ -31,6 +31,6 @@ TEST_CASE("faster than clock") {
     plan.iterations_per_sample = 2;
 
     auto samples = b.run<nonius::counting_clock>(cfg, env, plan);
-    for(auto&& s : samples) CHECK(s.count() >= 0);
+    for(auto&& s : samples) { CHECK(s.count() >= 0); }
 }
 
