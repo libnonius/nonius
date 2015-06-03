@@ -70,7 +70,7 @@ namespace nonius {
         template <typename Iterator, typename Projection>
         int get_max_width(Iterator first, Iterator last, Projection proj) {
             auto it = std::max_element(first, last, [&proj](option const& a, option const& b) { return proj(a) < proj(b); });
-            return proj(*it);
+            return static_cast<int>(proj(*it));
         }
 
         inline std::ostream& operator<<(std::ostream& os, help_text h) {
