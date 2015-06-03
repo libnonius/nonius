@@ -30,8 +30,7 @@ class Toolchain:
         return []
 
     def max_warnings(self):
-        return ['/W3', '/WX',
-                '/wd4244', '/wd4267'] # there's too much noise
+        return ['/W3', '/WX']
 
     def compiler_output(self, file):
         return ['/Fo' + file]

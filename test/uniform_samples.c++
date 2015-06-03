@@ -21,7 +21,7 @@ TEST_CASE("uniform samples") {
 
     using it = std::vector<double>::iterator;
     auto e = nonius::detail::bootstrap(0.95, samples.begin(), samples.end(), samples, [](it a, it b) {
-        auto sum = std::accumulate(a, b, 0);
+        auto sum = std::accumulate(a, b, 0.);
         return sum / (b - a);
     });
     CHECK(e.point == 23);
