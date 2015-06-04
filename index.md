@@ -202,7 +202,8 @@ on it as I am allowed.
 However, currently nonius makes use of some code distributed under the
 [CC-BY-NC] and the [MIT] licenses. The `html` reporter uses the [Highcharts JS]
 and [jQuery] libraries for the interactive charts and the [cpptemplate] library
-for generating HTML from a template.
+for generating HTML from a template. If you want to use only the public domain
+code for whatever reason, you can disable the `html` reporter easily.
 
  [CC-BY-NC]: http://creativecommons.org/licenses/by-nc/3.0/
  [MIT]: https://bitbucket.org/ginstrom/cpptemplate/raw/d4263ca998038f7ae18aeb9d2358f0c11f00552d/LICENSE.txt
