@@ -201,7 +201,7 @@ namespace nonius {
         bootstrap_analysis analyse_samples(double confidence_level, int n_resamples, Iterator first, Iterator last) {
             static std::random_device entropy;
 
-            auto n = last - first;
+            auto n = static_cast<int>(last - first); // seriously, one can't use integral types without hell in C++
 
             auto mean = &detail::mean<Iterator>;
             auto stddev = &detail::standard_deviation<Iterator>;
