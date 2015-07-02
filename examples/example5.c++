@@ -1,5 +1,5 @@
 #define NONIUS_RUNNER
-#include <nonius/nonius.h++>
+#include <nonius/nonius_single.h++>
 
 #include <string>
 #include <vector>
