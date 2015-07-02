@@ -22,8 +22,6 @@
 #include <nonius/detail/noexcept.h++>
 #include <nonius/detail/unique_name.h++>
 
-#include <boost/variant.hpp>
-
 #include <vector>
 #include <string>
 #include <ios>
@@ -47,9 +45,10 @@ namespace nonius {
 
         void configure(configuration& cfg) {
             if(cfg.output_file.empty()) {
-                os = &std::cout;
+                os = [&]() -> std::ostream& { return std::cout; };
             } else {
-                os = std::unique_ptr<std::ostream>(new std::ofstream(cfg.output_file));
+                auto ofs = std::make_shared<std::ofstream>(cfg.output_file);
+                os = [ofs]() -> std::ostream& { return *ofs; };
             }
             report_stream().exceptions(std::ios::failbit);
             if(!report_stream()) throw bad_stream();
@@ -134,12 +133,6 @@ namespace nonius {
         virtual void do_benchmark_complete() {}
         virtual void do_suite_complete() {}
 
-    private:
-        struct stream_visitor : boost::static_visitor<std::ostream&> {
-            std::ostream& operator()(std::ostream* os) const { return *os; }
-            std::ostream& operator()(std::unique_ptr<std::ostream>& os) const { return *os; }
-        };
-
     protected:
         std::ostream& progress_stream() {
             return std::cout;
@@ -148,11 +141,11 @@ namespace nonius {
             return std::cerr;
         }
         std::ostream& report_stream() {
-            return boost::apply_visitor(stream_visitor(), os);
+            return os();
         }
 
     private:
-        boost::variant<std::ostream*, std::unique_ptr<std::ostream>> os;
+        std::function<std::ostream&()> os;
     };
 
     using reporter_registry = std::unordered_map<std::string, std::unique_ptr<reporter>>;
