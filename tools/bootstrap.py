@@ -9,6 +9,7 @@ import argparse
 
 import ninja_syntax
 import gcc
+import llvm
 import msvc
 
 # --- util functions
@@ -30,13 +31,15 @@ def object_file(fn):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--debug', action='store_true', help='compile with debug information')
-parser.add_argument('--cxx', default=None, metavar='executable', help='compiler name to use')
-parser.add_argument('--msvc', action='store_true', help='use the MSVC++ toolchain')
+parser.add_argument('--cxx', default=None, metavar='executable', help='compiler name to use (default depends on toolchain)')
+parser.add_argument('--gcc', action='store_true', help='use a GCC toolchain (default)')
+parser.add_argument('--llvm', action='store_true', help='use an LLVM toolchain')
+parser.add_argument('--msvc', action='store_true', help='use an MSVC toolchain')
 parser.add_argument('--boost-dir', default=None, metavar='path', help='path of boost folder (i.e. the folder with include/ and lib/ subfolders)')
 parser.add_argument('--no-lto', action='store_true', help='do not perform link-time optimisation')
 args = parser.parse_args()
 
-tools = msvc.Toolchain() if args.msvc else gcc.Toolchain()
+tools = msvc.Toolchain() if args.msvc else llvm.Toolchain() if args.llvm else gcc.Toolchain()
 compiler = args.cxx if args.cxx else tools.compiler()
 linker = args.cxx if args.cxx else tools.linker()
 
