@@ -50,7 +50,7 @@ include_flags = flags([tools.include('include')],
                       (tools.dependency_include(os.path.join('deps', d, 'include')) for d in dependencies),
                       [tools.dependency_include('deps/cpptemplate')])
 if(args.boost_dir):
-    include_flags += ' ' + tools.dependency_include(args.boost_dir)
+    include_flags += ' ' + tools.dependency_include(os.path.join(args.boost_dir, 'include'))
 cxx_flags = flags(tools.cxx_flags(),
                   tools.debug_flags() if args.debug else tools.optimisation_flags(),
                   [] if args.no_lto or args.debug else tools.linker_lto_flags())
