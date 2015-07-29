@@ -27,9 +27,9 @@ class Toolchain:
     def optimisation_flags(self):
         return ['-O3']
     def compiler_lto_flags(self):
-        return ['-flto']
+        return []
     def linker_lto_flags(self):
-        return ['-flto']
+        return []
 
     def max_warnings(self):
         return ['-pedantic', '-Wall', '-Wextra', '-Werror']
