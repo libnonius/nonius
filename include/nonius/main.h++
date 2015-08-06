@@ -177,9 +177,11 @@ namespace nonius {
     }
 }
 
+#ifdef NONIUS_RUNNER
 int main(int argc, char** argv) {
     return nonius::main(argc, argv);
 }
+#endif // NONIUS_RUNNER
 
 #endif // NONIUS_MAIN_HPP
 
