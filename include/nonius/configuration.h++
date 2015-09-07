@@ -18,11 +18,17 @@
 
 namespace nonius {
     struct configuration {
-    public:
+        enum graph_type_t {
+            scatter = 0,
+            line
+            //TODO: add more
+        };
+        graph_type_t graph_type = scatter;
         int samples = 100;
         double confidence_interval = 0.95;
         int resamples = 100000;
         std::string title = "benchmarks";
+        std::string sub_title = "generated with <a href=\"http://flamingdangerzone.com/nonius\">nonius</a>";
         std::string output_file;
         std::string reporter;
         bool list_benchmarks = false;

@@ -59,6 +59,8 @@ namespace nonius {
         void do_configure(configuration& cfg) override {
             cfg.no_analysis = true;
             title = cfg.title;
+            sub_title = cfg.sub_title;
+            graph_type = static_cast<int>(cfg.graph_type);
             n_samples = cfg.samples;
             verbose = cfg.verbose;
         }
@@ -98,8 +100,18 @@ namespace nonius {
 
             auto magnitude = ideal_magnitude();
 
+            static const std::vector<std::string> graph_types_str = { 
+                "scatter", 
+                "line" 
+            };
+
+            std::string graph_type_str = (graph_type >= graph_types_str.size()) ? graph_types_str.front() : graph_types_str[graph_type];
+
+
             cpptempl::data_map map;
             map["title"] = escape(title);
+            map["sub_title"] = sub_title;
+            map["graph_type"] = graph_type_str;
             map["units"] = detail::units_for_magnitude(magnitude);
             for(auto d : data) {
                 cpptempl::data_map item;
@@ -144,9 +156,11 @@ namespace nonius {
             return detail::escape(source, escapes);
         }
 
+        int graph_type;
         int n_samples;
         bool verbose;
         std::string title;
+        std::string sub_title;
         std::string current;
         std::unordered_map<std::string, std::vector<fp_seconds>> data;
     };
