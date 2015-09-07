@@ -444,14 +444,14 @@ animate:P,getBox:P,drawLegendSymbol:R.drawRectangle,getExtremes:function(){F.pro
 $(function () {
         $('#all-together').highcharts({
             chart: {
-                type: 'line',
+                type: '{$graph_type}',
                 zoomType: 'y'
             },
             title: {
                 text: '{$title}'
             },
             subtitle: {
-                text: 'generated with <a href="http://flamingdangerzone.com/nonius">nonius</a>'
+                 text: '{$sub_title}'
             },
             yAxis: {
                 title: { text: 'Time ({$units})' },
