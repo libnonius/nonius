@@ -110,7 +110,7 @@ namespace nonius {
 
             cpptempl::data_map map;
             map["title"] = escape(title);
-			map["sub_title"] = escape(sub_title);
+			map["sub_title"] = sub_title;
 			map["graph_type"] = graph_type_str;
             map["units"] = detail::units_for_magnitude(magnitude);
             for(auto d : data) {
