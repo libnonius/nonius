@@ -96,6 +96,10 @@ ninja.rule('header',
         command = ' '.join(['python', single_header_tool, '$in', '$out']),
         description = 'HEADER $out')
 
+ninja.rule('site',
+        command = ' '.join(['jekyll', 'build', '--quiet', '--source', '$in', '--destination', '$out']),
+        description = 'JEKYLL $out')
+
 # --- build edges
 
 ninja.build('build.ninja', 'bootstrap',
@@ -157,6 +161,17 @@ for fn in example_files:
 
 ninja.build('examples', 'phony',
             inputs = examples)
+
+# --- documentation
+
+site = os.path.join('dist', 'doc')
+site_files = list(get_files('doc', '*'))
+ninja.build(site, 'site',
+        inputs = 'doc',
+        implicit = site_files)
+
+ninja.build('docs', 'phony',
+        inputs = site)
 
 ninja.default('header')
 
