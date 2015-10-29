@@ -1,3 +1,6 @@
 [submodule "deps/wheels"]
 	path = deps/wheels
 	url = https://github.com/rmartinho/wheels.git
+[submodule "tools/vallus"]
+	path = tools/vallus
+	url = https://github.com/rmartinho/vallus
