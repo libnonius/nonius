@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+import io
 import datetime
 import string
 
@@ -24,7 +25,7 @@ seenHeaders = set([])
 bumpVersion = True
 includeImpl = True
 
-out = open( outputPath, 'w' )
+out = io.open( outputPath, 'w', encoding='utf-8')
 ifdefs = 0
 implIfDefs = -1
 
@@ -36,7 +37,7 @@ def parseFile( path, filename ):
     global ifdefs
     global implIfDefs
 
-    f = open( os.path.join(path, filename), 'r' )
+    f = io.open( os.path.join(path, filename), 'r', encoding='utf-8')
     blanks = 0
     for line in f:
         if ifParser.match( line ):
@@ -49,7 +50,7 @@ def parseFile( path, filename ):
             headerPath, sep, headerFile = header.rpartition( "/" )
             if not headerFile in seenHeaders:
                 seenHeaders.add( headerFile )
-                write( "// #included from: {0}\n".format( header ) )
+                write( u"// #included from: {0}\n".format( header ) )
                 if os.path.exists( path + headerPath + sep + headerFile ):
                     parseFile( path + headerPath + sep, headerFile )
                 else:
@@ -63,10 +64,10 @@ def parseFile( path, filename ):
                 else:
                     blanks = 0
                 if blanks < 2:
-                    write( line.rstrip() + "\n" )
+                    write( line.rstrip() + u"\n" )
 
 def generateSingleInclude():
-    out.write("""// Nonius - C++ benchmarking tool
+    out.write(u"""// Nonius - C++ benchmarking tool
 //
 // Written in 2014 by Martinho Fernandes <martinho.fernandes@gmail.com>
 //
@@ -80,14 +81,14 @@ def generateSingleInclude():
 // This file was automatically generated on {0}
 // Do not edit it directly
 
-""".format(datetime.datetime.utcnow().isoformat()+'Z'))
+""".format(datetime.datetime.utcnow().isoformat()+u'Z'))
 
-    out.write( "#ifndef NONIUS_SINGLE_INCLUDE_HPP\n" )
-    out.write( "#define NONIUS_SINGLE_INCLUDE_HPP\n\n" )
+    out.write( u"#ifndef NONIUS_SINGLE_INCLUDE_HPP\n" )
+    out.write( u"#define NONIUS_SINGLE_INCLUDE_HPP\n\n" )
 
     parseFile( rootPath, 'nonius_single.h++' )
 
-    out.write( "#endif // NONIUS_SINGLE_INCLUDE_HPP\n" )
+    out.write( u"#endif // NONIUS_SINGLE_INCLUDE_HPP\n" )
 
 generateSingleInclude()
 
