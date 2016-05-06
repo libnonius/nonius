@@ -1,6 +1,6 @@
 // Nonius - C++ benchmarking tool
 //
-// Written in 2014 by Martinho Fernandes <martinho.fernandes@gmail.com>
+// Written in 2014-2015 by Martinho Fernandes <martinho.fernandes@gmail.com>
 //
 // To the extent possible under law, the author(s) have dedicated all copyright and related
 // and neighboring rights to this software to the public domain worldwide. This software is
@@ -39,9 +39,9 @@ namespace nonius {
 
         template <typename Iterator>
         double weighted_average_quantile(int k, int q, Iterator first, Iterator last) {
-            int count = last - first;
-            double idx = (count - 1) * k /(double) q;
-            int j = (int)idx;
+            auto count = last - first;
+            double idx = (count - 1) * k /static_cast<double>(q);
+            int j = static_cast<int>(idx);
             double g = idx - j;
             std::nth_element(first, first+j, last);
             auto xj = first[j];
@@ -77,7 +77,7 @@ namespace nonius {
 
         template <typename Iterator>
         double mean(Iterator first, Iterator last) {
-            int count = last - first;
+            auto count = last - first;
             double sum = std::accumulate(first, last, 0.);
             return sum / count;
         }
@@ -94,8 +94,8 @@ namespace nonius {
 
         template <typename URng, typename Iterator, typename Estimator>
         sample resample(URng& rng, int resamples, Iterator first, Iterator last, Estimator& estimator) {
-            int n = last - first;
-            std::uniform_int_distribution<int> dist(0, n-1);
+            auto n = last - first;
+            std::uniform_int_distribution<decltype(n)> dist(0, n-1);
 
             sample out;
             out.reserve(resamples);
@@ -111,7 +111,7 @@ namespace nonius {
 
         template <typename Estimator, typename Iterator>
         sample jackknife(Estimator&& estimator, Iterator first, Iterator last) {
-            int n = last - first;
+            auto n = last - first;
             auto second = std::next(first);
             sample results;
             results.reserve(n);
@@ -128,9 +128,12 @@ namespace nonius {
         estimate<double> bootstrap(double confidence_level, Iterator first, Iterator last, sample const& resample, Estimator&& estimator) {
             namespace bm = boost::math;
 
-            int n_samples = last - first;
+            auto n_samples = last - first;
 
             double point = estimator(first, last);
+            // Degenerate case with a single sample
+            if(n_samples == 1) return { point, point, point, confidence_level };
+
             sample jack = jackknife(estimator, first, last);
             double jack_mean = mean(jack.begin(), jack.end());
             double sum_squares, sum_cubes;
@@ -142,8 +145,11 @@ namespace nonius {
                     });
 
             double accel = sum_cubes / (6 * std::pow(sum_squares, 1.5));
-            int n = resample.size();
+            int n = static_cast<int>(resample.size());
             double prob_n = std::count_if(resample.begin(), resample.end(), [point](double x) { return x < point; }) /(double) n;
+            // degenerate case with uniform samples
+            if(prob_n == 0) return { point, point, point, confidence_level };
+
             double bias = bm::quantile(bm::normal{}, prob_n);
             double z1 = bm::quantile(bm::normal{}, (1. - confidence_level) / 2.);
 
@@ -153,11 +159,10 @@ namespace nonius {
             double b2 = bias - z1;
             double a1 = a(b1);
             double a2 = a(b2);
-            int lo = std::max(cumn(a1), 0);
-            int hi = std::min(cumn(a2), n - 1);
+            auto lo = std::max(cumn(a1), 0);
+            auto hi = std::min(cumn(a2), n - 1);
 
-            if(n_samples == 1) return { point, point, point, confidence_level };
-            else return { point, resample[lo], resample[hi], confidence_level };
+            return { point, resample[lo], resample[hi], confidence_level };
         }
 
         inline double outlier_variance(estimate<double> mean, estimate<double> stddev, int n) {
@@ -196,7 +201,7 @@ namespace nonius {
         bootstrap_analysis analyse_samples(double confidence_level, int n_resamples, Iterator first, Iterator last) {
             static std::random_device entropy;
 
-            int n = last - first;
+            auto n = static_cast<int>(last - first); // seriously, one can't use integral types without hell in C++
 
             auto mean = &detail::mean<Iterator>;
             auto stddev = &detail::standard_deviation<Iterator>;

@@ -1,17 +1,25 @@
+#define NONIUS_RUNNER
 #include <nonius.h++>
 
-#include <iterator>
-#include <string>
+#include <list>
+#include <forward_list>
 
-int main() {
-    nonius::configuration cfg;
-    cfg.output_file = "example2.csv";
-    nonius::benchmark benchmarks[] = {
-        nonius::benchmark("to_string(42)", []{ return std::to_string(42); }),
-        nonius::benchmark("to_string(4.2)", []{ return std::to_string(4.2); })
-    };
+NONIUS_BENCHMARK("list<long long>", [](nonius::chronometer meter) {
+    std::list<long long> l;
+    meter.measure([&](int i) { l.push_front(i); });
+})
 
-    nonius::go(cfg, std::begin(benchmarks), std::end(benchmarks), nonius::csv_reporter());
-}
+NONIUS_BENCHMARK("list<char>", [](nonius::chronometer meter) {
+    std::list<char> l;
+    meter.measure([&](int i) { l.push_front(i); });
+})
 
+NONIUS_BENCHMARK("forward_list<long long>", [](nonius::chronometer meter) {
+    std::forward_list<long long> l;
+    meter.measure([&](int i) { l.push_front(i); });
+})
 
+NONIUS_BENCHMARK("forward_list<char>", [](nonius::chronometer meter) {
+    std::forward_list<char> l;
+    meter.measure([&](int i) { l.push_front(static_cast<char>(i)); });
+})
