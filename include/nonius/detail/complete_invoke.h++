@@ -51,10 +51,10 @@ namespace nonius {
             return complete_invoker<ResultOf<Fun(Args...)>>::invoke(std::forward<Fun>(fun), std::forward<Args>(args)...);
         }
 
-        template <typename> struct always_true : std::true_type {};
+        template <typename> struct true_given : std::true_type {};
         struct is_callable_tester {
             template <typename Fun, typename... Args>
-            always_true<decltype(std::declval<Fun>()(std::declval<Args>()...))> static test(int);
+            true_given<decltype(std::declval<Fun>()(std::declval<Args>()...))> static test(int);
             template <typename...>
             std::false_type static test(...);
         };

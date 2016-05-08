@@ -12,18 +12,40 @@
 // Tests for nonius::detail::run_for_at_least
 
 #include <nonius/detail/run_for_at_least.h++>
+#include <nonius/chronometer.h++>
 
 #include "manual_clock.h++"
 
 #include <catch.hpp>
 
-TEST_CASE("run_for_at_least") {
+TEST_CASE("run_for_at_least, int") {
     nonius::manual_clock::duration time(100);
 
-    auto timing = nonius::detail::run_for_at_least<nonius::manual_clock>(time, 1, [](int x) -> int {
-                CHECK(x >= 1);
+    int old_x = 1;
+    auto timing = nonius::detail::run_for_at_least<nonius::manual_clock>(time, 1, [&old_x](int x) -> int {
+                CHECK(x >= old_x);
                 nonius::manual_clock::advance(x);
+                old_x = x;
                 return x + 17;
+            });
+
+    REQUIRE(timing.elapsed >= time);
+    REQUIRE(timing.result == timing.iterations + 17);
+    REQUIRE(timing.iterations >= time.count());
+}
+
+TEST_CASE("run_for_at_least, chronometer") {
+    nonius::manual_clock::duration time(100);
+
+    int old_runs = 1;
+    auto timing = nonius::detail::run_for_at_least<nonius::manual_clock>(time, 1, [&old_runs](nonius::chronometer meter) -> int {
+                CHECK(meter.runs() >= old_runs);
+                nonius::manual_clock::advance(100);
+                meter.measure([] {
+                    nonius::manual_clock::advance(1);
+                });
+                old_runs = meter.runs();
+                return meter.runs() + 17;
             });
 
     REQUIRE(timing.elapsed >= time);

@@ -18,6 +18,7 @@
 #include <nonius/environment.h++>
 #include <nonius/benchmark.h++>
 #include <nonius/detail/stats.h++>
+#include <nonius/detail/measure.h++>
 #include <nonius/detail/run_for_at_least.h++>
 #include <nonius/clock.h++>
 
