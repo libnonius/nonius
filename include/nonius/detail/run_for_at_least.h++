@@ -26,28 +26,15 @@
 namespace nonius {
     namespace detail {
         template <typename Clock, typename Fun>
-        TimingOf<Clock, Fun(int)> run_for_at_least_impl(Duration<Clock> how_long, int seed, Fun&& fun, std::false_type) {
-            auto iters = seed;
-            while(true) {
-                auto r = detail::measure<Clock>(fun, iters);
-                if(r.elapsed >= how_long) {
-                    return { r.elapsed, std::move(r.result), iters };
-                }
-                iters *= 2;
-            }
+        TimingOf<Clock, Fun(int)> measure_one(Fun&& fun, int iters, std::false_type) {
+            return detail::measure<Clock>(fun, iters);
         }
         template <typename Clock, typename Fun>
-        TimingOf<Clock, Fun(chronometer)> run_for_at_least_impl(Duration<Clock> how_long, int seed, Fun&& fun, std::true_type) {
-            auto iters = seed;
-            while(true) {
-                detail::chronometer_model<Clock> meter;
-                auto&& result = detail::complete_invoke(fun, chronometer(meter, iters));
+        TimingOf<Clock, Fun(chronometer)> measure_one(Fun&& fun, int iters, std::true_type) {
+            detail::chronometer_model<Clock> meter;
+            auto&& result = detail::complete_invoke(fun, chronometer(meter, iters));
 
-                if(meter.elapsed() >= how_long) {
-                    return { meter.elapsed(), std::move(result), iters };
-                }
-                iters *= 2;
-            }
+            return { meter.elapsed(), std::move(result), iters };
         }
 
         template <typename Clock, typename Fun>
@@ -55,7 +42,15 @@ namespace nonius {
 
         template <typename Clock = default_clock, typename Fun>
         TimingOf<Clock, Fun(run_for_at_least_argument_t<Clock, Fun>)> run_for_at_least(Duration<Clock> how_long, int seed, Fun&& fun) {
-            return run_for_at_least_impl<Clock>(how_long, seed, std::forward<Fun>(fun), detail::is_callable<Fun(chronometer)>());
+            auto iters = seed;
+            while(true) {
+                auto&& timing = measure_one<Clock>(fun, iters, detail::is_callable<Fun(chronometer)>());
+
+                if(timing.elapsed >= how_long) {
+                    return { timing.elapsed, std::move(timing.result), iters };
+                }
+                iters *= 2;
+            }
         }
     } // namespace detail
 } // namespace nonius
