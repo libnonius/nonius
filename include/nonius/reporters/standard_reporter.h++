@@ -79,8 +79,17 @@ namespace nonius {
         void do_analysis_start() override {
             if(verbose) report_stream() << "bootstrapping with " << n_resamples << " resamples\n";
         }
-        void do_benchmark_failure(std::exception_ptr) override {
+        void do_benchmark_failure(std::exception_ptr eptr) override {
             error_stream() << current << " failed to run successfully\n";
+            if(!summary) {
+                try {
+                    std::rethrow_exception(eptr);
+                } catch(std::exception& ex) {
+                    error_stream() << ": " << ex.what();
+                } catch(...) {
+                    error_stream() << "unknown error";
+                }
+            }
             report_stream() << "benchmark aborted\n";
         }
         void do_analysis_complete(sample_analysis<fp_seconds> const& analysis) override {
