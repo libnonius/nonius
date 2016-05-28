@@ -81,7 +81,7 @@ namespace nonius {
         for(; first != last; ++first) {
             try {
                 // if the benchmark name does not match the regex pattern then skip it
-                if(!std::regex_search(first->name, benchmark_pattern_matcher))
+                if( !std::regex_match(first->name, benchmark_pattern_matcher) )
                     continue;
 
                 rep.benchmark_start(first->name);

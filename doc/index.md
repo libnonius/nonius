@@ -100,7 +100,7 @@ the options available. Here are some examples of common choices:
 >
 > Run only benchmarks that match a given regular expression
 >
->     $ runner -f "^string"
+>     $ runner -f "string.*"
 >
 > Run all benchmarks and output all samples to a CSV file named `results.csv`
 >
