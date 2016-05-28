@@ -98,6 +98,10 @@ the options available. Here are some examples of common choices:
 >
 >     $ runner -v -s 500
 >
+> Run only benchmarks that match a given regular expression
+>
+>     $ runner -f "^string"
+>
 > Run all benchmarks and output all samples to a CSV file named `results.csv`
 >
 >     $ runner -r csv -o results.csv

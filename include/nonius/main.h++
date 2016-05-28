@@ -72,10 +72,11 @@ namespace nonius {
                 detail::option("reporter", "r", "reporter to use (default: standard)", "REPORTER"),
                 detail::option("title", "t", "set report title", "TITLE"),
                 detail::option("no-analysis", "A", "perform only measurements; do not perform any analysis"),
+                detail::option("filter", "f", "only run benchmarks whose name matches the regular expression pattern", "PATTERN"),
                 detail::option("list", "l", "list benchmarks"),
                 detail::option("list-reporters", "lr", "list available reporters"),
                 detail::option("verbose", "v", "show verbose output (mutually exclusive with -q)"),
-                detail::option("summary", "q", "show summary output (mutually exclusive with -v)"),
+                detail::option("summary", "q", "show summary output (mutually exclusive with -v)")
             };
             return the_options;
         }
@@ -98,6 +99,7 @@ namespace nonius {
                 parse(cfg.output_file, args, "output");
                 parse(cfg.reporter, args, "reporter", is_reporter);
                 parse(cfg.no_analysis, args, "no-analysis");
+                parse(cfg.filter_pattern, args, "filter");
                 parse(cfg.list_benchmarks, args, "list");
                 parse(cfg.list_reporters, args, "list-reporters");
                 parse(cfg.verbose, args, "verbose");

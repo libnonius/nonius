@@ -25,6 +25,7 @@ namespace nonius {
         std::string title = "benchmarks";
         std::string output_file;
         std::string reporter;
+        std::string filter_pattern = ".*";
         bool list_benchmarks = false;
         bool list_reporters = false;
         bool no_analysis = false;

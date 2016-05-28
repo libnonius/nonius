@@ -29,6 +29,7 @@
 #include <exception>
 #include <iostream>
 #include <utility>
+#include <regex>
 
 namespace nonius {
     namespace detail {
@@ -74,8 +75,15 @@ namespace nonius {
 
         rep.suite_start();
 
+        // create the regex that matches benchmark names
+        std::regex benchmark_pattern_matcher(cfg.filter_pattern);
+
         for(; first != last; ++first) {
             try {
+                // if the benchmark name does not match the regex pattern then skip it
+                if(!std::regex_search(first->name, benchmark_pattern_matcher))
+                    continue;
+
                 rep.benchmark_start(first->name);
 
                 auto plan = user_code(rep, [&first, &cfg, &env]{ return first->template prepare<Clock>(cfg, env); });
