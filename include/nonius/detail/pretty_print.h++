@@ -11,8 +11,8 @@
 
 // Pretty printing routines
 
-#ifndef NONIUS_PRETTY_PRINT_HPP
-#define NONIUS_PRETTY_PRINT_HPP
+#ifndef NONIUS_DETAIL_PRETTY_PRINT_HPP
+#define NONIUS_DETAIL_PRETTY_PRINT_HPP
 
 #include <nonius/reporter.h++>
 #include <nonius/configuration.h++>
@@ -20,6 +20,8 @@
 #include <nonius/execution_plan.h++>
 #include <nonius/environment.h++>
 #include <nonius/clock.h++>
+
+#include <nonius/detail/compiler.h++>
 
 #include <ratio>
 #include <ios>
@@ -52,7 +54,7 @@ namespace nonius {
         inline std::string pretty_duration(fp_seconds secs) {
             auto magnitude = get_magnitude(secs);
             auto units = units_for_magnitude(magnitude);
-#ifdef _MSC_VER
+#ifdef NONIUS_MSVC
             if(units == "μs") units = "us";
 #endif
             std::ostringstream ss;
@@ -78,5 +80,4 @@ namespace nonius {
     } // namespace detail
 } // namespace nonius
 
-#endif // NONIUS_PRETTY_PRINT_HPP
-
+#endif // NONIUS_DETAIL_PRETTY_PRINT_HPP
