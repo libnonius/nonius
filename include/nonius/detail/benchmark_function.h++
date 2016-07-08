@@ -29,6 +29,13 @@ namespace nonius {
         struct is_related
         : std::is_same<Decay<T>, Decay<U>> {};
 
+        /// We need to reinvent std::function because every piece of code that might add overhead
+        /// in a measurement context needs to have consistent performance characteristics so that we
+        /// can account for it in the measurement.
+        /// Implementations of std::function with optimizations that aren't always applicable, like
+        /// small buffer optimizations, are not uncommon.
+        /// This is effectively an implementation of std::function without any such optimizations;
+        /// it may be slow, but it is consistently slow.
         struct benchmark_function {
         private:
             struct concept {
