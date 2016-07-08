@@ -19,6 +19,7 @@
 #include <nonius/environment.h++>
 #include <nonius/execution_plan.h++>
 #include <nonius/chronometer.h++>
+#include <nonius/optimizer.h++>
 #include <nonius/detail/benchmark_function.h++>
 #include <nonius/detail/repeat.h++>
 #include <nonius/detail/run_for_at_least.h++>
@@ -63,7 +64,11 @@ namespace nonius {
             times.reserve(cfg.samples);
             std::generate_n(std::back_inserter(times), cfg.samples, [this, env, plan]{
                     detail::chronometer_model<Clock> model;
+
+                    detail::optimizer_barrier();
                     (*this)(chronometer(model, plan.iterations_per_sample));
+                    detail::optimizer_barrier();
+
                     auto sample_time = model.elapsed() - env.clock_cost.mean;
                     if(sample_time < FloatDuration<Clock>::zero()) sample_time = FloatDuration<Clock>::zero();
                     return (sample_time / plan.iterations_per_sample);
