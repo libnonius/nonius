@@ -40,13 +40,13 @@ namespace nonius {
         *reinterpret_cast<char volatile*>(p) = *reinterpret_cast<char const volatile*>(p);
     }
     // TODO equivalent keep_memory()
+#pragma optimize("", on)
 
     namespace detail {
         inline void optimizer_barrier() {
             std::atomic_thread_fence(std::memory_order_seq_cst);
         }
     } // namespace detail
-#pragma optimize("", on)
 
 #endif
 } // namespace nonius
