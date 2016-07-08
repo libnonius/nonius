@@ -37,7 +37,7 @@ namespace nonius {
     template <typename T>
     inline void keep_memory(T* p) {
         // thanks @milleniumbug
-        *reinterpret_cast<char const volatile*>(p) = *reinterpret_cast<char const volatile*>(p);
+        *reinterpret_cast<char volatile*>(p) = *reinterpret_cast<char const volatile*>(p);
     }
     // TODO equivalent keep_memory()
 
