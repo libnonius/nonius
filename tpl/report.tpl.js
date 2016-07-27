@@ -1,67 +1,32 @@
-$(function () {
-    $('#all-together').highcharts({
-        chart: {
+!function () {
+    var data = [
+        {% for benchmark in benchmarks %}
+        {
+            name: '{$benchmark.name}',
             type: 'scatter',
-            zoomType: 'y'
+            mode: 'markers',
+            marker: { symbol: {$loop.index0} },
+            x: [{% for time in benchmark.times %} {$loop.index}, {% endfor %}],
+            y: [{% for time in benchmark.times %} {$time}, {% endfor %}],
         },
-        title: {
-            text: '{$title}'
-        },
-        subtitle: {
-            text: 'generated with <a href="http://flamingdangerzone.com/nonius">nonius</a>'
-        },
-        yAxis: {
-            title: { text: 'Time ({$units})' },
-            startOnTick: false,
-            endOnTick: true,
-            showLastLabel: true,
-        },
-        xAxis: {
-            title: { text: null },
-            startOnTick: true,
-            endOnTick: true,
-            showLastLabel: true,
-            minPadding: 0,
-            maxPadding: 0
-        },
+        {% endfor %}
+    ];
+
+    var layout = {
+        title: '{$title}',
+        showleyend: true,
+        xaxis: { title: 'Measurement' },
+        yaxis: { title: 'Time ({$units})' },
         legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'top',
-            x: 0,
-            y: 100,
-            backgroundColor: '#FFFFFF',
-            borderWidth: 1
-        },
-        plotOptions: {
-            scatter: {
-                marker: {
-                    radius: 5,
-                    states: {
-                        hover: {
-                            enabled: true,
-                            lineColor: 'rgb(100,100,100)'
-                        }
-                    }
-                },
-                states: {
-                    hover: {
-                        marker: {
-                            enabled: false
-                        }
-                    }
-                },
-                tooltip: {
-                    headerFormat: '<b>{series.name}</b><br>',
-                    pointFormat: 'Run #{point.x}: <b>{point.y} {$units}</b>'
-                }
-            }
-        },
-        series: [{% for benchmark in benchmarks %}{
-                    name: '{$benchmark.name}',
-                    data: [{% for time in benchmark.times %}[{$time}],{% endfor %}]
-                },
-                {% endfor %}
-        ]
+            font: { family: 'monospace' },
+            borderwidth: 2,
+            bordercolor: '#777'
+        }
+    };
+
+    var plotdiv = document.getElementById("all-together");
+    Plotly.newPlot(plotdiv, data, layout);
+    window.addEventListener("resize", function() {
+        Plotly.Plots.resize(plotdiv);
     });
-});
+}();
