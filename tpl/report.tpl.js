@@ -16,7 +16,11 @@
         title: '{$title}',
         showleyend: true,
         xaxis: { title: 'Measurement' },
-        yaxis: { title: 'Time ({$units})' },
+        yaxis: {
+            title: 'Time ({$units})',
+            rangemode: 'tozero',
+            zeroline: true
+        },
         legend: {
             font: { family: 'monospace' },
             borderwidth: 2,
