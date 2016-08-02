@@ -67,6 +67,17 @@ namespace nonius {
         }
     }
 
+    using param_t = run_configuration::param_t;
+    using stepper_t = std::function<param_t(param_t)>;
+
+    stepper_t get_stepper(run_configuration const& cfg) {
+        auto step = cfg.step;
+        return std::unordered_map<std::string, stepper_t> {
+            {"+", [step] (param_t x){ return x + step; }},
+            {"*", [step] (param_t x){ return x * step; }},
+        }.at(cfg.op);
+    }
+
     template <typename Clock = default_clock, typename Iterator>
     void go(configuration cfg, Iterator first, Iterator last, reporter& rep) {
         rep.configure(cfg);
@@ -79,13 +90,7 @@ namespace nonius {
         std::regex benchmark_pattern_matcher(cfg.filter_pattern);
 
         for(; first != last; ++first) {
-            try {
-                // if the benchmark name does not match the regex pattern then skip it
-                if( !std::regex_match(first->name, benchmark_pattern_matcher) )
-                    continue;
-
-                rep.benchmark_start(first->name);
-
+            auto run_benchmark = [&] {
                 auto plan = user_code(rep, [&first, &cfg, &env]{ return first->template prepare<Clock>(cfg, env); });
                 rep.measurement_start(plan);
                 auto samples = user_code(rep, [&first, &cfg, &env, &plan]{ return first->template run<Clock>(cfg, env, plan); });
@@ -96,7 +101,31 @@ namespace nonius {
                     auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
                     rep.analysis_complete(analysis);
                 }
+            };
 
+            try {
+                // if the benchmark name does not match the regex pattern then skip it
+                if(!std::regex_match(first->name, benchmark_pattern_matcher))
+                    continue;
+
+                rep.benchmark_start(first->name);
+                // if there is a parameter that we want to try at different values
+                if (cfg.params.run) {
+                    auto&& run = *cfg.params.run;
+                    auto stepper = get_stepper(run);
+                    auto value = run.init;
+                    for (auto i = 0; i < run.count; ++i) {
+                        auto v = boost::lexical_cast<std::string>(value);
+                        cfg.params.map[run.name] = v;
+                        value = stepper(value);
+
+                        rep.param_step_start(run.name, v);
+                        run_benchmark();
+                        rep.param_step_complete(run.name, v);
+                    }
+                } else {
+                    run_benchmark();
+                }
                 rep.benchmark_complete();
             } catch(benchmark_user_error const&) {
                 continue;
@@ -140,4 +169,3 @@ namespace nonius {
 } // namespace nonius
 
 #endif // NONIUS_GO_HPP
-

@@ -81,6 +81,9 @@ namespace nonius {
         void benchmark_start(std::string const& name) {
             do_benchmark_start(name);
         }
+        void param_step_start(std::string const& name, std::string const& value) {
+            do_param_step_start(name, value);
+        }
 
         void measurement_start(execution_plan<fp_seconds> plan) {
             do_measurement_start(plan);
@@ -96,6 +99,9 @@ namespace nonius {
             do_analysis_complete(analysis);
         }
 
+        void param_step_complete(std::string const& name, std::string const& value) {
+            do_param_step_start(name, value);
+        }
         void benchmark_failure(std::exception_ptr error) {
             do_benchmark_failure(error);
         }
@@ -122,6 +128,7 @@ namespace nonius {
 
         virtual void do_suite_start() {}
         virtual void do_benchmark_start(std::string const& /*name*/) {}
+        virtual void do_param_step_start(std::string const& /*name*/, std::string const& /*value*/) {}
 
         virtual void do_measurement_start(execution_plan<fp_seconds> /*plan*/) {}
         virtual void do_measurement_complete(std::vector<fp_seconds> const& /*samples*/) {}
@@ -129,6 +136,7 @@ namespace nonius {
         virtual void do_analysis_start() {} // TODO make generic?
         virtual void do_analysis_complete(sample_analysis<fp_seconds> const& /*analysis*/) {}
 
+        virtual void do_param_step_complete(std::string, std::string) {}
         virtual void do_benchmark_failure(std::exception_ptr /*error*/) {}
         virtual void do_benchmark_complete() {}
         virtual void do_suite_complete() {}
@@ -167,4 +175,3 @@ namespace nonius {
     static_assert(true, "")
 
 #endif // NONIUS_REPORTER_HPP
-
