@@ -20,18 +20,21 @@
 namespace nonius {
 namespace detail {
 
-template <typename=void>
-struct params_map {
-    static std::unordered_map<std::string, std::string> defaults;
+struct param_registry {
+    param_map defaults;
 };
 
-template <typename T>
-std::unordered_map<std::string, std::string> params_map<T>::defaults = {};
+inline param_registry& global_param_registry() {
+    static param_registry instance;
+    return instance;
+}
 
 struct param_declaration {
     template <typename T>
-    param_declaration(std::string p, T v) {
-        params_map<>::defaults.emplace(
+    param_declaration(std::string p, T v,
+                      param_registry& registry = global_param_registry())
+    {
+        registry.defaults.emplace(
             std::move(p),
             boost::lexical_cast<std::string>(std::move(v)));
     }
@@ -40,9 +43,9 @@ struct param_declaration {
 } /* namespace detail */
 } /* namespace nonius */
 
-#define NONIUS_PARAM(name, default_value)       \
-    static ::nonius::detail::param_declaration  \
-    name ## __param (#name, default_value)      \
+#define NONIUS_PARAM(name, default_value)                               \
+    static auto name ## __param =                                       \
+        ::nonius::detail::param_declaration (#name, default_value)      \
     //
 
 #endif // NONIUS_PARAM_HPP

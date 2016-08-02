@@ -14,18 +14,20 @@
 #ifndef NONIUS_EXECUTION_PLAN_HPP
 #define NONIUS_EXECUTION_PLAN_HPP
 
+#include <nonius/detail/param_map.h++>
+
 namespace nonius {
     template <typename Duration>
     struct execution_plan {
         int iterations_per_sample;
         Duration estimated_duration;
+        detail::param_map params;
 
         template <typename Duration2>
         operator execution_plan<Duration2>() const {
-            return { iterations_per_sample, estimated_duration };
+            return { iterations_per_sample, estimated_duration, params };
         }
     };
 } // namespace nonius
 
 #endif // NONIUS_EXECUTION_PLAN_HPP
-

@@ -74,6 +74,7 @@ namespace nonius {
         void do_measurement_start(execution_plan<fp_seconds> plan) override {
             report_stream() << std::setprecision(7);
             report_stream().unsetf(std::ios::floatfield);
+            if(!summary && !plan.params.empty()) report_stream() << "parameters:\n" << plan.params;
             if(!summary) report_stream() << "collecting " << n_samples << " samples, " << plan.iterations_per_sample << " iterations each, in estimated " << detail::pretty_duration(plan.estimated_duration) << "\n";
         }
         void do_analysis_start() override {

@@ -26,13 +26,13 @@
 namespace nonius {
     namespace detail {
         template <typename Clock, typename Fun>
-        TimingOf<Clock, Fun(int)> measure_one(Fun&& fun, int iters, std::false_type) {
+        TimingOf<Clock, Fun(int)> measure_one(Fun&& fun, int iters, const param_map&, std::false_type) {
             return detail::measure<Clock>(fun, iters);
         }
         template <typename Clock, typename Fun>
-        TimingOf<Clock, Fun(chronometer)> measure_one(Fun&& fun, int iters, std::true_type) {
+        TimingOf<Clock, Fun(chronometer)> measure_one(Fun&& fun, int iters, const param_map& params, std::true_type) {
             detail::chronometer_model<Clock> meter;
-            auto&& result = detail::complete_invoke(fun, chronometer(meter, iters));
+            auto&& result = detail::complete_invoke(fun, chronometer(meter, iters, params));
 
             return { meter.elapsed(), std::move(result), iters };
         }
@@ -41,10 +41,10 @@ namespace nonius {
         using run_for_at_least_argument_t = typename std::conditional<detail::is_callable<Fun(chronometer)>::value, chronometer, int>::type;
 
         template <typename Clock = default_clock, typename Fun>
-        TimingOf<Clock, Fun(run_for_at_least_argument_t<Clock, Fun>)> run_for_at_least(Duration<Clock> how_long, int seed, Fun&& fun) {
+        TimingOf<Clock, Fun(run_for_at_least_argument_t<Clock, Fun>)> run_for_at_least(const param_map& params, Duration<Clock> how_long, int seed, Fun&& fun) {
             auto iters = seed;
             while(true) {
-                auto&& timing = measure_one<Clock>(fun, iters, detail::is_callable<Fun(chronometer)>());
+                auto&& timing = measure_one<Clock>(fun, iters, params, detail::is_callable<Fun(chronometer)>());
 
                 if(timing.elapsed >= how_long) {
                     return { timing.elapsed, std::move(timing.result), iters };
@@ -56,4 +56,3 @@ namespace nonius {
 } // namespace nonius
 
 #endif // NONIUS_RUN_FOR_AT_LEAST_HPP
-

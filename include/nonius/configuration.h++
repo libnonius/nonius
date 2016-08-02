@@ -14,6 +14,7 @@
 #ifndef NONIUS_CONFIGURATION_HPP
 #define NONIUS_CONFIGURATION_HPP
 
+#include <nonius/detail/param_map.h++>
 #include <string>
 
 namespace nonius {
@@ -27,11 +28,13 @@ namespace nonius {
         std::string reporter;
         std::string filter_pattern = ".*";
         bool list_benchmarks = false;
+        bool list_params = false;
         bool list_reporters = false;
         bool no_analysis = false;
         bool verbose = false;
         bool summary = false;
         bool help = false;
+        detail::param_map params = {};
     };
 } // namespace nonius
 

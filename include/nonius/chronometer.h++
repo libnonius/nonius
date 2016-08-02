@@ -16,8 +16,8 @@
 
 #include <nonius/clock.h++>
 #include <nonius/detail/complete_invoke.h++>
+#include <nonius/detail/param_map.h++>
 #include <boost/lexical_cast.hpp>
-#include <unordered_map>
 
 namespace nonius {
     namespace detail {
@@ -45,13 +45,16 @@ namespace nonius {
 
         int runs() const { return k; }
 
-        template <typename T=int>
-        T param(const std::string& name) const {
-            return boost::lexical_cast<T>(params.at(name));
-        }
+        chronometer(detail::chronometer_concept& meter, int k, const detail::param_map& p)
+            : impl(&meter)
+            , k(k)
+            , params(&p)
+        {}
 
-        chronometer(detail::chronometer_concept& meter, int k)
-        : impl(&meter), k(k) {}
+        template <typename T=int>
+        T param(const std::string& name) {
+            return params->param<T>(name);
+        }
 
     private:
         template <typename Fun>
@@ -67,7 +70,7 @@ namespace nonius {
 
         detail::chronometer_concept* impl;
         int k;
-        std::unordered_map<std::string, std::string> params;
+        const detail::param_map* params;
     };
 } // namespace nonius
 
