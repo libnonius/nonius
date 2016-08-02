@@ -16,6 +16,7 @@
 
 #include <nonius/detail/param_map.h++>
 #include <string>
+#include <vector>
 
 namespace nonius {
     struct configuration {
@@ -34,7 +35,8 @@ namespace nonius {
         bool verbose = false;
         bool summary = false;
         bool help = false;
-        detail::param_map params = {};
+        // contains one param_map per run, at least one
+        std::vector<detail::param_map> params{{}};
     };
 } // namespace nonius
 
