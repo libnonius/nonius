@@ -30,6 +30,7 @@ namespace nonius {
     };
     template <typename Clock = default_clock>
     struct environment {
+        using clock_type = Clock;
         environment_estimate<FloatDuration<Clock>> clock_resolution;
         environment_estimate<FloatDuration<Clock>> clock_cost;
         //estimate function_cost;
@@ -37,4 +38,3 @@ namespace nonius {
 } // namespace nonius
 
 #endif // NONIUS_ENVIRONMENT_HPP
-

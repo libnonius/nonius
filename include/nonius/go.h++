@@ -67,15 +67,49 @@ namespace nonius {
         }
     }
 
-    using param_t = run_configuration::param_t;
-    using stepper_t = std::function<param_t(param_t)>;
+    template <typename Clock>
+    void go_benchmark(configuration cfg, benchmark& bench, environment<FloatDuration<Clock>>& env, reporter& rep) {
+        auto plan = user_code(rep, [&bench, &cfg, &env]{
+            return bench.template prepare<Clock>(cfg, env);
+        });
 
-    stepper_t get_stepper(run_configuration const& cfg) {
-        auto step = cfg.step;
-        return std::unordered_map<std::string, stepper_t> {
+        rep.measurement_start(plan);
+        auto samples = user_code(rep, [&bench, &cfg, &env, &plan]{
+            return bench.template run<Clock>(cfg, env, plan);
+        });
+        rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
+
+        if(!cfg.no_analysis) {
+            rep.analysis_start();
+            auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
+            rep.analysis_complete(analysis);
+        }
+    }
+
+    template <typename Clock>
+    void go_param(configuration cfg, benchmark& bench, environment<FloatDuration<Clock>>& env, reporter& rep) {
+        assert(cfg.params.run);
+
+        using param_t   = run_configuration::param_t;
+        using stepper_t = std::function<param_t(param_t)>;
+
+        auto&& run = *cfg.params.run;
+        auto value = run.init;
+        auto step  = run.step;
+        auto stepper = std::unordered_map<std::string, stepper_t> {
             {"+", [step] (param_t x){ return x + step; }},
             {"*", [step] (param_t x){ return x * step; }},
-        }.at(cfg.op);
+        }.at(run.op);
+
+        for (auto i = 0; i < run.count; ++i) {
+            auto v = boost::lexical_cast<std::string>(value);
+            cfg.params.map[run.name] = v;
+            value = stepper(value);
+
+            rep.param_step_start(run.name, v);
+            go_benchmark<Clock>(cfg, bench, env, rep);
+            rep.param_step_complete(run.name, v);
+        }
     }
 
     template <typename Clock = default_clock, typename Iterator>
@@ -83,53 +117,23 @@ namespace nonius {
         rep.configure(cfg);
 
         auto env = detail::measure_environment<Clock>(rep);
-
         rep.suite_start();
 
-        // create the regex that matches benchmark names
         std::regex benchmark_pattern_matcher(cfg.filter_pattern);
 
         for(; first != last; ++first) {
-            auto run_benchmark = [&] {
-                auto plan = user_code(rep, [&first, &cfg, &env]{ return first->template prepare<Clock>(cfg, env); });
-                rep.measurement_start(plan);
-                auto samples = user_code(rep, [&first, &cfg, &env, &plan]{ return first->template run<Clock>(cfg, env, plan); });
-                rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
-
-                if(!cfg.no_analysis) {
-                    rep.analysis_start();
-                    auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
-                    rep.analysis_complete(analysis);
-                }
-            };
-
             try {
-                // if the benchmark name does not match the regex pattern then skip it
-                if(!std::regex_match(first->name, benchmark_pattern_matcher))
-                    continue;
+                if(std::regex_match(first->name, benchmark_pattern_matcher)) {
+                    rep.benchmark_start(first->name);
 
-                rep.benchmark_start(first->name);
-                // if there is a parameter that we want to try at different values
-                if (cfg.params.run) {
-                    auto&& run = *cfg.params.run;
-                    auto stepper = get_stepper(run);
-                    auto value = run.init;
-                    for (auto i = 0; i < run.count; ++i) {
-                        auto v = boost::lexical_cast<std::string>(value);
-                        cfg.params.map[run.name] = v;
-                        value = stepper(value);
+                    if (cfg.params.run)
+                        go_param<Clock>(cfg, *first, env, rep);
+                    else
+                        go_benchmark<Clock>(cfg, *first, env, rep);
 
-                        rep.param_step_start(run.name, v);
-                        run_benchmark();
-                        rep.param_step_complete(run.name, v);
-                    }
-                } else {
-                    run_benchmark();
+                    rep.benchmark_complete();
                 }
-                rep.benchmark_complete();
-            } catch(benchmark_user_error const&) {
-                continue;
-            }
+            } catch(benchmark_user_error const&) {}
         }
 
         rep.suite_complete();

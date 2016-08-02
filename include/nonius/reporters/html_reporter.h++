@@ -155,4 +155,3 @@ namespace nonius {
 } // namespace nonius
 
 #endif // NONIUS_REPORTERS_HTML_ALL_REPORTER_HPP
-
