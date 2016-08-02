@@ -48,31 +48,21 @@ namespace nonius {
             static bool parse(std::string const&) { return true; }
         };
         template <>
-        struct parser<std::vector<detail::param_map> > {
-            static std::vector<detail::param_map> parse(std::string const& param) {
+        struct parser<param_configuration> {
+            static param_configuration parse(std::string const& param) {
                 auto v = std::vector<std::string>{};
                 boost::split(v, param, boost::is_any_of(":"));
                 try {
                     if (v.size() == 2)
-                        return {{{std::move(v[0]), std::move(v[1])}}};
+                        return {{{std::move(v[0]), std::move(v[1])}}, {}};
                     if (v.size() == 5) {
-                        using param_t = long long;
+                        using param_t = run_configuration::param_t;
                         auto name  = v[0];
                         auto oper  = v[1];
                         auto init  = boost::lexical_cast<param_t>(v[2]);
-                        auto delta = boost::lexical_cast<param_t>(v[3]);
-                        auto steps = boost::lexical_cast<std::size_t>(v[4]);
-                        auto func  = std::unordered_map<std::string, std::function<param_t(param_t)>> {
-                            {"+", [=] (param_t x) { return x + delta; }},
-                            {"*", [=] (param_t x) { return x * delta; }}
-                        }.at(oper);
-                        auto r = std::vector<param_map>(steps);
-                        generate(r.begin(), r.end(), [&] {
-                            auto next = boost::lexical_cast<std::string>(init);
-                            init = func(init);
-                            return param_map{{ name, next }};
-                        });
-                        return r;
+                        auto step  = boost::lexical_cast<param_t>(v[3]);
+                        auto count = boost::lexical_cast<param_t>(v[4]);
+                        return {{}, run_configuration{name, oper, init, step, count}};
                     }
                 }
                 catch (boost::bad_lexical_cast&) {}
@@ -132,27 +122,17 @@ namespace nonius {
                 auto is_positive = [](int x) { return x > 0; };
                 auto is_ci = [](double x) { return x > 0 && x < 1; };
                 auto is_reporter = [](std::string const x) { return global_reporter_registry().count(x) > 0; };
-                auto is_param = [](std::vector<detail::param_map> const& x) {
-                    if (x.empty())
+                auto is_param = [](param_configuration const& x) {
+                    if (x.map.empty() && !x.run)
                         return false;
-                    for (auto&& m : x)
-                        for (auto&& p : m)
-                            if (detail::global_param_registry().defaults.count(p.first) == 0)
-                                return false;
+                    for (auto&& p : x.map)
+                        if (detail::global_param_registry().defaults.count(p.first) == 0)
+                            return false;
                     return true;
                 };
-                auto merge_params = [](std::vector<detail::param_map>& v1, std::vector<detail::param_map>&& v2) {
-                    assert(!v1.empty() && !v2.empty());
-                    assert(!(v1.size() > 1) || (v2.size() == 1));
-                    auto merge_param_vector = [](std::vector<detail::param_map>& v, detail::param_map& x) {
-                        for (auto& y : v)
-                            y = std::move(y).merged(std::move(x));
-                        return v;
-                    };
-                    if (v2.size() > 1)
-                        v1 = merge_param_vector(v2, v1[0]);
-                    else
-                        v1 = merge_param_vector(v1, v2[0]);
+                auto merge_params = [](param_configuration& x, param_configuration&& y) {
+                    x.map = std::move(x.map).merged(std::move(y.map));
+                    x.run = y.run;
                 };
 
                 parse(cfg.help, args, "help");

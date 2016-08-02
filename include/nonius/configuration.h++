@@ -15,10 +15,25 @@
 #define NONIUS_CONFIGURATION_HPP
 
 #include <nonius/detail/param_map.h++>
+#include <boost/optional.hpp>
 #include <string>
 #include <vector>
 
 namespace nonius {
+    struct run_configuration {
+        using param_t = long long;
+        std::string name;
+        std::string op;
+        param_t init;
+        param_t step;
+        param_t count;
+    };
+
+    struct param_configuration {
+        detail::param_map map;
+        boost::optional<run_configuration> run;
+    };
+
     struct configuration {
     public:
         int samples = 100;
@@ -35,8 +50,7 @@ namespace nonius {
         bool verbose = false;
         bool summary = false;
         bool help = false;
-        // contains one param_map per run, at least one
-        std::vector<detail::param_map> params{{}};
+        param_configuration params;
     };
 } // namespace nonius
 
