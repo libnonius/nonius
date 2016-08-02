@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-NONIUS_PARAM(size, 100u);
+NONIUS_PARAM("size", 100u)
 
 NONIUS_BENCHMARK("push_back vector", [](nonius::chronometer meter)
 {

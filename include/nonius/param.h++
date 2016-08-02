@@ -44,8 +44,10 @@ struct param_declaration {
 } /* namespace nonius */
 
 #define NONIUS_PARAM(name, default_value)                               \
-    static auto name ## __param =                                       \
-        ::nonius::detail::param_declaration (#name, default_value)      \
+    namespace {                                                         \
+    static auto NONIUS_DETAIL_UNIQUE_NAME(param_declaration) =          \
+        ::nonius::detail::param_declaration{ name, default_value };     \
+    }                                                                   \
     //
 
 #endif // NONIUS_PARAM_HPP
