@@ -16,6 +16,7 @@
 
 #include <nonius/chronometer.h++>
 #include <nonius/detail/complete_invoke.h++>
+#include <nonius/detail/meta.h++>
 
 #include <type_traits>
 #include <utility>
@@ -85,4 +86,3 @@ namespace nonius {
 } // namespace nonius
 
 #endif // NONIUS_DETAIL_BENCHMARK_FUNCTION_HPP
-

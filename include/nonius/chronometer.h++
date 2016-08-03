@@ -16,6 +16,7 @@
 
 #include <nonius/clock.h++>
 #include <nonius/detail/complete_invoke.h++>
+#include <nonius/detail/meta.h++>
 #include <nonius/detail/param_map.h++>
 #include <boost/lexical_cast.hpp>
 

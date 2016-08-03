@@ -19,6 +19,7 @@
 #include <nonius/detail/measure.h++>
 #include <nonius/detail/complete_invoke.h++>
 #include <nonius/detail/timing.h++>
+#include <nonius/detail/meta.h++>
 
 #include <utility>
 #include <type_traits>

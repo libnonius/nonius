@@ -14,10 +14,18 @@
 #ifndef NONIUS_PARAM_HPP
 #define NONIUS_PARAM_HPP
 
+#include <nonius/detail/meta.h++>
+#include <nonius/detail/noexcept.h++>
 #include <boost/lexical_cast.hpp>
 #include <unordered_map>
 
 namespace nonius {
+
+struct param_bad_operation : std::exception {
+    char const* what() const NONIUS_NOEXCEPT override {
+        return "operation not supported for this parameter type";
+    }
+};
 
 struct param_spec_base {
     virtual std::string plus(std::string const&, std::string const&) const = 0;
@@ -25,6 +33,20 @@ struct param_spec_base {
     virtual bool check(std::string const&) const = 0;
     virtual std::string default_value() const = 0;
 };
+
+namespace detail {
+
+struct plus_fn {
+    template <typename T>
+    auto operator() (T x, T y) -> decltype(x + y) { return x + y; }
+};
+
+struct times_fn {
+    template <typename T>
+    auto operator() (T x, T y) -> decltype(x * y) { return x * y; }
+};
+
+} // namespace detail
 
 // Users may partially specialize this to define custom types.  They
 // can more simply define isomorphic << and >>
@@ -39,11 +61,11 @@ struct param_spec : param_spec_base {
     }
 
     std::string plus(std::string const& x, std::string const& y) const override {
-        return operate(std::plus<T>{}, x, y);
+        return operate(detail::plus_fn{}, x, y);
     }
 
     std::string times(std::string const& x, std::string const& y) const override {
-        return operate(std::multiplies<T>{}, x, y);
+        return operate(detail::times_fn{}, x, y);
     }
 
     bool check(std::string const& x) const {
@@ -58,8 +80,20 @@ struct param_spec : param_spec_base {
     template <typename Op, typename ...Args>
     std::string operate(Op&& op, Args&& ...xs) const {
         return boost::lexical_cast<std::string>(
-            std::forward<Op>(op) (
-                boost::lexical_cast<T>(std::forward<Args>(xs))...));
+            do_operate(std::forward<Op>(op),
+                       boost::lexical_cast<T>(std::forward<Args>(xs))...));
+    }
+
+    template <typename Op, typename ...Args>
+    auto do_operate(Op&& op, Args&& ...xs) const
+        -> typename std::enable_if<detail::is_callable<Op&&(Args&&...)>::value, T>::type {
+        return std::forward<Op>(op)(std::forward<Args>(xs)...);
+    }
+
+    template <typename Op, typename ...Args>
+    auto do_operate(Op&&, Args&&...) const
+        -> typename std::enable_if<!detail::is_callable<Op&&(Args&&...)>::value, T>::type {
+        throw param_bad_operation{};
     }
 };
 
