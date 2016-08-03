@@ -21,12 +21,11 @@
 
 namespace nonius {
     struct run_configuration {
-        using param_t = long long;
         std::string name;
         std::string op;
-        param_t init;
-        param_t step;
-        param_t count;
+        std::string init;
+        std::string step;
+        std::size_t count;
     };
 
     struct param_configuration {

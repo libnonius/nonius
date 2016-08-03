@@ -90,25 +90,23 @@ namespace nonius {
     void go_param(configuration cfg, benchmark& bench, environment<FloatDuration<Clock>>& env, reporter& rep) {
         assert(cfg.params.run);
 
-        using param_t   = run_configuration::param_t;
-        using stepper_t = std::function<param_t(param_t)>;
+        using stepper_t = std::function<std::string(std::string const&)>;
 
         auto&& run = *cfg.params.run;
-        auto value = run.init;
+        auto&& spec = detail::global_param_registry().specs.at(run.name).get();
+        auto& value = cfg.params.map[run.name];
         auto step  = run.step;
         auto stepper = std::unordered_map<std::string, stepper_t> {
-            {"+", [step] (param_t x){ return x + step; }},
-            {"*", [step] (param_t x){ return x * step; }},
+            {"+", [&] (std::string const& x) { return spec.plus(x, step); }},
+            {"*", [&] (std::string const& x) { return spec.times(x, step); }},
         }.at(run.op);
 
-        for (auto i = 0; i < run.count; ++i) {
-            auto v = boost::lexical_cast<std::string>(value);
-            cfg.params.map[run.name] = v;
-            value = stepper(value);
-
-            rep.param_step_start(run.name, v);
+        value = run.init;
+        for (auto i = std::size_t{}; i < run.count; ++i) {
+            rep.param_step_start(run.name, value);
             go_benchmark<Clock>(cfg, bench, env, rep);
-            rep.param_step_complete(run.name, v);
+            rep.param_step_complete(run.name, value);
+            value = stepper(std::move(value));
         }
     }
 

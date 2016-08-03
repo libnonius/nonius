@@ -50,7 +50,7 @@ namespace nonius {
         execution_plan<FloatDuration<Clock>> prepare(configuration cfg, environment<FloatDuration<Clock>> env) const {
             auto min_time = env.clock_resolution.mean * detail::minimum_ticks;
             auto run_time = std::max(min_time, chrono::duration_cast<decltype(min_time)>(detail::warmup_time));
-            auto params = detail::global_param_registry().defaults.merged(cfg.params.map);
+            auto params = detail::global_param_registry().defaults().merged(cfg.params.map);
             auto&& test = detail::run_for_at_least<Clock>(params, chrono::duration_cast<Duration<Clock>>(run_time), 1, *this);
             int new_iters = static_cast<int>(std::ceil(min_time * test.iterations / test.elapsed));
             return { new_iters, test.elapsed / test.iterations * new_iters * cfg.samples, params };

@@ -56,17 +56,16 @@ namespace nonius {
                     if (v.size() == 2)
                         return {{{std::move(v[0]), std::move(v[1])}}, {}};
                     if (v.size() == 5) {
-                        using param_t = run_configuration::param_t;
                         auto name  = v[0];
                         auto oper  = v[1];
-                        auto init  = boost::lexical_cast<param_t>(v[2]);
-                        auto step  = boost::lexical_cast<param_t>(v[3]);
-                        auto count = boost::lexical_cast<param_t>(v[4]);
+                        auto init  = v[2];
+                        auto step  = v[3];
+                        auto count = boost::lexical_cast<std::size_t>(v[4]);
                         return {{}, run_configuration{name, oper, init, step, count}};
                     }
                 }
-                catch (boost::bad_lexical_cast&) {}
-                catch (std::out_of_range&) {}
+                catch (boost::bad_lexical_cast const&) {}
+                catch (std::out_of_range const&) {}
                 return {};
             }
         };
@@ -123,11 +122,17 @@ namespace nonius {
                 auto is_ci = [](double x) { return x > 0 && x < 1; };
                 auto is_reporter = [](std::string const x) { return global_reporter_registry().count(x) > 0; };
                 auto is_param = [](param_configuration const& x) {
-                    if (x.map.empty() && !x.run)
-                        return false;
-                    for (auto&& p : x.map)
-                        if (detail::global_param_registry().defaults.count(p.first) == 0)
-                            return false;
+                    auto&& specs = detail::global_param_registry().specs;
+                    if (x.map.empty() && !x.run) return false;
+                    if (x.run) {
+                        auto&& run = *x.run;
+                        auto iter = specs.find(run.name);
+                        if (iter == specs.end() || !iter->second.get().check(run.init) || !iter->second.get().check(run.step)) return false;
+                    }
+                    for (auto&& p : x.map) {
+                        auto iter = specs.find(p.first);
+                        if (iter == specs.end() || !iter->second.get().check(p.second)) return false;
+                    }
                     return true;
                 };
                 auto merge_params = [](param_configuration& x, param_configuration&& y) {
@@ -174,7 +179,7 @@ namespace nonius {
     }
     inline int list_params() {
         std::cout << "Available parameters (= default):\n"
-                  << detail::global_param_registry().defaults;
+                  << detail::global_param_registry().defaults();
         return 0;
     }
     inline int list_reporters() {
