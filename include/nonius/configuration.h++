@@ -14,7 +14,7 @@
 #ifndef NONIUS_CONFIGURATION_HPP
 #define NONIUS_CONFIGURATION_HPP
 
-#include <nonius/detail/param_map.h++>
+#include <nonius/param.h++>
 #include <boost/optional.hpp>
 #include <string>
 #include <vector>
@@ -29,7 +29,7 @@ namespace nonius {
     };
 
     struct param_configuration {
-        detail::param_map map;
+        param_map map;
         boost::optional<run_configuration> run;
     };
 

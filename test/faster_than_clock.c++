@@ -30,7 +30,6 @@ TEST_CASE("faster than clock") {
     nonius::execution_plan<nonius::counting_clock::duration> plan;
     plan.iterations_per_sample = 2;
 
-    auto samples = b.run<nonius::counting_clock>(cfg, env, plan);
+    auto samples = b.run<nonius::counting_clock>(cfg, {}, env, plan);
     for(auto&& s : samples) { CHECK(s.count() >= 0); }
 }
-

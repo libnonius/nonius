@@ -122,7 +122,7 @@ namespace nonius {
                 auto is_ci = [](double x) { return x > 0 && x < 1; };
                 auto is_reporter = [](std::string const x) { return global_reporter_registry().count(x) > 0; };
                 auto is_param = [](param_configuration const& x) {
-                    auto&& specs = detail::global_param_registry().specs;
+                    auto&& specs = global_param_registry().specs;
                     if (x.map.empty() && !x.run) return false;
                     if (x.run) {
                         auto&& run = *x.run;
@@ -179,7 +179,7 @@ namespace nonius {
     }
     inline int list_params() {
         std::cout << "Available parameters (= default):\n"
-                  << detail::global_param_registry().defaults();
+                  << global_param_defaults();
         return 0;
     }
     inline int list_reporters() {

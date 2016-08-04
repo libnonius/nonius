@@ -25,6 +25,7 @@
 #include <nonius/detail/complete_invoke.h++>
 #include <nonius/detail/noexcept.h++>
 
+#include <algorithm>
 #include <set>
 #include <exception>
 #include <iostream>
@@ -67,47 +68,42 @@ namespace nonius {
         }
     }
 
-    template <typename Clock>
-    void go_benchmark(configuration cfg, benchmark& bench, environment<FloatDuration<Clock>>& env, reporter& rep) {
-        auto plan = user_code(rep, [&bench, &cfg, &env]{
-            return bench.template prepare<Clock>(cfg, env);
-        });
+    std::vector<param_map> generate_params(configuration cfg) {
+        if (cfg.params.run) {
+            using stepper_t = std::function<std::string(std::string const&)>;
 
-        rep.measurement_start(plan);
-        auto samples = user_code(rep, [&bench, &cfg, &env, &plan]{
-            return bench.template run<Clock>(cfg, env, plan);
-        });
-        rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
+            auto&& run = *cfg.params.run;
+            auto&& spec = global_param_registry().specs.at(run.name).get();
+            auto& next = cfg.params.map[run.name];
+            auto step  = run.step;
+            auto stepper = std::unordered_map<std::string, stepper_t> {
+                {"+", [&] (std::string const& x) { return spec.plus(x, step); }},
+                {"*", [&] (std::string const& x) { return spec.times(x, step); }},
+            }.at(run.op);
 
-        if(!cfg.no_analysis) {
-            rep.analysis_start();
-            auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
-            rep.analysis_complete(analysis);
+            auto r = std::vector<param_map>{};
+
+            next = run.init;
+            std::generate_n(std::back_inserter(r), run.count, [&] {
+                auto last = next;
+                next = stepper(std::move(next));
+                return param_map{{run.name, last}};
+            });
+
+            return r;
+        } else {
+            return {param_map{}};
         }
     }
 
-    template <typename Clock>
-    void go_param(configuration cfg, benchmark& bench, environment<FloatDuration<Clock>>& env, reporter& rep) {
-        assert(cfg.params.run);
-
-        using stepper_t = std::function<std::string(std::string const&)>;
-
-        auto&& run = *cfg.params.run;
-        auto&& spec = detail::global_param_registry().specs.at(run.name).get();
-        auto& value = cfg.params.map[run.name];
-        auto step  = run.step;
-        auto stepper = std::unordered_map<std::string, stepper_t> {
-            {"+", [&] (std::string const& x) { return spec.plus(x, step); }},
-            {"*", [&] (std::string const& x) { return spec.times(x, step); }},
-        }.at(run.op);
-
-        value = run.init;
-        for (auto i = std::size_t{}; i < run.count; ++i) {
-            rep.param_step_start(run.name, value);
-            go_benchmark<Clock>(cfg, bench, env, rep);
-            rep.param_step_complete(run.name, value);
-            value = stepper(std::move(value));
-        }
+    template <typename Iterator>
+    std::vector<benchmark> filter_benchmarks(Iterator first, Iterator last, std::string pattern) {
+        auto r = std::vector<benchmark>{};
+        auto matcher = std::regex{pattern};
+        std::copy_if(first, last, std::back_inserter(r), [&] (benchmark const& b) {
+            return std::regex_match(b.name, matcher);
+        });
+        return r;
     }
 
     template <typename Clock = default_clock, typename Iterator>
@@ -117,21 +113,33 @@ namespace nonius {
         auto env = detail::measure_environment<Clock>(rep);
         rep.suite_start();
 
-        std::regex benchmark_pattern_matcher(cfg.filter_pattern);
+        auto benchmarks = filter_benchmarks(first, last, cfg.filter_pattern);
+        auto all_params = generate_params(cfg);
 
-        for(; first != last; ++first) {
-            try {
-                if(std::regex_match(first->name, benchmark_pattern_matcher)) {
-                    rep.benchmark_start(first->name);
+        for (auto&& params : all_params) {
+            rep.params_start(params);
+            for (auto&& bench : benchmarks) {
+                rep.benchmark_start(bench.name);
 
-                    if (cfg.params.run)
-                        go_param<Clock>(cfg, *first, env, rep);
-                    else
-                        go_benchmark<Clock>(cfg, *first, env, rep);
+                auto plan = user_code(rep, [&]{
+                    return bench.template prepare<Clock>(cfg, params, env);
+                });
 
-                    rep.benchmark_complete();
+                rep.measurement_start(plan);
+                auto samples = user_code(rep, [&]{
+                    return bench.template run<Clock>(cfg, params, env, plan);
+                });
+                rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
+
+                if(!cfg.no_analysis) {
+                    rep.analysis_start();
+                    auto analysis = detail::analyse(cfg, env, samples.begin(), samples.end());
+                    rep.analysis_complete(analysis);
                 }
-            } catch(benchmark_user_error const&) {}
+
+                rep.benchmark_complete();
+            }
+            rep.params_complete();
         }
 
         rep.suite_complete();

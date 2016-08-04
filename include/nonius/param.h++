@@ -97,7 +97,27 @@ struct param_spec : param_spec_base {
     }
 };
 
-namespace detail {
+struct param_map : std::unordered_map<std::string, std::string> {
+    using base_t = std::unordered_map<std::string, std::string>;
+    using base_t::base_t;
+
+    template <typename T=int>
+    T param(const std::string& name) const;
+
+    param_map merged(param_map m) const& {
+        m.insert(begin(), end());
+        return m;
+    }
+    param_map merged(param_map m) && {
+        m.insert(std::make_move_iterator(begin()), std::make_move_iterator(end()));
+        return m;
+    }
+
+    friend std::ostream& operator<< (std::ostream& os, const param_map& m) {
+        for(auto&& p : m) os << "  " << p.first << " = " << p.second << "\n";
+        return os;
+    }
+};
 
 struct param_registry {
     using spec_map = std::unordered_map<
@@ -119,6 +139,21 @@ inline param_registry& global_param_registry() {
     return instance;
 }
 
+inline param_map const& global_param_defaults() {
+    static param_map defaults = global_param_registry().defaults();
+    assert(defaults == global_param_registry().defaults());
+    return defaults;
+}
+
+template <typename T>
+T param_map::param(const std::string& name) const {
+    try {
+        return boost::lexical_cast<T>(at(name));
+    } catch(std::out_of_range const&) {
+        return boost::lexical_cast<T>(global_param_defaults().at(name));
+    }
+}
+
 template <typename T>
 struct param_declaration {
     param_spec<T> spec;
@@ -130,13 +165,12 @@ struct param_declaration {
     }
 };
 
-} /* namespace detail */
 } /* namespace nonius */
 
 #define NONIUS_PARAM(name, default_value)                               \
     namespace {                                                         \
     static auto NONIUS_DETAIL_UNIQUE_NAME(param_declaration) =          \
-        ::nonius::detail::param_declaration<decltype(default_value)>{ name, default_value }; \
+        ::nonius::param_declaration<decltype(default_value)>{ name, default_value }; \
     }                                                                   \
     //
 

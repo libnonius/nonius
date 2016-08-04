@@ -42,6 +42,7 @@ namespace nonius {
             verbose = cfg.verbose;
             summary = cfg.summary;
             n_resamples = cfg.resamples;
+            if(!summary && !cfg.params.map.empty()) report_stream() << "parameters\n" << cfg.params.map;
         }
 
         void do_warmup_start() override {
@@ -64,6 +65,9 @@ namespace nonius {
             if(verbose) print_environment_estimate(estimate, estimate.outliers.samples_seen);
         }
 
+        void do_params_start(param_map const& params) override {
+            if(!summary && !params.empty()) report_stream() << "\n\nnew round for parameters\n" << params;
+        }
         void do_benchmark_start(std::string const& name) override {
             report_stream() << '\n';
             if(!summary) report_stream() << "benchmarking ";
@@ -74,7 +78,6 @@ namespace nonius {
         void do_measurement_start(execution_plan<fp_seconds> plan) override {
             report_stream() << std::setprecision(7);
             report_stream().unsetf(std::ios::floatfield);
-            if(!summary && !plan.params.empty()) report_stream() << "parameters:\n" << plan.params;
             if(!summary) report_stream() << "collecting " << n_samples << " samples, " << plan.iterations_per_sample << " iterations each, in estimated " << detail::pretty_duration(plan.estimated_duration) << "\n";
         }
         void do_analysis_start() override {
