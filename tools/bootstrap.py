@@ -13,13 +13,20 @@ v.documentation()
 
 def customise_build(tools, ninja):
     stringize_tool = 'tools/stringize.py'
+    merge_includes_tool = 'tools/merge_includes.py'
     ninja.rule('stringize',
             command = ' '.join(['python', stringize_tool, '$in', '$out']),
             description = 'STRINGIZE $in')
+    ninja.rule('merge_includes',
+            command = ' '.join(['python', merge_includes_tool, '$in', '$out']),
+            description = 'MERGE-INCLUDES $in')
     html_report_template = 'include/nonius/detail/html_report_template.g.h++'
     ninja.build(html_report_template, 'stringize',
-            inputs = 'tpl/html_report.tpl',
+            inputs = 'tpl/html_report.g.tpl',
             implicit = stringize_tool)
+    ninja.build('tpl/html_report.g.tpl', 'merge_includes',
+            inputs = 'tpl/html_report.tpl',
+            implicit = merge_includes_tool)
     ninja.build('templates', 'phony',
             inputs = html_report_template)
 
