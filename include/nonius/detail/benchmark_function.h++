@@ -33,6 +33,7 @@ namespace nonius {
         struct benchmark_function {
         private:
             struct concept {
+                virtual benchmark_function call(parameters params) const = 0;
                 virtual void call(chronometer meter) const = 0;
                 virtual concept* clone() const = 0;
                 virtual ~concept() = default;
@@ -44,19 +45,44 @@ namespace nonius {
 
                 model<Fun>* clone() const override { return new model<Fun>(*this); }
 
-                void call(chronometer meter) const override {
-                    call(meter, is_callable<Fun(chronometer)>());
+                benchmark_function call(parameters params) const override {
+                    return call(params, is_callable<Fun(parameters)>());
                 }
-                void call(chronometer meter, std::true_type) const {
+                benchmark_function call(parameters params, std::true_type) const {
+                    return fun(params);
+                }
+                benchmark_function call(parameters, std::false_type) const {
+                    return this->clone();
+                }
+
+                void call(chronometer meter) const override {
+                    call(meter, is_callable<Fun(chronometer)>(), is_callable<Fun(parameters)>());
+                }
+                void call(chronometer meter, std::true_type, std::false_type) const {
                     fun(meter);
                 }
-                void call(chronometer meter, std::false_type) const {
+                void call(chronometer meter, std::false_type, std::false_type) const {
                     meter.measure(fun);
+                }
+                template <typename T>
+                void call(chronometer, T, std::true_type) const {
+                    // the function should be prepared first
+                    assert(false);
                 }
 
                 Fun fun;
             };
+
+            struct do_nothing { void operator()() const {} };
+
+            template <typename T>
+            benchmark_function(model<T>* c) : f(c) {}
+
         public:
+            benchmark_function()
+            : f(new model<do_nothing>{{}})
+            {}
+
             template <typename Fun,
                       typename std::enable_if<!is_related<Fun, benchmark_function>::value, int>::type = 0>
             benchmark_function(Fun&& fun)
@@ -78,6 +104,7 @@ namespace nonius {
                 return *this;
             }
 
+            benchmark_function operator()(parameters params) const { return f->call(params); }
             void operator()(chronometer meter) const { f->call(meter); }
         private:
             std::unique_ptr<concept> f;

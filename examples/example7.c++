@@ -10,7 +10,7 @@ NONIUS_PARAM("x", 1.0)
 template <typename Fn>
 struct volatilize_fn {
     Fn fn;
-    auto operator()() -> decltype(fn()) {
+    auto operator()() const -> decltype(fn()) {
         volatile auto x = fn();
         return x;
     }
@@ -69,10 +69,11 @@ NONIUS_BENCHMARK("log2", [](nonius::chronometer meter)
     }));
 })
 
-NONIUS_BENCHMARK("log", [](nonius::chronometer meter)
+// alternative syntax
+NONIUS_BENCHMARK("log", [](nonius::parameters params)
 {
-    auto v = meter.param<double>("x");
-    meter.measure(volatilize([&]() {
+    auto v = params.get<double>("x");
+    return volatilize([=]() {
         return std::log(v);
-    }));
+    });
 })

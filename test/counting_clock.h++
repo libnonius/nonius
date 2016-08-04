@@ -41,4 +41,3 @@ namespace nonius {
 } // namespace nonius
 
 #endif // NONIUS_TEST_COUNTING_CLOCK_HPP
-

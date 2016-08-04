@@ -28,7 +28,6 @@
 #include <algorithm>
 #include <set>
 #include <exception>
-#include <iostream>
 #include <utility>
 #include <regex>
 
@@ -127,7 +126,7 @@ namespace nonius {
 
                 rep.measurement_start(plan);
                 auto samples = user_code(rep, [&]{
-                    return bench.template run<Clock>(cfg, params, env, plan);
+                    return plan.template run<Clock>(cfg, env);
                 });
                 rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
 

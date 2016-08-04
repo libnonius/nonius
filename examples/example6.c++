@@ -20,14 +20,16 @@ NONIUS_BENCHMARK("push_back vector", [](nonius::chronometer meter)
     });
 })
 
-NONIUS_BENCHMARK("push_back string", [](nonius::chronometer meter)
-{
-    auto n = meter.param<std::size_t>("size");
-    auto storage = std::vector<std::string>(
-        meter.runs(), meter.param<std::string>("string"));
-    meter.measure([&](int i) {
-        auto& x = storage[i];
-        for (auto j = 0u; j < n; ++j)
-            x.push_back(static_cast<char>(j));
-    });
+// alternative syntax
+NONIUS_BENCHMARK("push_back string", [](nonius::parameters params) {
+    auto n = params.get<std::size_t>("size");
+    auto s = params.get<std::string>("string");
+    return [=](nonius::chronometer meter) {
+        auto storage = std::vector<std::string>(meter.runs(), s);
+        meter.measure([&](int i) {
+            auto& x = storage[i];
+            for (auto j = 0u; j < n; ++j)
+                x.push_back(static_cast<char>(j));
+        });
+    };
 })

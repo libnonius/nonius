@@ -20,16 +20,16 @@
 #include <catch.hpp>
 
 TEST_CASE("faster than clock") {
-    nonius::benchmark b("foo", [] {
-                nonius::counting_clock::set_rate(100);
-            });
     nonius::configuration cfg;
     cfg.samples = 3;
     nonius::environment<nonius::FloatDuration<nonius::counting_clock>> env;
     env.clock_cost.mean = nonius::counting_clock::duration(1000);
     nonius::execution_plan<nonius::counting_clock::duration> plan;
     plan.iterations_per_sample = 2;
+    plan.benchmark = [] {
+        nonius::counting_clock::set_rate(100);
+    };
 
-    auto samples = b.run<nonius::counting_clock>(cfg, {}, env, plan);
+    auto samples = plan.run<nonius::counting_clock>(cfg, env);
     for(auto&& s : samples) { CHECK(s.count() >= 0); }
 }
