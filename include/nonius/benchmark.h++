@@ -47,7 +47,7 @@ namespace nonius {
         }
 
         template <typename Clock>
-        execution_plan<FloatDuration<Clock>> prepare(configuration cfg, param_map params, environment<FloatDuration<Clock>> env) const {
+        execution_plan<FloatDuration<Clock>> prepare(configuration cfg, parameters params, environment<FloatDuration<Clock>> env) const {
             auto min_time = env.clock_resolution.mean * detail::minimum_ticks;
             auto run_time = std::max(min_time, chrono::duration_cast<decltype(min_time)>(detail::warmup_time));
             auto&& test = detail::run_for_at_least<Clock>(params, chrono::duration_cast<Duration<Clock>>(run_time), 1, *this);
@@ -56,7 +56,7 @@ namespace nonius {
         }
 
         template <typename Clock>
-        std::vector<FloatDuration<Clock>> run(configuration cfg, param_map params, environment<FloatDuration<Clock>> env, execution_plan<FloatDuration<Clock>> plan) const {
+        std::vector<FloatDuration<Clock>> run(configuration cfg, parameters params, environment<FloatDuration<Clock>> env, execution_plan<FloatDuration<Clock>> plan) const {
             // warmup a bit
             detail::run_for_at_least<Clock>(params, chrono::duration_cast<Duration<Clock>>(detail::warmup_time), detail::warmup_iterations, detail::repeat(now<Clock>{}));
 

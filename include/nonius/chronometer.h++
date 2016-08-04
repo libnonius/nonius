@@ -46,7 +46,7 @@ namespace nonius {
 
         int runs() const { return k; }
 
-        chronometer(detail::chronometer_concept& meter, int k, const param_map& p)
+        chronometer(detail::chronometer_concept& meter, int k, const parameters& p)
             : impl(&meter)
             , k(k)
             , params(&p)
@@ -54,7 +54,7 @@ namespace nonius {
 
         template <typename T=int>
         T param(const std::string& name) {
-            return params->param<T>(name);
+            return params->get<T>(name);
         }
 
     private:
@@ -71,7 +71,7 @@ namespace nonius {
 
         detail::chronometer_concept* impl;
         int k;
-        const param_map* params;
+        const parameters* params;
     };
 } // namespace nonius
 

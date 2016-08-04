@@ -65,7 +65,7 @@ namespace nonius {
             if(verbose) print_environment_estimate(estimate, estimate.outliers.samples_seen);
         }
 
-        void do_params_start(param_map const& params) override {
+        void do_params_start(parameters const& params) override {
             if(!summary && !params.empty()) report_stream() << "\n\nnew round for parameters\n" << params;
         }
         void do_benchmark_start(std::string const& name) override {

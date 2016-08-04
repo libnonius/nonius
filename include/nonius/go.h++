@@ -68,7 +68,7 @@ namespace nonius {
         }
     }
 
-    std::vector<param_map> generate_params(configuration cfg) {
+    std::vector<parameters> generate_params(configuration cfg) {
         if (cfg.params.run) {
             using stepper_t = std::function<std::string(std::string const&)>;
 
@@ -81,18 +81,18 @@ namespace nonius {
                 {"*", [&] (std::string const& x) { return spec.times(x, step); }},
             }.at(run.op);
 
-            auto r = std::vector<param_map>{};
+            auto r = std::vector<parameters>{};
 
             next = run.init;
             std::generate_n(std::back_inserter(r), run.count, [&] {
                 auto last = next;
                 next = stepper(std::move(next));
-                return param_map{{run.name, last}};
+                return parameters{{run.name, last}};
             });
 
             return r;
         } else {
-            return {param_map{}};
+            return {parameters{}};
         }
     }
 

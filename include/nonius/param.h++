@@ -97,23 +97,23 @@ struct param_spec : param_spec_base {
     }
 };
 
-struct param_map : std::unordered_map<std::string, std::string> {
+struct parameters : std::unordered_map<std::string, std::string> {
     using base_t = std::unordered_map<std::string, std::string>;
     using base_t::base_t;
 
     template <typename T=int>
-    T param(const std::string& name) const;
+    T get(const std::string& name) const;
 
-    param_map merged(param_map m) const& {
+    parameters merged(parameters m) const& {
         m.insert(begin(), end());
         return m;
     }
-    param_map merged(param_map m) && {
+    parameters merged(parameters m) && {
         m.insert(std::make_move_iterator(begin()), std::make_move_iterator(end()));
         return m;
     }
 
-    friend std::ostream& operator<< (std::ostream& os, const param_map& m) {
+    friend std::ostream& operator<< (std::ostream& os, const parameters& m) {
         for(auto&& p : m) os << "  " << p.first << " = " << p.second << "\n";
         return os;
     }
@@ -126,8 +126,8 @@ struct param_registry {
 
     spec_map specs;
 
-    param_map defaults() {
-        auto r = param_map{};
+    parameters defaults() {
+        auto r = parameters{};
         for (auto&& s : specs)
             r[s.first] = s.second.get().default_value();
         return r;
@@ -139,14 +139,14 @@ inline param_registry& global_param_registry() {
     return instance;
 }
 
-inline param_map const& global_param_defaults() {
-    static param_map defaults = global_param_registry().defaults();
+inline parameters const& global_param_defaults() {
+    static parameters defaults = global_param_registry().defaults();
     assert(defaults == global_param_registry().defaults());
     return defaults;
 }
 
 template <typename T>
-T param_map::param(const std::string& name) const {
+T parameters::get(const std::string& name) const {
     try {
         return boost::lexical_cast<T>(at(name));
     } catch(std::out_of_range const&) {

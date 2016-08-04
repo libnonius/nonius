@@ -29,7 +29,7 @@ namespace nonius {
     };
 
     struct param_configuration {
-        param_map map;
+        parameters map;
         boost::optional<run_configuration> run;
     };
 
