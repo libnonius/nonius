@@ -41,10 +41,16 @@ namespace nonius {
         template <typename Clock, typename Fun>
         using run_for_at_least_argument_t = typename std::conditional<detail::is_callable<Fun(chronometer)>::value, chronometer, int>::type;
 
+        struct optimized_away_error : std::exception {
+            const char* what() const NONIUS_NOEXCEPT override {
+                return "could not measure benchmark, maybe it was optimized away";
+            }
+        };
+
         template <typename Clock = default_clock, typename Fun>
         TimingOf<Clock, Fun(run_for_at_least_argument_t<Clock, Fun>)> run_for_at_least(const parameters& params, Duration<Clock> how_long, int seed, Fun&& fun) {
             auto iters = seed;
-            while(true) {
+            while(iters < (1 << 30)) {
                 auto&& timing = measure_one<Clock>(fun, iters, params, detail::is_callable<Fun(chronometer)>());
 
                 if(timing.elapsed >= how_long) {
@@ -52,6 +58,7 @@ namespace nonius {
                 }
                 iters *= 2;
             }
+            throw optimized_away_error{};
         }
     } // namespace detail
 } // namespace nonius
