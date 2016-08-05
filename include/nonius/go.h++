@@ -67,14 +67,14 @@ namespace nonius {
         }
     }
 
-    std::vector<parameters> generate_params(configuration cfg) {
-        if (cfg.params.run) {
+    std::vector<parameters> generate_params(boost::optional<run_configuration> cfg) {
+        if (cfg) {
             using stepper_t = std::function<std::string(std::string const&)>;
 
-            auto&& run = *cfg.params.run;
+            auto&& run = *cfg;
             auto&& spec = global_param_registry().specs.at(run.name).get();
-            auto& next = cfg.params.map[run.name];
-            auto step  = run.step;
+            auto next = std::string{};
+            auto step = run.step;
             auto stepper = std::unordered_map<std::string, stepper_t> {
                 {"+", [&] (std::string const& x) { return spec.plus(x, step); }},
                 {"*", [&] (std::string const& x) { return spec.times(x, step); }},
@@ -83,7 +83,7 @@ namespace nonius {
             auto r = std::vector<parameters>{};
 
             next = run.init;
-            std::generate_n(std::back_inserter(r), run.count, [&] {
+            std::generate_n(std::back_inserter(r), std::max(run.count, std::size_t{1}), [&] {
                 auto last = next;
                 next = stepper(std::move(next));
                 return parameters{{run.name, last}};
@@ -113,7 +113,7 @@ namespace nonius {
         rep.suite_start();
 
         auto benchmarks = filter_benchmarks(first, last, cfg.filter_pattern);
-        auto all_params = generate_params(cfg);
+        auto all_params = generate_params(cfg.params.run);
 
         for (auto&& params : all_params) {
             rep.params_start(params);
