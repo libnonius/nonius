@@ -139,29 +139,35 @@ inline param_registry& global_param_registry() {
     return instance;
 }
 
-inline parameters const& global_param_defaults() {
-    static parameters defaults = global_param_registry().defaults();
-    assert(defaults == global_param_registry().defaults());
-    return defaults;
-}
-
 template <typename T>
 T parameters::get(const std::string& name) const {
     try {
         return boost::lexical_cast<T>(at(name));
     } catch(std::out_of_range const&) {
-        return boost::lexical_cast<T>(global_param_defaults().at(name));
+        return boost::lexical_cast<T>(global_param_registry().specs.at(name).get().default_value());
     }
 }
 
 template <typename T>
 struct param_declaration {
     param_spec<T> spec;
+    std::string name;
+    param_registry& registry;
 
-    param_declaration(std::string p, T v, param_registry& registry = global_param_registry())
+    param_declaration(std::string p, T v, param_registry& r = global_param_registry())
         : spec{std::move(v)}
-    {
+        , name{p}
+        , registry{r} {
         registry.specs.emplace(std::move(p), spec);
+    }
+};
+
+template <typename T>
+struct scoped_param_declaration : param_declaration<T> {
+    using param_declaration<T>::param_declaration;
+
+    ~scoped_param_declaration() {
+        this->registry.specs.erase(this->name);
     }
 };
 

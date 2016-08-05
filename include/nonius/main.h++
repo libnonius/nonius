@@ -179,7 +179,7 @@ namespace nonius {
     }
     inline int list_params() {
         std::cout << "Available parameters (= default):\n"
-                  << global_param_defaults();
+                  << global_param_registry().defaults();
         return 0;
     }
     inline int list_reporters() {
