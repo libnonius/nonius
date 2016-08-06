@@ -95,10 +95,9 @@ TEST_CASE("parameter maps") {
         auto params = parameters{{"y", "foo"}};
 
         CHECK(params.get<std::string>("y") == "foo");
-        CHECK(params.get("x") == 42);
 
-        CHECK_THROWS(params.get<int>("y")); // wrong type
-        CHECK_THROWS(params.get<int>("oops")); // not exists
+        CHECK_THROWS_AS(params.get("x"), std::out_of_range);
+        CHECK_THROWS_AS(params.get<int>("y"), boost::bad_lexical_cast);
     }
 
     SECTION("merge") {

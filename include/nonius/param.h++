@@ -102,7 +102,9 @@ struct parameters : std::unordered_map<std::string, std::string> {
     using base_t::base_t;
 
     template <typename T=int>
-    T get(const std::string& name) const;
+    T get(const std::string& name) const {
+        return boost::lexical_cast<T>(at(name));
+    }
 
     parameters merged(parameters m) const& {
         m.insert(begin(), end());
@@ -137,15 +139,6 @@ struct param_registry {
 inline param_registry& global_param_registry() {
     static param_registry instance;
     return instance;
-}
-
-template <typename T>
-T parameters::get(const std::string& name) const {
-    try {
-        return boost::lexical_cast<T>(at(name));
-    } catch(std::out_of_range const&) {
-        return boost::lexical_cast<T>(global_param_registry().specs.at(name).get().default_value());
-    }
 }
 
 template <typename T>
