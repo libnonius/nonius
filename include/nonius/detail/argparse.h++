@@ -66,7 +66,7 @@ namespace nonius {
             std::string name;
             option_set const& options;
         };
-    
+
         template <typename Iterator, typename Projection>
         int get_max_width(Iterator first, Iterator last, Projection proj) {
             auto it = std::max_element(first, last, [&proj](option const& a, option const& b) { return proj(a) < proj(b); });
@@ -95,7 +95,7 @@ namespace nonius {
             return os;
         }
 
-        using arguments = std::unordered_map<std::string, std::string>;
+        using arguments = std::unordered_multimap<std::string, std::string>;
 
         struct argument_error {
             virtual ~argument_error() = default;
@@ -126,13 +126,11 @@ namespace nonius {
                     if(option.matches_short(*first)) {
                         parse_short(option, args, first, last);
                         parsed = true;
-                        break;
                     } else {
                         std::string arg;
                         if(option.matches_long(*first, arg)) {
                             parse_long(option, args, std::move(arg));
                             parsed = true;
-                            break;
                         }
                     }
                 }
@@ -146,4 +144,3 @@ namespace nonius {
 } // namespace nonius
 
 #endif // NONIUS_ARGPARSE_HPP
-

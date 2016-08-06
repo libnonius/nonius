@@ -75,13 +75,15 @@ namespace nonius {
         };
         template <typename T, typename Predicate, typename Assignment=assign_fn>
         void parse(T& variable, detail::arguments& args, std::string const& option, Predicate&& is_valid, Assignment&& assign={}) {
-            auto it = args.find(option);
-            if(it != args.end()) {
-                auto value = parser<T>::parse(it->second);
-                if(is_valid(value)) {
-                    std::forward<Assignment>(assign) (variable, std::move(value));
-                } else {
-                    throw argument_error();
+            auto rng = args.equal_range(option);
+            for (auto it = rng.first; it != rng.second; ++it) {
+                if(it != args.end()) {
+                    auto value = parser<T>::parse(it->second);
+                    if(is_valid(value)) {
+                        std::forward<Assignment>(assign) (variable, std::move(value));
+                    } else {
+                        throw argument_error();
+                    }
                 }
             }
         }
@@ -137,7 +139,7 @@ namespace nonius {
                 };
                 auto merge_params = [](param_configuration& x, param_configuration&& y) {
                     x.map = std::move(x.map).merged(std::move(y.map));
-                    x.run = y.run;
+                    if (y.run) x.run = y.run;
                 };
 
                 parse(cfg.help, args, "help");
