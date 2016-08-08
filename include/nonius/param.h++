@@ -68,7 +68,7 @@ struct param_spec : param_spec_base {
         return operate(detail::times_fn{}, x, y);
     }
 
-    bool check(std::string const& x) const {
+    bool check(std::string const& x) const override {
         try {
             boost::lexical_cast<T>(x);
             return true;
