@@ -29,6 +29,8 @@ namespace nonius {
             void start() override { started = Clock::now(); }
             void finish() override { finished = Clock::now(); }
 
+            Duration<Clock> elapsed() const { return finished - started; }
+
             TimePoint<Clock> started;
             TimePoint<Clock> finished;
         };

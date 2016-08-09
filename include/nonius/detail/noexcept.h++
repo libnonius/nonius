@@ -14,11 +14,12 @@
 #ifndef NONIUS_DETAIL_NOEXCEPT_HPP
 #define NONIUS_DETAIL_NOEXCEPT_HPP
 
-#ifdef _MSC_VER
-#define NONIUS_NOEXCEPT throw()
+#include <nonius/detail/compiler.h++>
+
+#if defined(NONIUS_MSVC) && NONIUS_MSVC < 1900
+#   define NONIUS_NOEXCEPT
 #else
-#define NONIUS_NOEXCEPT noexcept
-#endif // _MSC_VER
+#   define NONIUS_NOEXCEPT noexcept
+#endif
 
 #endif // NONIUS_DETAIL_NOEXCEPT_HPP
-

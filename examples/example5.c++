@@ -5,7 +5,7 @@
 
 int main() {
     nonius::configuration cfg;
-    cfg.output_file = "example2.csv";
+    cfg.output_file = "example5.csv";
     nonius::benchmark benchmarks[] = {
         nonius::benchmark("to_string(42)", []{ return std::to_string(42); }),
         nonius::benchmark("to_string(4.2)", []{ return std::to_string(4.2); })

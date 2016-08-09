@@ -19,7 +19,6 @@
 #include <nonius/environment.h++>
 #include <nonius/execution_plan.h++>
 #include <nonius/chronometer.h++>
-#include <nonius/detail/measure.h++>
 #include <nonius/detail/benchmark_function.h++>
 #include <nonius/detail/repeat.h++>
 #include <nonius/detail/run_for_at_least.h++>
@@ -49,11 +48,8 @@ namespace nonius {
         template <typename Clock>
         execution_plan<FloatDuration<Clock>> prepare(configuration cfg, environment<FloatDuration<Clock>> env) const {
             auto min_time = env.clock_resolution.mean * detail::minimum_ticks;
-            auto run_time = std::min(min_time, decltype(min_time)(detail::warmup_time));
-            auto&& test = detail::run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(run_time), 1, [this](int k) {
-                detail::chronometer_model<Clock> model;
-                (*this)(chronometer(model, k));
-            });
+            auto run_time = std::max(min_time, chrono::duration_cast<decltype(min_time)>(detail::warmup_time));
+            auto&& test = detail::run_for_at_least<Clock>(chrono::duration_cast<Duration<Clock>>(run_time), 1, *this);
             int new_iters = static_cast<int>(std::ceil(min_time * test.iterations / test.elapsed));
             return { new_iters, test.elapsed / test.iterations * new_iters * cfg.samples };
         }
@@ -68,8 +64,7 @@ namespace nonius {
             std::generate_n(std::back_inserter(times), cfg.samples, [this, env, plan]{
                     detail::chronometer_model<Clock> model;
                     (*this)(chronometer(model, plan.iterations_per_sample));
-                    auto elapsed = model.finished - model.started;
-                    auto sample_time = elapsed - env.clock_cost.mean;
+                    auto sample_time = model.elapsed() - env.clock_cost.mean;
                     if(sample_time < FloatDuration<Clock>::zero()) sample_time = FloatDuration<Clock>::zero();
                     return (sample_time / plan.iterations_per_sample);
             });

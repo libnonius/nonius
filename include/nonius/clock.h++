@@ -14,21 +14,24 @@
 #ifndef NONIUS_CLOCK_HPP
 #define NONIUS_CLOCK_HPP
 
-#if defined(_MSC_VER) && (_MSC_VER) < 1900
-#if !defined(NONIUS_USE_BOOST_CHRONO)
-#define NONIUS_USE_BOOST_CHRONO
-#endif // NONIUS_USE_BOOST_CHRONO
-#endif // MSVC <chrono> is borken and had little to no testing done before shipping (Dev14/VS15 CTP fixes it)
+#include <nonius/detail/compiler.h++>
 
-#if defined(NONIUS_USE_BOOST_CHRONO)
-#include <boost/chrono.hpp>
+// MSVC <chrono> is borken and had little to no testing done before shipping (Dev14/VS15 CTP fixes it)
+#if defined(NONIUS_MSVC) && NONIUS_MSVC < 1900
+#   ifndef NONIUS_USE_BOOST_CHRONO
+#       define NONIUS_USE_BOOST_CHRONO
+#   endif
+#endif
+
+#ifdef NONIUS_USE_BOOST_CHRONO
+#   include <boost/chrono.hpp>
 #else
-#include <chrono>
-#include <ratio>
+#   include <chrono>
+#   include <ratio>
 #endif
 
 namespace nonius {
-#if defined(NONIUS_USE_BOOST_CHRONO)
+#ifdef NONIUS_USE_BOOST_CHRONO
     namespace chrono = boost::chrono;
     template <unsigned Num, unsigned Den = 1>
     using ratio = boost::ratio<Num, Den>;
