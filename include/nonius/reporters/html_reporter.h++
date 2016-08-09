@@ -139,7 +139,7 @@ namespace nonius {
         }
 
         static double truncate(double x) {
-            return int(x * 1000.) / 1000.;
+            return std::trunc(x * 1000.) / 1000.;
         }
 
         double ideal_magnitude() const {
