@@ -12,7 +12,4 @@
 // Single header root
 
 #include <nonius/nonius.h++>
-
-#ifdef NONIUS_RUNNER
 #include <nonius/main.h++>
-#endif // NONIUS_RUNNER
