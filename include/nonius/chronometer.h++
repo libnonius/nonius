@@ -52,9 +52,9 @@ namespace nonius {
             , params(&p)
         {}
 
-        template <typename T=int>
-        T param(const std::string& name) {
-            return params->get<T>(name);
+        template <typename Tag>
+        auto param() const -> typename Tag::type {
+            return params->get<Tag>();
         }
 
     private:

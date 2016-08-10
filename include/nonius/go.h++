@@ -72,22 +72,20 @@ namespace nonius {
         if (!cfg.run) {
             return {params};
         } else {
-            using stepper_t = std::function<std::string(std::string const&)>;
+            using operation_t = std::function<param(param, param)>;
 
             auto&& run = *cfg.run;
-            auto&& spec = global_param_registry().specs.at(run.name).get();
-            auto next = std::string{};
             auto step = run.step;
-            auto stepper = std::unordered_map<std::string, stepper_t> {
-                {"+", [&] (std::string const& x) { return spec.plus(x, step); }},
-                {"*", [&] (std::string const& x) { return spec.times(x, step); }},
+            auto oper = std::unordered_map<std::string, operation_t> {
+                {"+", std::plus<param>{}},
+                {"*", std::multiplies<param>{}},
             }.at(run.op);
 
             auto r = std::vector<parameters>{};
-            next = run.init;
+            auto next = run.init;
             std::generate_n(std::back_inserter(r), std::max(run.count, std::size_t{1}), [&] {
                 auto last = next;
-                next = stepper(std::move(next));
+                next = oper(next, step);
                 return params.merged(parameters{{run.name, last}});
             });
 

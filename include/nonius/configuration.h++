@@ -23,8 +23,8 @@ namespace nonius {
     struct run_configuration {
         std::string name;
         std::string op;
-        std::string init;
-        std::string step;
+        param init;
+        param step;
         std::size_t count;
     };
 

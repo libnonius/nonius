@@ -18,6 +18,8 @@
 #include <nonius/detail/noexcept.h++>
 #include <boost/lexical_cast.hpp>
 #include <unordered_map>
+#include <typeinfo>
+#include <memory>
 
 namespace nonius {
 
@@ -27,83 +29,101 @@ struct param_bad_operation : std::exception {
     }
 };
 
-struct param_spec_base {
-    virtual std::string plus(std::string const&, std::string const&) const = 0;
-    virtual std::string times(std::string const&, std::string const&) const = 0;
-    virtual bool check(std::string const&) const = 0;
-    virtual std::string default_value() const = 0;
-};
-
 namespace detail {
+
+struct eq_fn {
+    template <typename T>
+    auto operator() (T x, T y) -> decltype(x == y) { return x == y; }
+};
 
 struct plus_fn {
     template <typename T>
     auto operator() (T x, T y) -> decltype(x + y) { return x + y; }
 };
 
-struct times_fn {
+struct mult_fn {
     template <typename T>
     auto operator() (T x, T y) -> decltype(x * y) { return x * y; }
 };
 
 } // namespace detail
 
-// Users may partially specialize this to define custom types.  They
-// can more simply define isomorphic << and >>
-template <typename T>
-struct param_spec : param_spec_base {
-    T value;
+class param {
+    struct interface {
+        virtual ~interface() = default;
+        virtual std::istream& pull(std::istream&) = 0;
+        virtual std::ostream& push(std::ostream&) const = 0;
+        virtual bool eq(param const&) const = 0;
+        virtual param plus(param const&) const = 0;
+        virtual param mult(param const&) const = 0;
+        virtual param clone() const = 0;
+    };
 
-    param_spec(T v) : value(std::move(v)) {}
+    template <typename T>
+    struct model : interface {
+        T value;
 
-    std::string default_value() const override {
-        return boost::lexical_cast<std::string>(value);
+        model(T v) : value(std::move(v)) {}
+        std::istream& pull(std::istream& is) override { is >> value; return is; }
+        std::ostream& push(std::ostream& os) const override { os << value; return os; }
+        bool eq(param const& y) const override { return operate<bool>(detail::eq_fn{}, value, y.as<T>()); }
+        param plus(param const& y) const override { return operate<T>(detail::plus_fn{}, value, y.as<T>()); }
+        param mult(param const& y) const override { return operate<T>(detail::mult_fn{}, value, y.as<T>()); }
+        param clone() const override { return value; }
+
+        template <typename R, typename Op, typename ...Args>
+        auto operate(Op&& op, Args&& ...xs) const
+            -> typename std::enable_if<detail::is_callable<Op&&(Args&&...)>::value, R>::type {
+            return std::forward<Op>(op)(std::forward<Args>(xs)...);
+        }
+
+        template <typename R, typename Op, typename ...Args>
+        auto operate(Op&&, Args&&...) const
+            -> typename std::enable_if<!detail::is_callable<Op&&(Args&&...)>::value, R>::type {
+            throw param_bad_operation{};
+        }
+    };
+
+public:
+    template <typename T,
+              typename std::enable_if<!std::is_base_of<param, typename std::decay<T>::type>::value, int>::type = 0>
+    param(T&& v)
+        : impl_(new model<typename std::decay<T>::type>{std::forward<T>(v)}) {}
+
+    template <typename T>
+    const T& as() const& { return dynamic_cast<model<T> const&>(*impl_).value; }
+
+    friend std::istream& operator>>(std::istream& is, param& x) { x.writable_(); return x.impl_->pull(is); }
+    friend std::ostream& operator<<(std::ostream& os, const param& x) { return x.impl_->push(os); }
+    friend param operator+(const param& x, const param& y) { return x.impl_->plus(y); }
+    friend param operator*(const param& x, const param& y) { return x.impl_->mult(y); }
+    friend bool operator==(const param& x, const param& y) { return x.impl_->eq(y); }
+
+    param parse(std::string const& s) const {
+        auto ss = std::stringstream{s};
+        auto cpy = *this;
+        ss.exceptions(std::ios::failbit);
+        ss >> cpy;
+        return cpy;
     }
 
-    std::string plus(std::string const& x, std::string const& y) const override {
-        return operate(detail::plus_fn{}, x, y);
-    }
-
-    std::string times(std::string const& x, std::string const& y) const override {
-        return operate(detail::times_fn{}, x, y);
-    }
-
-    bool check(std::string const& x) const override {
-        try {
-            boost::lexical_cast<T>(x);
-            return true;
-        } catch (boost::bad_lexical_cast const&) {
-            return false;
+private:
+    void writable_() {
+        if (impl_.use_count() > 1) {
+            *this = impl_->clone();
         }
     }
 
-    template <typename Op, typename ...Args>
-    std::string operate(Op&& op, Args&& ...xs) const {
-        return boost::lexical_cast<std::string>(
-            do_operate(std::forward<Op>(op),
-                       boost::lexical_cast<T>(std::forward<Args>(xs))...));
-    }
-
-    template <typename Op, typename ...Args>
-    auto do_operate(Op&& op, Args&& ...xs) const
-        -> typename std::enable_if<detail::is_callable<Op&&(Args&&...)>::value, T>::type {
-        return std::forward<Op>(op)(std::forward<Args>(xs)...);
-    }
-
-    template <typename Op, typename ...Args>
-    auto do_operate(Op&&, Args&&...) const
-        -> typename std::enable_if<!detail::is_callable<Op&&(Args&&...)>::value, T>::type {
-        throw param_bad_operation{};
-    }
+    std::shared_ptr<interface> impl_;
 };
 
-struct parameters : std::unordered_map<std::string, std::string> {
-    using base_t = std::unordered_map<std::string, std::string>;
+struct parameters : std::unordered_map<std::string, param> {
+    using base_t = std::unordered_map<std::string, param>;
     using base_t::base_t;
 
-    template <typename T=int>
-    T get(const std::string& name) const {
-        return boost::lexical_cast<T>(at(name));
+    template <typename Tag>
+    auto get() const -> typename Tag::type {
+        return at(Tag::name()).template as<typename Tag::type>();
     }
 
     parameters merged(parameters m) const& {
@@ -122,18 +142,12 @@ struct parameters : std::unordered_map<std::string, std::string> {
 };
 
 struct param_registry {
-    using spec_map = std::unordered_map<
-        std::string,
-        std::reference_wrapper<const param_spec_base>>;
+    parameters const& defaults() const { return defaults_; }
+    void add(std::string name, param v) { defaults_.emplace(name, v); }
+    void remove(std::string name) { defaults_.erase(name); }
 
-    spec_map specs;
-
-    parameters defaults() {
-        auto r = parameters{};
-        for (auto&& s : specs)
-            r[s.first] = s.second.get().default_value();
-        return r;
-    }
+private:
+    parameters defaults_;
 };
 
 inline param_registry& global_param_registry() {
@@ -141,35 +155,37 @@ inline param_registry& global_param_registry() {
     return instance;
 }
 
-template <typename T>
+template <typename Tag>
 struct param_declaration {
-    param_spec<T> spec;
-    std::string name;
+    using type = typename Tag::type;
     param_registry& registry;
 
-    param_declaration(std::string p, T v, param_registry& r = global_param_registry())
-        : spec{std::move(v)}
-        , name{p}
-        , registry{r} {
-        registry.specs.emplace(std::move(p), spec);
+    param_declaration(type v, param_registry& r = global_param_registry())
+        : registry{r}
+    {
+        r.add(Tag::name(), param{type{v}});
     }
 };
 
-template <typename T>
-struct scoped_param_declaration : param_declaration<T> {
-    using param_declaration<T>::param_declaration;
+template <typename Tag>
+struct scoped_param_declaration : param_declaration<Tag> {
+    using param_declaration<Tag>::param_declaration;
 
     ~scoped_param_declaration() {
-        this->registry.specs.erase(this->name);
+        this->registry.remove(Tag::name());
     }
 };
 
 } /* namespace nonius */
 
-#define NONIUS_PARAM(name, default_value)                               \
+#define NONIUS_PARAM(name_, ...)                                        \
     namespace {                                                         \
+    struct name_ {                                                      \
+        using type = decltype(__VA_ARGS__);                             \
+        static const char* name() { return #name_; }                    \
+    };                                                                  \
     static auto NONIUS_DETAIL_UNIQUE_NAME(param_declaration) =          \
-        ::nonius::param_declaration<decltype(default_value)>{ name, default_value }; \
+                   ::nonius::param_declaration<name_>{ (__VA_ARGS__) }; \
     }                                                                   \
     //
 

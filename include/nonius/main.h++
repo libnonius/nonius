@@ -53,15 +53,18 @@ namespace nonius {
                 auto v = std::vector<std::string>{};
                 boost::split(v, param, boost::is_any_of(":"));
                 try {
-                    if (v.size() == 2)
-                        return {{{std::move(v[0]), std::move(v[1])}}, {}};
-                    if (v.size() == 5) {
-                        auto name  = v[0];
-                        auto oper  = v[1];
-                        auto init  = v[2];
-                        auto step  = v[3];
-                        auto count = boost::lexical_cast<std::size_t>(v[4]);
-                        return {{}, run_configuration{name, oper, init, step, count}};
+                    if (v.size() > 0) {
+                        auto name = v[0];
+                        auto def  = global_param_registry().defaults().at(name);
+                        if (v.size() == 2)
+                            return {{{name, def.parse(v[1])}}, {}};
+                        else if (v.size() == 5) {
+                            auto oper  = v[1];
+                            auto init  = def.parse(v[2]);
+                            auto step  = def.parse(v[3]);
+                            auto count = boost::lexical_cast<std::size_t>(v[4]);
+                            return {{}, run_configuration{name, oper, init, step, count}};
+                        }
                     }
                 }
                 catch (boost::bad_lexical_cast const&) {}
@@ -124,18 +127,7 @@ namespace nonius {
                 auto is_ci = [](double x) { return x > 0 && x < 1; };
                 auto is_reporter = [](std::string const x) { return global_reporter_registry().count(x) > 0; };
                 auto is_param = [](param_configuration const& x) {
-                    auto&& specs = global_param_registry().specs;
-                    if (x.map.empty() && !x.run) return false;
-                    if (x.run) {
-                        auto&& run = *x.run;
-                        auto iter = specs.find(run.name);
-                        if (iter == specs.end() || !iter->second.get().check(run.init) || !iter->second.get().check(run.step)) return false;
-                    }
-                    for (auto&& p : x.map) {
-                        auto iter = specs.find(p.first);
-                        if (iter == specs.end() || !iter->second.get().check(p.second)) return false;
-                    }
-                    return true;
+                    return !x.map.empty() || x.run;
                 };
                 auto merge_params = [](param_configuration& x, param_configuration&& y) {
                     x.map = std::move(x.map).merged(std::move(y.map));
