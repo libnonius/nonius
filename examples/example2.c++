@@ -19,7 +19,8 @@ NONIUS_BENCHMARK("forward_list<long long>", [](nonius::chronometer meter) {
     meter.measure([&](int i) { l.push_front(i); });
 })
 
-NONIUS_BENCHMARK("forward_list<char>", [](nonius::chronometer meter) {
+// new syntax
+NONIUS_BENCHMARK("forward_list<char>") [](nonius::chronometer meter) {
     std::forward_list<char> l;
     meter.measure([&](int i) { l.push_front(static_cast<char>(i)); });
-})
+};
