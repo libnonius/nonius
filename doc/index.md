@@ -42,10 +42,11 @@ usage of Boost.Chrono can be forced by #defining the macro
 Writing benchmarks with nonius is not complicated, but there are several things
 to keep in mind when doing so. There is a separate [guide] about the subject,
 and there are examples of both simple and advanced usage in the [examples]
-folder.
+folder. There is also a guide describing [advanced features].
 
  [guide]: authoring-benchmarks
  [examples]: https://github.com/rmartinho/nonius/tree/devel/examples
+ [advanced features]: advanced
 
 ### Compiling benchmarks
 
@@ -203,16 +204,14 @@ on it as I am allowed.
 
  [CC0]: http://creativecommons.org/publicdomain/zero/1.0/
 
-However, currently nonius makes use of some code distributed under the
-[CC-BY-NC] and the [MIT] licenses. The `html` reporter uses the [Highcharts JS]
-and [jQuery] libraries for the interactive charts and the [cpptemplate] library
-for generating HTML from a template. If you want to use only the public domain
-code for whatever reason, you can disable the `html` reporter easily.
+However, currently nonius makes use of some code distributed under the [MIT
+license]. The `html` reporter uses the [Plotly] library for the interactive
+charts and the [cpptemplate] library for generating HTML from a template. If
+you want to use only the public domain code for whatever reason, you can
+disable the `html` reporter easily.
 
- [CC-BY-NC]: http://creativecommons.org/licenses/by-nc/3.0/
- [MIT]: https://bitbucket.org/ginstrom/cpptemplate/raw/d4263ca998038f7ae18aeb9d2358f0c11f00552d/LICENSE.txt
- [Highcharts JS]: http://www.highcharts.com/
- [jQuery]: http://jquery.org/
+ [MIT license]: https://bitbucket.org/ginstrom/cpptemplate/raw/d4263ca998038f7ae18aeb9d2358f0c11f00552d/LICENSE.txt
+ [Plotly]: https://plot.ly/
  [cpptemplate]: https://bitbucket.org/ginstrom/cpptemplate
 
 ## Trivia
