@@ -1,6 +1,6 @@
 // Nonius - C++ benchmarking tool
 //
-// Written in 2014 by Martinho Fernandes <martinho.fernandes@gmail.com>
+// Written in 2014- by the nonius contributors <nonius@rmf.io>
 //
 // To the extent possible under law, the author(s) have dedicated all copyright and related
 // and neighboring rights to this software to the public domain worldwide. This software is
@@ -34,4 +34,5 @@ namespace nonius {
 } // namespace nonius
 
 #endif // NONIUS_DETAIL_MEASURE_HPP
+
 
