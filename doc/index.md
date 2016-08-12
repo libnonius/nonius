@@ -195,6 +195,12 @@ variance introduced by outliers: 0.99%
 variance is unaffected by outliers
 {% endhighlight %}
 
+## Contributing
+
+If you want to help with nonius development, please read the [Contributor guide].
+
+ [Contributor guide]: contributing
+
 ## Licensing
 
 Nonius is released under the [CC0] license, which is essentially a public domain
