@@ -11,7 +11,7 @@ Nonius comes with a default `main` function that drives the benchmarking process
 to write your own `main` function. In order to do this, your code should not define `NONIUS_RUNNER` and have a `main`
 function instead. That function can then invoke the default benchmark driver by calling `nonius::main` or `nonius::go`.
 
-{% hightlight cpp %}
+{% highlight cpp %}
 namespace nonius {
     using default_clock = /*unspecified*/;
 
