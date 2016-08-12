@@ -32,16 +32,16 @@ This script accepts a few flags that you can checkout with `--help`.
 After running the bootstrapper you can use ninja to perform build tasks.
 
 {% highlight console %}
-# generate the single-header file in dist/nonius.h++
+$ # generate the single-header file in dist/nonius.h++
 $ ninja header
 
-# build the documentation in dist/doc/ (this requires jekyll and pygments to be installed)
+$ # build the documentation in dist/doc/ (this requires jekyll and pygments to be installed)
 $ ninja docs
 
-# build the examples in bin/examples/
+$ # build the examples in bin/examples/
 $ ninja examples
 
-# build the test runner in bin/test
+$ # build the test runner in bin/test
 $ ninja test
 {% endhighlight %}
 
