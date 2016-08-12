@@ -1,4 +1,5 @@
 ---
+# vim: ft=jekyll tw=120:
 title: Nonius
 layout: default
 ---
