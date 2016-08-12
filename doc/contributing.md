@@ -100,18 +100,18 @@ reference-style documentation as the number of interfaces exposed is low; descri
 Pull requests that introduce new features will not be merged until the documentation is written. This ensures that on
 every merge to the `devel` branch, the documentation in the repo reflects the current state of the code.
 
-Documentation is automatically picked up every day and served at https://nonius.io
+Documentation is automatically picked up every day and served at nonius.io.
 
-- documentation for the latest release is served from https://nonius.io/;
+- documentation for the latest release is served from <https://nonius.io/>;
 - documentation for older releases are served from https://nonius.io/vM.m/, where `M` is the major number and `m` is the minor number (e.g.
-  https://nonius.io/v1.1/);
-- documentation for the latest `devel` branch is served from https://nonius.io/devel/;
+  <https://nonius.io/v1.1/>);
+- documentation for the latest `devel` branch is served from <https://nonius.io/devel/>;
 
 ### Licensing
 
 **[rmf]**: When I started nonius, I put the code in the public domain using [CC0]. I would like it to continue as such,
 so I ask that you license your contributions under CC0 as well. Files in the repository have a notice stating that
-nonius is dedicated to the public domain worldwide, and that the authors are all the contributors. Pl
+nonius is dedicated to the public domain worldwide, and that the authors are all the contributors.
 
  [rmf]: https://rmf.io/robot
  [CC0]: http://creativecommons.org/publicdomain/zero/1.0/
