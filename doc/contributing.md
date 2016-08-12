@@ -71,7 +71,7 @@ Nonius should work with GCC, clang, and Visual C++. The versions supported are a
 - for clang, the latest patch of each of the last three minor versions, according to the LLVM project versioning scheme,
   not according to Apple's (as of August 12, 2016, that means versions 3.6.2, 3.7.1, and 3.8.1 are supported);
 - for Visual C++ the latest minor and patch of each of the last three major versions, starting with Visual Studio 2015
-  (as of August 12, 2016, that means only the compiler&emdash;cl.exe, not the IDE&emdash;version 19.00.24213.1 is
+  (as of August 12, 2016, that means only the compiler&mdash;cl.exe, not the IDE&mdash;version 19.00.24213.1 is
   supported);
 
 C++ feature use should be limited in such a way that all these versions are supported.
