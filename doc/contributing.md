@@ -109,9 +109,9 @@ Documentation is automatically picked up every day and served at nonius.io.
 
 ### Licensing
 
-**[rmf]**: When I started nonius, I put the code in the public domain using [CC0]. I would like it to continue as such,
-so I ask that you license your contributions under CC0 as well. Files in the repository have a notice stating that
-nonius is dedicated to the public domain worldwide, and that the authors are all the contributors.
+> *[rmf]*: When I started nonius, I put the code in the public domain using [CC0]. I would like it to continue as such,
+> so I ask that you license your contributions under CC0 as well. Files in the repository have a notice stating that
+> nonius is dedicated to the public domain worldwide, and that the authors are all the contributors.
 
  [rmf]: https://rmf.io/robot
  [CC0]: http://creativecommons.org/publicdomain/zero/1.0/
