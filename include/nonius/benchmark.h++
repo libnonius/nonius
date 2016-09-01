@@ -20,6 +20,7 @@
 #include <nonius/execution_plan.h++>
 #include <nonius/chronometer.h++>
 #include <nonius/param.h++>
+#include <nonius/optimizer.h++>
 #include <nonius/detail/benchmark_function.h++>
 #include <nonius/detail/repeat.h++>
 #include <nonius/detail/run_for_at_least.h++>
