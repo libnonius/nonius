@@ -78,6 +78,9 @@ namespace nonius {
         void suite_start() {
             do_suite_start();
         }
+        void params_start(parameters const& params) {
+            do_params_start(params);
+        }
         void benchmark_start(std::string const& name) {
             do_benchmark_start(name);
         }
@@ -102,6 +105,10 @@ namespace nonius {
         void benchmark_complete() {
             do_benchmark_complete();
         }
+
+        void params_complete() {
+            do_params_complete();
+        }
         void suite_complete() {
             do_suite_complete();
         }
@@ -121,6 +128,7 @@ namespace nonius {
         virtual void do_estimate_clock_cost_complete(environment_estimate<fp_seconds> /*estimate*/) {}
 
         virtual void do_suite_start() {}
+        virtual void do_params_start(parameters const& /*params*/) {}
         virtual void do_benchmark_start(std::string const& /*name*/) {}
 
         virtual void do_measurement_start(execution_plan<fp_seconds> /*plan*/) {}
@@ -131,6 +139,7 @@ namespace nonius {
 
         virtual void do_benchmark_failure(std::exception_ptr /*error*/) {}
         virtual void do_benchmark_complete() {}
+        virtual void do_params_complete() {}
         virtual void do_suite_complete() {}
 
     protected:
@@ -167,4 +176,3 @@ namespace nonius {
     static_assert(true, "")
 
 #endif // NONIUS_REPORTER_HPP
-

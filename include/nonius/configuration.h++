@@ -14,9 +14,25 @@
 #ifndef NONIUS_CONFIGURATION_HPP
 #define NONIUS_CONFIGURATION_HPP
 
+#include <nonius/param.h++>
+#include <boost/optional.hpp>
 #include <string>
+#include <vector>
 
 namespace nonius {
+    struct run_configuration {
+        std::string name;
+        std::string op;
+        param init;
+        param step;
+        std::size_t count;
+    };
+
+    struct param_configuration {
+        parameters map;
+        boost::optional<run_configuration> run;
+    };
+
     struct configuration {
     public:
         int samples = 100;
@@ -27,11 +43,13 @@ namespace nonius {
         std::string reporter;
         std::string filter_pattern = ".*";
         bool list_benchmarks = false;
+        bool list_params = false;
         bool list_reporters = false;
         bool no_analysis = false;
         bool verbose = false;
         bool summary = false;
         bool help = false;
+        param_configuration params;
     };
 } // namespace nonius
 

@@ -22,7 +22,7 @@ TEST_CASE("run_for_at_least, int") {
     nonius::manual_clock::duration time(100);
 
     int old_x = 1;
-    auto timing = nonius::detail::run_for_at_least<nonius::manual_clock>(time, 1, [&old_x](int x) -> int {
+    auto timing = nonius::detail::run_for_at_least<nonius::manual_clock>({}, time, 1, [&old_x](int x) -> int {
                 CHECK(x >= old_x);
                 nonius::manual_clock::advance(x);
                 old_x = x;
@@ -38,7 +38,7 @@ TEST_CASE("run_for_at_least, chronometer") {
     nonius::manual_clock::duration time(100);
 
     int old_runs = 1;
-    auto timing = nonius::detail::run_for_at_least<nonius::manual_clock>(time, 1, [&old_runs](nonius::chronometer meter) -> int {
+    auto timing = nonius::detail::run_for_at_least<nonius::manual_clock>({}, time, 1, [&old_runs](nonius::chronometer meter) -> int {
                 CHECK(meter.runs() >= old_runs);
                 nonius::manual_clock::advance(100);
                 meter.measure([] {
@@ -52,4 +52,3 @@ TEST_CASE("run_for_at_least, chronometer") {
     REQUIRE(timing.result == timing.iterations + 17);
     REQUIRE(timing.iterations >= time.count());
 }
-

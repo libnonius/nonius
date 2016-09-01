@@ -16,6 +16,9 @@
 
 #include <nonius/clock.h++>
 #include <nonius/detail/complete_invoke.h++>
+#include <nonius/detail/meta.h++>
+#include <nonius/param.h++>
+#include <boost/lexical_cast.hpp>
 
 namespace nonius {
     namespace detail {
@@ -43,8 +46,16 @@ namespace nonius {
 
         int runs() const { return k; }
 
-        chronometer(detail::chronometer_concept& meter, int k)
-        : impl(&meter), k(k) {}
+        chronometer(detail::chronometer_concept& meter, int k, const parameters& p)
+            : impl(&meter)
+            , k(k)
+            , params(&p)
+        {}
+
+        template <typename Tag>
+        auto param() const -> typename Tag::type {
+            return params->get<Tag>();
+        }
 
     private:
         template <typename Fun>
@@ -60,8 +71,8 @@ namespace nonius {
 
         detail::chronometer_concept* impl;
         int k;
+        const parameters* params;
     };
 } // namespace nonius
 
 #endif // NONIUS_CHRONOMETER_HPP
-

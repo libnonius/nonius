@@ -14,18 +14,44 @@
 #ifndef NONIUS_EXECUTION_PLAN_HPP
 #define NONIUS_EXECUTION_PLAN_HPP
 
+#include <nonius/clock.h++>
+#include <nonius/environment.h++>
+#include <nonius/detail/benchmark_function.h++>
+#include <nonius/detail/repeat.h++>
+#include <nonius/detail/run_for_at_least.h++>
+
 namespace nonius {
     template <typename Duration>
     struct execution_plan {
         int iterations_per_sample;
         Duration estimated_duration;
+        parameters params;
+        detail::benchmark_function benchmark;
+        Duration warmup_time;
+        int warmup_iterations;
 
         template <typename Duration2>
         operator execution_plan<Duration2>() const {
-            return { iterations_per_sample, estimated_duration };
+            return { iterations_per_sample, estimated_duration, params, benchmark, warmup_time, warmup_iterations };
+        }
+
+        template <typename Clock>
+        std::vector<FloatDuration<Clock>> run(configuration cfg, environment<FloatDuration<Clock>> env) const {
+            // warmup a bit
+            detail::run_for_at_least<Clock>(params, chrono::duration_cast<nonius::Duration<Clock>>(warmup_time), warmup_iterations, detail::repeat(now<Clock>{}));
+
+            std::vector<FloatDuration<Clock>> times;
+            times.reserve(cfg.samples);
+            std::generate_n(std::back_inserter(times), cfg.samples, [this, env]{
+                    detail::chronometer_model<Clock> model;
+                    benchmark(chronometer(model, iterations_per_sample, params));
+                    auto sample_time = model.elapsed() - env.clock_cost.mean;
+                    if(sample_time < FloatDuration<Clock>::zero()) sample_time = FloatDuration<Clock>::zero();
+                    return sample_time / iterations_per_sample;
+            });
+            return times;
         }
     };
 } // namespace nonius
 
 #endif // NONIUS_EXECUTION_PLAN_HPP
-

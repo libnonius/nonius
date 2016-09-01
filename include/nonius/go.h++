@@ -25,9 +25,9 @@
 #include <nonius/detail/complete_invoke.h++>
 #include <nonius/detail/noexcept.h++>
 
+#include <algorithm>
 #include <set>
 #include <exception>
-#include <iostream>
 #include <utility>
 #include <regex>
 
@@ -67,28 +67,65 @@ namespace nonius {
         }
     }
 
+    std::vector<parameters> generate_params(param_configuration cfg) {
+        auto params = global_param_registry().defaults().merged(cfg.map);
+        if (!cfg.run) {
+            return {params};
+        } else {
+            using operation_t = std::function<param(param, param)>;
+
+            auto&& run = *cfg.run;
+            auto step = run.step;
+            auto oper = std::unordered_map<std::string, operation_t> {
+                {"+", std::plus<param>{}},
+                {"*", std::multiplies<param>{}},
+            }.at(run.op);
+
+            auto r = std::vector<parameters>{};
+            auto next = run.init;
+            std::generate_n(std::back_inserter(r), std::max(run.count, std::size_t{1}), [&] {
+                auto last = next;
+                next = oper(next, step);
+                return params.merged(parameters{{run.name, last}});
+            });
+
+            return r;
+        }
+    }
+
+    template <typename Iterator>
+    std::vector<benchmark> filter_benchmarks(Iterator first, Iterator last, std::string pattern) {
+        auto r = std::vector<benchmark>{};
+        auto matcher = std::regex{pattern};
+        std::copy_if(first, last, std::back_inserter(r), [&] (benchmark const& b) {
+            return std::regex_match(b.name, matcher);
+        });
+        return r;
+    }
+
     template <typename Clock = default_clock, typename Iterator>
     void go(configuration cfg, Iterator first, Iterator last, reporter& rep) {
         rep.configure(cfg);
 
         auto env = detail::measure_environment<Clock>(rep);
-
         rep.suite_start();
 
-        // create the regex that matches benchmark names
-        std::regex benchmark_pattern_matcher(cfg.filter_pattern);
+        auto benchmarks = filter_benchmarks(first, last, cfg.filter_pattern);
+        auto all_params = generate_params(cfg.params);
 
-        for(; first != last; ++first) {
-            try {
-                // if the benchmark name does not match the regex pattern then skip it
-                if( !std::regex_match(first->name, benchmark_pattern_matcher) )
-                    continue;
+        for (auto&& params : all_params) {
+            rep.params_start(params);
+            for (auto&& bench : benchmarks) {
+                rep.benchmark_start(bench.name);
 
-                rep.benchmark_start(first->name);
+                auto plan = user_code(rep, [&]{
+                    return bench.template prepare<Clock>(cfg, params, env);
+                });
 
-                auto plan = user_code(rep, [&first, &cfg, &env]{ return first->template prepare<Clock>(cfg, env); });
                 rep.measurement_start(plan);
-                auto samples = user_code(rep, [&first, &cfg, &env, &plan]{ return first->template run<Clock>(cfg, env, plan); });
+                auto samples = user_code(rep, [&]{
+                    return plan.template run<Clock>(cfg, env);
+                });
                 rep.measurement_complete(std::vector<fp_seconds>(samples.begin(), samples.end()));
 
                 if(!cfg.no_analysis) {
@@ -98,9 +135,8 @@ namespace nonius {
                 }
 
                 rep.benchmark_complete();
-            } catch(benchmark_user_error const&) {
-                continue;
             }
+            rep.params_complete();
         }
 
         rep.suite_complete();
@@ -140,4 +176,3 @@ namespace nonius {
 } // namespace nonius
 
 #endif // NONIUS_GO_HPP
-

@@ -11,26 +11,112 @@
     margin: 0;
 }
 
-#all-together {
+.plotly .modebar {
+    margin-top: 2em !important;
+}
+
+#header {
+    background-color: black;
+    z-index: 2;
+    position: absolute;
+    left: 0;
+    right: 0;
+    color: white;
+    font-family: monospace;
+    padding-left: 0;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    line-height: 2em;
+}
+
+.select {
+    position: relative;
+    display: inline-block;
+    font-size: 1em;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.select .arr {
+    background: #000;
+    bottom: 5px;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 0px;
+    pointer-events: none;
+}
+
+.select .arr:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    margin-top: -5px;
+    pointer-events: none;
+    border-top: 10px solid white;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+}
+
+.select .arr:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 18px;
+    margin-top: -5px;
+    pointer-events: none;
+    border-top: 6px solid black;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+}
+
+.select select {
+    outline: none;
+    -webkit-appearance: none;
+    display: block;
+    padding: 0 3em 0 1.5em;
+    margin: 0.3em;
+
+    transition: border-color 0.2s;
+    border: 2px solid #aaa;
+    border-radius: 0px;
+
+    background: black;
+    color: white;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+}
+
+.select select:focus {
+    border: 2px solid white;
+    color: white;
+}
+
+#plot {
     position: absolute;
     min-width: 300px;
     min-height: 200px;
     left: 0;
     right: 0;
-    top: 0;
-    bottom: 0;
-    margin: 1%;
+    top: 2em;
+    bottom: 1em;
 }
 
 #footer {
     position: absolute;
-    bottom: 1em;
-    right: 2em;
+    bottom: 0;
+    left: 0;
+    right: 0;
     font-family: monospace;
     font-size: 0.9em;
-    text-align: left;
+    text-align: center;
     text-transform: lowercase;
-    font-style: italic;
+    background-color: #bbb;
+    line-height: 2em;
 }
  </style>
   <script type="text/javascript"> /**
@@ -59,43 +145,170 @@ e.exports=function(t,e,n){function l(n,r){return o.coerce(t,e,i,n,r)}for(var s=!
 }var i,l,s,c,u,f,d,h,p,g,v,m,y,x,b,_,w=e.xaxis,k=e.yaxis,M=e.connectGaps,A=e.baseTolerance,L=e.linear,T=[],z=r.BADNUM,S=.2,E=new Array(t.length),C=0;for(i=0;i<t.length;i++)if(l=n(i)){for(C=0,E[C++]=l,i++;i<t.length;i++){if(c=n(i),!c){if(M)continue;break}if(L){if(d=o(c,l),!(d<a(c)*S)){for(p=[(c[0]-l[0])/d,(c[1]-l[1])/d],u=l,v=d,m=x=b=0,h=!1,s=c,i++;i<t.length;i++){if(f=n(i),!f){if(M)continue;break}if(g=[f[0]-l[0],f[1]-l[1]],_=g[0]*p[1]-g[1]*p[0],x=Math.min(x,_),b=Math.max(b,_),b-x>a(f))break;s=f,y=g[0]*p[0]+g[1]*p[1],y>v?(v=y,c=f,h=!1):m>y&&(m=y,u=f,h=!0)}if(h?(E[C++]=c,s!==u&&(E[C++]=u)):(u!==l&&(E[C++]=u),s!==c&&(E[C++]=c)),E[C++]=s,i>=t.length||!f)break;E[C++]=f,l=f}}else E[C++]=c}T.push(E.slice(0,C))}return T}},{"../../plots/cartesian/axes":110}],180:[function(t,e,n){"use strict";e.exports=function(t,e,n){var r=n("line.shape");"spline"===r&&n("line.smoothing")}},{}],181:[function(t,e,n){"use strict";var r=t("fast-isnumeric");e.exports=function(t){var e=t.marker,n=e.sizeref||1,a=e.sizemin||0,o="area"===e.sizemode?function(t){return Math.sqrt(t/n)}:function(t){return t/n};return function(t){var e=o(t/2);return r(e)&&e>0?Math.max(e,a):0}}},{"fast-isnumeric":11}],182:[function(t,e,n){"use strict";var r=t("../../components/color"),a=t("../../components/colorscale/has_colorscale"),o=t("../../components/colorscale/defaults"),i=t("./subtypes");e.exports=function(t,e,n,l,s){var c,u=i.isBubble(t),f=(t.line||{}).color;f&&(n=f),s("marker.symbol"),s("marker.opacity",u?.7:1),s("marker.size"),s("marker.color",n),a(t,"marker")&&o(t,e,l,s,{prefix:"marker.",cLetter:"c"}),c=f&&!Array.isArray(f)&&e.marker.color!==f?f:u?r.background:r.defaultLine,s("marker.line.color",c),a(t,"marker.line")&&o(t,e,l,s,{prefix:"marker.line.",cLetter:"c"}),s("marker.line.width",u?1:0),u&&(s("marker.sizeref"),s("marker.sizemin"),s("marker.sizemode"))}},{"../../components/color":18,"../../components/colorscale/defaults":28,"../../components/colorscale/has_colorscale":31,"./subtypes":186}],183:[function(t,e,n){"use strict";function r(t,e,n){var r=e.x(),o=e.y(),i=a.extent(r.range.map(r.l2c)),l=a.extent(o.range.map(o.l2c));n.forEach(function(t,e){var r=t[0].trace;if(c.hasMarkers(r)){var a=r.marker.maxdisplayed;if(0!==a){var o=t.filter(function(t){return t.x>=i[0]&&t.x<=i[1]&&t.y>=l[0]&&t.y<=l[1]}),s=Math.ceil(o.length/a),u=0;n.forEach(function(t,n){var r=t[0].trace;c.hasMarkers(r)&&r.marker.maxdisplayed>0&&e>n&&u++});var f=Math.round(u*s/3+Math.floor(u/3)*s/7.1);t.forEach(function(t){delete t.vis}),o.forEach(function(t,e){0===Math.round((e+f)%s)&&(t.vis=!0)})}}})}var a=t("d3"),o=t("../../lib"),i=t("../../components/drawing"),l=t("../../components/errorbars"),s=t("../../lib/polygon").tester,c=t("./subtypes"),u=t("./arrays_to_calcdata"),f=t("./line_points");e.exports=function(t,e,n){function d(t){return t.filter(function(t){return t.vis})}r(t,e,n);var h=e.x(),p=e.y(),g=e.plot.select(".scatterlayer").selectAll("g.trace.scatter").data(n);g.enter().append("g").attr("class","trace scatter").style("stroke-miterlimit",2),g.call(l.plot,e);var v,m,y,x,b="",_=[];g.each(function(t){var e=t[0].trace,n=e.line,r=a.select(this);if(e.visible===!0&&(m=e.fill.charAt(e.fill.length-1),"x"!==m&&"y"!==m&&(m=""),t[0].node3=r,u(t),c.hasLines(e)||"none"!==e.fill)){var o,l,d,g,w,k="",M="";v="tozero"===e.fill.substr(0,6)||"toself"===e.fill||"to"===e.fill.substr(0,2)&&!b?r.append("path").classed("js-fill",!0):null,x&&(y=x.datum(t)),x=r.append("path").classed("js-fill",!0),-1!==["hv","vh","hvh","vhv"].indexOf(n.shape)?(d=i.steps(n.shape),g=i.steps(n.shape.split("").reverse().join(""))):d=g="spline"===n.shape?function(t){var e=t[t.length-1];return t[0][0]===e[0]&&t[0][1]===e[1]?i.smoothclosed(t.slice(1),n.smoothing):i.smoothopen(t,n.smoothing)}:function(t){return"M"+t.join("L")},w=function(t){return g(t.reverse())};var A,L=f(t,{xaxis:h,yaxis:p,connectGaps:e.connectgaps,baseTolerance:Math.max(n.width||1,3)/4,linear:"linear"===n.shape}),T=e._polygons=new Array(L.length);for(A=0;A<L.length;A++)e._polygons[A]=s(L[A]);if(L.length){var z=L[0][0],S=L[L.length-1],E=S[S.length-1];for(A=0;A<L.length;A++){var C=L[A];o=d(C),l=w(C),k?m?(k+="L"+o.substr(1),M=l+("L"+M.substr(1))):(k+="Z"+o,M=l+"Z"+M):(k=o,M=l),c.hasLines(e)&&C.length>1&&r.append("path").classed("js-line",!0).style("vector-effect","non-scaling-stroke").attr("d",o)}v?z&&E&&(m?("y"===m?z[1]=E[1]=p.c2p(0,!0):"x"===m&&(z[0]=E[0]=h.c2p(0,!0)),v.attr("d",k+"L"+E+"L"+z+"Z")):v.attr("d",k+"Z")):"tonext"===e.fill.substr(0,6)&&k&&b&&("tonext"===e.fill?y.attr("d",k+"Z"+b+"Z"):y.attr("d",k+"L"+b.substr(1)+"Z"),e._polygons=e._polygons.concat(_)),b=M,_=T}}}),g.selectAll("path:not([d])").remove(),g.append("g").attr("class","points").each(function(t){var e=t[0].trace,n=a.select(this),r=c.hasMarkers(e),l=c.hasText(e);!r&&!l||e.visible!==!0?n.remove():(r&&n.selectAll("path.point").data(e.marker.maxdisplayed?d:o.identity).enter().append("path").classed("point",!0).call(i.translatePoints,h,p),l&&n.selectAll("g").data(e.marker.maxdisplayed?d:o.identity).enter().append("g").append("text").call(i.translatePoints,h,p))})}},{"../../components/drawing":41,"../../components/errorbars":47,"../../lib":89,"../../lib/polygon":95,"./arrays_to_calcdata":166,"./line_points":179,"./subtypes":186,d3:9}],184:[function(t,e,n){"use strict";var r=t("./subtypes"),a=.2;e.exports=function(t,e){var n,o,i,l,s=t.cd,c=t.xaxis,u=t.yaxis,f=[],d=s[0].trace,h=d.index,p=d.marker,g=!r.hasMarkers(d)&&!r.hasText(d);if(d.visible===!0&&!g){var v=Array.isArray(p.opacity)?1:p.opacity;if(e===!1)for(n=0;n<s.length;n++)s[n].dim=0;else for(n=0;n<s.length;n++)o=s[n],i=c.c2p(o.x),l=u.c2p(o.y),e.contains([i,l])?(f.push({curveNumber:h,pointNumber:n,x:o.x,y:o.y}),o.dim=0):o.dim=1;return s[0].node3.selectAll("path.point").style("opacity",function(t){return((t.mo+1||v+1)-1)*(t.dim?a:1)}),s[0].node3.selectAll("text").style("opacity",function(t){return t.dim?a:1}),f}}},{"./subtypes":186}],185:[function(t,e,n){"use strict";var r=t("d3"),a=t("../../components/drawing"),o=t("../../components/errorbars");e.exports=function(t){var e=r.select(t).selectAll("g.trace.scatter");e.style("opacity",function(t){return t[0].trace.opacity}),e.selectAll("g.points").each(function(t){r.select(this).selectAll("path.point").call(a.pointStyle,t.trace||t[0].trace),r.select(this).selectAll("text").call(a.textPointStyle,t.trace||t[0].trace)}),e.selectAll("g.trace path.js-line").call(a.lineGroupStyle),e.selectAll("g.trace path.js-fill").call(a.fillGroupStyle),e.call(o.style)}},{"../../components/drawing":41,"../../components/errorbars":47,d3:9}],186:[function(t,e,n){"use strict";e.exports={hasLines:function(t){return t.visible&&t.mode&&-1!==t.mode.indexOf("lines")},hasMarkers:function(t){return t.visible&&t.mode&&-1!==t.mode.indexOf("markers")},hasText:function(t){return t.visible&&t.mode&&-1!==t.mode.indexOf("text")},isBubble:function(t){return"object"==typeof t.marker&&Array.isArray(t.marker.size)}}},{}],187:[function(t,e,n){"use strict";var r=t("../../lib");e.exports=function(t,e,n,a){a("textposition"),r.coerceFont(a,"textfont",n.font)}},{"../../lib":89}],188:[function(t,e,n){"use strict";e.exports=function(t,e,n){var r,a=n("x"),o=n("y");if(a)o?(r=Math.min(a.length,o.length),r<a.length&&(e.x=a.slice(0,r)),r<o.length&&(e.y=o.slice(0,r))):(r=a.length,n("y0"),n("dy"));else{if(!o)return 0;r=e.y.length,n("x0"),n("dx")}return r}},{}]},{},[5])(5)}); </script>
  </head>
  <body>
-   <div id="all-together"></div>
+   <div id="header">
+     <label>plot:</label>
+     <div class="select">
+       <span class="arr"></span>
+       <select id="chooser">
+         <option value="summary">summary</option>
+         {% for run in runs %}
+         <option value="{$loop.index0}">samples
+           {% for param in run.params %}
+           | {$param.name}={$param.value}
+           {% endfor %}
+         </option>
+         {% endfor %}
+       </select>
+     </div>
+   </div>
+   <div id="plot"></div>
    <div id="footer">Generated with <a href="http://flamingdangerzone.com/nonius">nonius</a></div>
    <script type="text/javascript"> !function () {
-    var data = [
-        {% for benchmark in benchmarks %}
-        {
-            name: '{$benchmark.name}',
-            type: 'scatter',
-            mode: 'markers',
-            marker: { symbol: {$loop.index0} },
-            x: [{% for time in benchmark.times %} {$loop.index}, {% endfor %}],
-            y: [{% for time in benchmark.times %} {$time}, {% endfor %}],
-        },
-        {% endfor %}
-    ];
-
-    var layout = {
+    var data = {
         title: '{$title}',
-        showleyend: true,
-        xaxis: { title: 'Measurement' },
-        yaxis: {
-            title: 'Time ({$units})',
-            rangemode: 'tozero',
-            zeroline: true
-        },
-        legend: {
-            font: { family: 'monospace' },
-            borderwidth: 2,
-            bordercolor: '#777'
-        }
+        units: '{$units}',
+        logarithmic: {$logarithmic},
+        param: '{$runparam}',
+        runs: [
+            {% for run in runs %}{
+                params: {
+                    {% for param in run.params %}'{$param.name}': '{$param.value}',
+                    {% endfor %}
+                },
+                benchmarks: [
+                    {% for benchmark in run.benchmarks %}{
+                        name: '{$benchmark.name}',
+                        mean: {$benchmark.mean},
+                        stddev: {$benchmark.stddev},
+                        samples: [
+                            {% for sample in benchmark.samples %}{$sample}, {% endfor %}
+                        ],
+                    },{% endfor %}
+                ]
+            },{% endfor %}
+        ]
     };
 
-    var plotdiv = document.getElementById("all-together");
-    Plotly.newPlot(plotdiv, data, layout);
+    var plotdiv = document.getElementById("plot");
     window.addEventListener("resize", function() {
         Plotly.Plots.resize(plotdiv);
     });
+
+    var chooser = document.getElementById("chooser");
+    chooser.addEventListener("change", choosePlot);
+    chooser.addEventListener("blur", chooser.focus.bind(chooser));
+    chooser.focus();
+
+    var legendStyle = {
+        font: { family: 'monospace' },
+        borderwidth: 2,
+        bordercolor: 'black'
+    }
+
+    function choosePlot() {
+        var plot = chooser.options[chooser.selectedIndex].value;
+        if (plot == 'summary') {
+            if (data.runs.length > 1) {
+                plotSummary();
+            } else {
+                plotSingleSummary();
+            }
+        } else {
+            plotSamples(plot);
+        }
+    }
+
+    function plotSamples(plot) {
+        var run = data.runs[plot];
+        var traces = run.benchmarks.map(function (b, i) {
+            return {
+                name: b.name,
+                type: 'scatter',
+                mode: 'markers',
+                marker: { symbol: i },
+                y: b.samples,
+                x: b.samples.map(function (_, i) { return i; })
+            }
+        });
+        var layout = {
+            title: data.title,
+            showLegend: true,
+            xaxis: { title: 'Measurement' },
+            yaxis: {
+                title: 'Time (' + data.units + ')',
+                rangemode: 'tozero',
+                zeroline: true
+            },
+            legend: legendStyle
+        };
+        Plotly.newPlot(plotdiv, traces, layout);
+    }
+
+    function plotSummary() {
+        var traces = data.runs[0].benchmarks.map(function (b, i) {
+            return {
+                name: b.name,
+                type: 'scatter',
+                marker: { symbol: i },
+                x: data.runs.map(function (r) { return r.params[data.param]; }),
+                y: data.runs.map(function (r) { return r.benchmarks[i].mean; }),
+                error_y: {
+                    type: 'data',
+                    array: data.runs.map(function (r) { return r.benchmarks[i].stddev; }),
+                    visible: true
+                }
+            }
+        });
+        var layout = {
+            title: data.title,
+            showLegend: true,
+            xaxis: {
+                title: data.param,
+                type: data.logarithmic ? 'log' : '',
+            },
+            yaxis: {
+                title: 'Time (' + data.units + ')',
+                rangemode: 'tozero',
+                zeroline: true,
+                type: data.logarithmic ? 'log' : '',
+            },
+            legend: legendStyle
+        };
+        Plotly.newPlot(plotdiv, traces, layout);
+    }
+
+    function plotSingleSummary() {
+        var traces = data.runs[0].benchmarks.map(function (b, i) {
+            return {
+                type: 'bar',
+                name: b.name,
+                x: [ 0 ],
+                y: [ b.mean ],
+                error_y: {
+                    type: 'data',
+                    array: [ b.stddev ],
+                    visible: true
+                }
+            }
+        });
+        var layout = {
+            title: data.title,
+            showLegend: true,
+            xaxis: {
+                title: '',
+                showticklabels: false,
+            },
+            yaxis: {
+                title: 'Time (' + data.units + ')',
+                rangemode: 'tozero',
+                zeroline: true
+            },
+            legend: legendStyle
+        };
+        Plotly.newPlot(plotdiv, traces, layout);
+    }
+
+    choosePlot();
 }();
  </script>
  </body>

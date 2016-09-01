@@ -17,6 +17,8 @@
 #include <nonius/nonius.h++>
 #include <nonius/detail/argparse.h++>
 
+#include <boost/algorithm/string.hpp>
+
 #include <vector>
 #include <string>
 #include <stdexcept>
@@ -45,15 +47,46 @@ namespace nonius {
         struct parser<bool> {
             static bool parse(std::string const&) { return true; }
         };
-        template <typename T, typename Predicate>
-        void parse(T& variable, detail::arguments& args, std::string const& option, Predicate&& is_valid) {
-            auto it = args.find(option);
-            if(it != args.end()) {
-                auto value = parser<T>::parse(it->second);
-                if(is_valid(value)) {
-                    variable = value;
-                } else {
-                    throw argument_error();
+        template <>
+        struct parser<param_configuration> {
+            static param_configuration parse(std::string const& param) {
+                auto v = std::vector<std::string>{};
+                boost::split(v, param, boost::is_any_of(":"));
+                try {
+                    if (v.size() > 0) {
+                        auto name = v[0];
+                        auto def  = global_param_registry().defaults().at(name);
+                        if (v.size() == 2)
+                            return {{{name, def.parse(v[1])}}, {}};
+                        else if (v.size() == 5) {
+                            auto oper  = v[1];
+                            auto init  = def.parse(v[2]);
+                            auto step  = def.parse(v[3]);
+                            auto count = boost::lexical_cast<std::size_t>(v[4]);
+                            return {{}, run_configuration{name, oper, init, step, count}};
+                        }
+                    }
+                }
+                catch (boost::bad_lexical_cast const&) {}
+                catch (std::out_of_range const&) {}
+                return {};
+            }
+        };
+        struct assign_fn {
+            template <typename T, typename U>
+            void operator() (T& dest, U&& src) const { dest = std::forward<U>(src); }
+        };
+        template <typename T, typename Predicate, typename Assignment=assign_fn>
+        void parse(T& variable, detail::arguments& args, std::string const& option, Predicate&& is_valid, Assignment&& assign={}) {
+            auto rng = args.equal_range(option);
+            for (auto it = rng.first; it != rng.second; ++it) {
+                if(it != args.end()) {
+                    auto value = parser<T>::parse(it->second);
+                    if(is_valid(value)) {
+                        std::forward<Assignment>(assign) (variable, std::move(value));
+                    } else {
+                        throw argument_error();
+                    }
                 }
             }
         }
@@ -68,12 +101,14 @@ namespace nonius {
                 detail::option("samples", "s", "number of samples to collect (default: 100)", "SAMPLES"),
                 detail::option("resamples", "rs", "number of resamples for the bootstrap (default: 100000)", "RESAMPLES"),
                 detail::option("confidence-interval", "ci", "confidence interval for the bootstrap (between 0 and 1, default: 0.95)", "INTERVAL"),
+                detail::option("param", "p", "set a benchmark parameter", "PARAM"),
                 detail::option("output", "o", "output file (default: <stdout>)", "FILE"),
                 detail::option("reporter", "r", "reporter to use (default: standard)", "REPORTER"),
                 detail::option("title", "t", "set report title", "TITLE"),
                 detail::option("no-analysis", "A", "perform only measurements; do not perform any analysis"),
                 detail::option("filter", "f", "only run benchmarks whose name matches the regular expression pattern", "PATTERN"),
                 detail::option("list", "l", "list benchmarks"),
+                detail::option("list-params", "lp", "list available parameters"),
                 detail::option("list-reporters", "lr", "list available reporters"),
                 detail::option("verbose", "v", "show verbose output (mutually exclusive with -q)"),
                 detail::option("summary", "q", "show summary output (mutually exclusive with -v)")
@@ -91,16 +126,25 @@ namespace nonius {
                 auto is_positive = [](int x) { return x > 0; };
                 auto is_ci = [](double x) { return x > 0 && x < 1; };
                 auto is_reporter = [](std::string const x) { return global_reporter_registry().count(x) > 0; };
+                auto is_param = [](param_configuration const& x) {
+                    return !x.map.empty() || x.run;
+                };
+                auto merge_params = [](param_configuration& x, param_configuration&& y) {
+                    x.map = std::move(x.map).merged(std::move(y.map));
+                    if (y.run) x.run = y.run;
+                };
 
                 parse(cfg.help, args, "help");
                 parse(cfg.samples, args, "samples", is_positive);
                 parse(cfg.resamples, args, "resamples", is_positive);
                 parse(cfg.confidence_interval, args, "confidence-interval", is_ci);
+                parse(cfg.params, args, "param", is_param, merge_params);
                 parse(cfg.output_file, args, "output");
                 parse(cfg.reporter, args, "reporter", is_reporter);
                 parse(cfg.no_analysis, args, "no-analysis");
                 parse(cfg.filter_pattern, args, "filter");
                 parse(cfg.list_benchmarks, args, "list");
+                parse(cfg.list_params, args, "list-params");
                 parse(cfg.list_reporters, args, "list-reporters");
                 parse(cfg.verbose, args, "verbose");
                 parse(cfg.summary, args, "summary");
@@ -125,6 +169,11 @@ namespace nonius {
             std::cout << "  " << b.name << "\n";
         }
         std::cout << global_benchmark_registry().size() << " benchmarks\n\n";
+        return 0;
+    }
+    inline int list_params() {
+        std::cout << "Available parameters (= default):\n"
+                  << global_param_registry().defaults();
         return 0;
     }
     inline int list_reporters() {
@@ -160,7 +209,7 @@ namespace nonius {
     template <typename Iterator>
     int main(std::string const& name, Iterator first, Iterator last) {
         configuration cfg;
-       
+
         try {
             cfg = detail::parse_args(name, first, last);
         } catch(detail::argument_error const&) {
@@ -169,6 +218,7 @@ namespace nonius {
 
         if(cfg.help) return print_help(name);
         else if(cfg.list_benchmarks) return list_benchmarks();
+        else if(cfg.list_params) return list_params();
         else if(cfg.list_reporters) return list_reporters();
         else return run_it(cfg);
     }
@@ -186,4 +236,3 @@ int main(int argc, char** argv) {
 #endif // NONIUS_RUNNER
 
 #endif // NONIUS_MAIN_HPP
-

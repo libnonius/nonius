@@ -39,7 +39,7 @@ def customise_build(tools, ninja):
             implicit = stringize_tool)
     ninja.build('tpl/html_report.g.tpl', 'merge_includes',
             inputs = 'tpl/html_report.tpl',
-            implicit = merge_includes_tool)
+            implicit = [merge_includes_tool, 'tpl/report.tpl.js', 'tpl/report.css'])
     ninja.build('templates', 'phony',
             inputs = html_report_template)
 
