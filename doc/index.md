@@ -45,7 +45,7 @@ to keep in mind when doing so. There is a separate [guide] about the subject,
 and there are examples of both simple and advanced usage in the [examples]
 folder. There is also a guide describing [advanced features].
 
- [guide]: authoring-benchmarks
+ [guide]: benchmarks
  [examples]: https://github.com/rmartinho/nonius/tree/devel/examples
  [advanced features]: advanced
 
