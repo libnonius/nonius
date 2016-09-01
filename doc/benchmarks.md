@@ -65,12 +65,12 @@ while the advanced callables are invoked exactly twice: once during the
 estimation phase, and another time during the execution phase.
 
 {% highlight cpp %}
-NONIUS_BENCHMARK("simple", [] { return long_computation(); });
+NONIUS_BENCHMARK("simple") { return long_computation(); }
 
-NONIUS_BENCHMARK("advanced", [](nonius::chronometer meter) {
+NONIUS_BENCHMARK("advanced") (nonius::chronometer meter) {
     set_up();
     meter.measure([] { return long_computation(); });
-});
+}
 {% endhighlight %}
 
 These advanced callables no longer consist entirely of user code to be measured.
@@ -120,19 +120,19 @@ construct and destroy objects without dynamic allocation and in a way that lets
 you measure construction and destruction separately.
 
 {% highlight cpp %}
-NONIUS_BENCHMARK("construct", [](nonius::chronometer meter)
+NONIUS_BENCHMARK("construct") (nonius::chronometer meter)
 {
     std::vector<nonius::storage_for<std::string>> storage(meter.runs());
     meter.measure([&](int i) { storage[i].construct("thing"); });
-})
+}
 
-NONIUS_BENCHMARK("destroy", [](nonius::chronometer meter)
+NONIUS_BENCHMARK("destroy") (nonius::chronometer meter)
 {
     std::vector<nonius::destructable_object<std::string>> storage(meter.runs());
     for(auto&& o : storage)
         o.construct("thing");
     meter.measure([&](int i) { storage[i].destruct(); });
-})
+}
 {% endhighlight %}
 
 `nonius::storage_for<T>` objects are just pieces of raw storage suitable for `T`
@@ -170,10 +170,10 @@ Here's an example:
 {% highlight cpp %}
 // may measure nothing at all by skipping the long calculation since its
 // result is not used
-NONIUS_BENCHMARK("no return", [] { long_calculation(); })
+NONIUS_BENCHMARK("no return") { long_calculation(); }
 
 // the result of long_calculation() is guaranteed to be computed somehow
-NONIUS_BENCHMARK("with return", [] { return long_calculation(); })
+NONIUS_BENCHMARK("with return") { return long_calculation(); }
 {% endhighlight %}
 
 However, there's no other form of control over the optimizer whatsoever. It is
