@@ -67,7 +67,7 @@ namespace nonius {
         }
     }
 
-    std::vector<parameters> generate_params(param_configuration cfg) {
+    inline std::vector<parameters> generate_params(param_configuration cfg) {
         auto params = global_param_registry().defaults().merged(cfg.map);
         if (!cfg.run) {
             return {params};
