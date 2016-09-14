@@ -47,7 +47,7 @@ namespace nonius {
             }
         };
 
-        template <typename Clock = default_clock, typename Fun>
+        template <typename Clock, typename Fun>
         TimingOf<Clock, Fun(run_for_at_least_argument_t<Clock, Fun>)> run_for_at_least(const parameters& params, Duration<Clock> how_long, int seed, Fun&& fun) {
             auto iters = seed;
             while(iters < (1 << 30)) {

@@ -28,7 +28,7 @@ namespace nonius {
             return { mean, outliers };
         }
     };
-    template <typename Clock = default_clock>
+    template <typename Clock>
     struct environment {
         using clock_type = Clock;
         environment_estimate<FloatDuration<Clock>> clock_resolution;
