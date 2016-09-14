@@ -159,7 +159,7 @@ namespace nonius {
     }
     template <typename Clock = default_clock, typename Iterator>
     void go(configuration cfg, Iterator first, Iterator last, reporter&& rep) {
-        go(cfg, first, last, rep);
+        go<Clock>(cfg, first, last, rep);
     }
     struct no_such_reporter : virtual std::exception {
         char const* what() const NONIUS_NOEXCEPT override {
@@ -170,8 +170,8 @@ namespace nonius {
     void go(configuration cfg, benchmark_registry& benchmarks = global_benchmark_registry(), reporter_registry& reporters = global_reporter_registry()) {
         auto it = reporters.find(cfg.reporter);
         if(it == reporters.end()) throw no_such_reporter();
-        validate_benchmarks(benchmarks.begin(), benchmarks.end());
-        go(cfg, benchmarks.begin(), benchmarks.end(), *it->second);
+        validate_benchmarks<Clock>(benchmarks.begin(), benchmarks.end());
+        go<Clock>(cfg, benchmarks.begin(), benchmarks.end(), *it->second);
     }
 } // namespace nonius
 

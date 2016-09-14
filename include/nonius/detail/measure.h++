@@ -22,7 +22,7 @@
 
 namespace nonius {
     namespace detail {
-        template <typename Clock = default_clock, typename Fun, typename... Args>
+        template <typename Clock, typename Fun, typename... Args>
         TimingOf<Clock, Fun(Args...)> measure(Fun&& fun, Args&&... args) {
             auto start = Clock::now();
             auto&& r = detail::complete_invoke(fun, std::forward<Args>(args)...);
