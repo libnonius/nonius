@@ -17,9 +17,9 @@
 namespace nonius {
     template <typename Duration>
     struct estimate {
-        Duration point = Duration::zero();
-        Duration lower_bound = Duration::zero();
-        Duration upper_bound = Duration::zero();
+        Duration point = {};
+        Duration lower_bound = {};
+        Duration upper_bound = {};
         double confidence_interval = 0.0;
 
         estimate() = default;

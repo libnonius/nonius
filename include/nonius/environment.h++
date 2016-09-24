@@ -20,7 +20,7 @@
 namespace nonius {
     template <typename Duration>
     struct environment_estimate {
-        Duration mean = Duration::zero();
+        Duration mean = {};
         outlier_classification outliers;
 
         environment_estimate() = default;

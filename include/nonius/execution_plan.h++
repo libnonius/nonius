@@ -25,10 +25,10 @@ namespace nonius {
     template <typename Duration>
     struct execution_plan {
         int iterations_per_sample = 0;
-        Duration estimated_duration = Duration::zero();
+        Duration estimated_duration = {};
         parameters params;
         detail::benchmark_function benchmark;
-        Duration warmup_time = Duration::zero();
+        Duration warmup_time = {};
         int warmup_iterations = 0;
 
         execution_plan() = default;

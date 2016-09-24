@@ -23,7 +23,7 @@
 namespace nonius {
     template <typename Duration, typename Result>
     struct timing {
-        Duration elapsed = Duration::zero();
+        Duration elapsed = {};
         Result result;
         int iterations = 0;
 
