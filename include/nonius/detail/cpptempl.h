@@ -66,7 +66,6 @@
 #include <map>                          
 #include <memory>
 #include <unordered_map>
-#include <boost/lexical_cast.hpp>
 
 #include <ostream>
 
@@ -123,7 +122,10 @@ namespace cpptempl
     template<> void data_ptr::operator = (const data_map& data);
     template<typename T>
     void data_ptr::operator = (const T& data) {
-        std::string data_str = boost::lexical_cast<std::string>(data);
+        std::stringstream ss;
+        ss << data;
+        ss.exceptions(std::ios::failbit);
+        std::string data_str = ss.str();
         this->operator =(data_str);
     }
 
@@ -384,7 +386,7 @@ namespace cpptempl
         // quoted string
         if (key[0] == '\"')
         {
-			return make_data(boost::trim_copy_if(key, [](char c){ return c == '"'; }));
+            return make_data(boost::trim_copy_if(key, [](char c){ return c == '"'; }));
         }
         // check for dotted notation, i.e [foo.bar]
         size_t index = key.find(".") ;
@@ -468,8 +470,8 @@ namespace cpptempl
         for (size_t i = 0 ; i < items.size() ; ++i)
         {
             data_map loop ;
-            loop["index"] = make_data(boost::lexical_cast<std::string>(i+1)) ;
-            loop["index0"] = make_data(boost::lexical_cast<std::string>(i)) ;
+            loop["index"] = make_data(std::to_string(i+1)) ;
+            loop["index0"] = make_data(std::to_string(i)) ;
             data["loop"] = make_data(loop);
             data[m_val] = items[i] ;
             for(size_t j = 0 ; j < m_children.size() ; ++j)

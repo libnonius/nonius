@@ -62,12 +62,14 @@ namespace nonius {
                             auto oper  = v[1];
                             auto init  = def.parse(v[2]);
                             auto step  = def.parse(v[3]);
-                            auto count = boost::lexical_cast<std::size_t>(v[4]);
+                            std::stringstream ss(v[4]);
+                            auto count = size_t();
+                            ss >> count;
+                            ss.exceptions(std::ios::failbit);
                             return {{}, run_configuration{name, oper, init, step, count}};
                         }
                     }
                 }
-                catch (boost::bad_lexical_cast const&) {}
                 catch (std::out_of_range const&) {}
                 return {};
             }
