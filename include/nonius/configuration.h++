@@ -15,11 +15,51 @@
 #define NONIUS_CONFIGURATION_HPP
 
 #include <nonius/param.h++>
-#include <boost/optional.hpp>
 #include <string>
 #include <vector>
 
+#include <cassert>
+
 namespace nonius {
+
+    namespace detail {
+        template <typename T>
+        class optional {
+            // Note that this doesn't handle aligned types
+            uint8_t storage[sizeof(T)];
+            bool initialized;
+            T* address() {
+                return reinterpret_cast<T*>(storage);
+            }
+        public:
+            optional() : initialized(false) {}
+            optional(T&& value) : initialized(false) {
+                new (storage) T(std::move(value));
+                initialized = true;
+            }
+            ~optional() {
+                if (initialized) {
+                    address()->~T();
+                    initialized = false;
+                }
+            }
+            T* operator->() {
+                assert(initialized);
+                return address();
+            }
+            T& operator*() {
+                assert(initialized);
+                return *address();
+            }
+            explicit operator bool() const {
+                return initialized;
+            }
+            bool operator!() const {
+                return !initialized;
+            }
+        };
+    } // namespace detail
+
     struct run_configuration {
         std::string name;
         std::string op;
@@ -30,7 +70,7 @@ namespace nonius {
 
     struct param_configuration {
         parameters map;
-        boost::optional<run_configuration> run;
+        detail::optional<run_configuration> run;
     };
 
     struct configuration {
