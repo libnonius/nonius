@@ -18,8 +18,6 @@
 #include <nonius/detail/argparse.h++>
 #include <nonius/detail/string_utils.h++>
 
-#include <boost/algorithm/string.hpp>
-
 #include <vector>
 #include <string>
 #include <stdexcept>
@@ -52,7 +50,7 @@ namespace nonius {
         struct parser<param_configuration> {
             static param_configuration parse(std::string const& param) {
                 auto v = std::vector<std::string>{};
-                boost::split(v, param, nonius::is_any_of(":"));
+                nonius::split(v, param, nonius::is_any_of(":"));
                 try {
                     if (v.size() > 0) {
                         auto name = v[0];
