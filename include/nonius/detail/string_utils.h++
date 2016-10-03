@@ -14,14 +14,14 @@
 #ifndef NONIUS_STRING_UTILS_HPP
 #define NONIUS_STRING_UTILS_HPP
 
+#include <algorithm>
 #include <string>
+#include <vector>
 
 namespace nonius {
     namespace detail {
-    struct is_spaceF
-    {
-        bool operator()(const char c) const
-        {
+    struct is_spaceF {
+        bool operator()(const char c) const {
             return std::isspace(c);
         }
     };
@@ -29,15 +29,55 @@ namespace nonius {
     struct is_any_ofF {
         std::string chars;
         is_any_ofF(std::string chars) : chars(chars) {}
-        bool operator()(const char c) const
-        {
+        bool operator()(const char c) const {
             return chars.find_first_of(c) != std::string::npos;
         }
     };
     } // namespace detail
 
     detail::is_spaceF is_space() { return detail::is_spaceF {}; }
+
     detail::is_any_ofF is_any_of(const char* chars) { return detail::is_any_ofF{chars}; }
+
+    bool starts_with(std::string const& input, std::string const& test) {
+        if (test.size() <= input.size()) {
+            return std::equal(test.begin(), test.end(), input.begin());
+        }
+        return false;
+    }
+
+    template <typename PredicateT>
+    std::string trim_copy_if(std::string const& input, PredicateT predicate) {
+        const auto begin = std::find_if_not(input.begin(), input.end(), predicate);
+        const auto end = std::find_if(begin, input.end(), predicate);
+        return std::string(begin, end);
+    }
+
+    std::string trim_copy(std::string const& input) {
+        return trim_copy_if(input, is_space());
+    }
+
+    template <typename PredicateT>
+    std::vector<std::string>& split(std::vector<std::string>& result, std::string const& input, PredicateT predicate) {
+        std::vector<std::string> tmp;
+
+        const auto end = input.end();
+        auto itr = input.begin();
+
+        for (;;) {
+            auto sep = std::find_if(itr, end, predicate);
+            if (sep == end) {
+                break;
+            }
+            tmp.emplace_back(itr, sep);
+            itr = std::find_if_not(sep, end, predicate);
+        }
+        tmp.emplace_back(itr, end);
+        std::swap(result, tmp);
+
+        return result;
+    }
+
 } // namespace nonius
 
 #endif // NONIUS_STRING_UTILS_HPP
