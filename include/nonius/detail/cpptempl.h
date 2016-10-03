@@ -73,6 +73,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <nonius/detail/noexcept.h++>
+#include <nonius/detail/string_utils.h++>
 
 namespace cpptempl
 {
@@ -449,7 +450,7 @@ namespace cpptempl
     inline TokenFor::TokenFor(std::string expr)
     {
         std::vector<std::string> elements ;
-        boost::split(elements, expr, boost::is_space()) ;
+        boost::split(elements, expr, nonius::is_space()) ;
         if (elements.size() != 4u)
         {
             throw TemplateException("Invalid syntax in for statement") ;
@@ -511,7 +512,7 @@ namespace cpptempl
     inline bool TokenIf::is_true( std::string expr, data_map &data )
     {
         std::vector<std::string> elements ;
-        boost::split(elements, expr, boost::is_space()) ;
+        boost::split(elements, expr, nonius::is_space()) ;
 
         if (elements[1] == "not")
         {
