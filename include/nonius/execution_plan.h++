@@ -21,6 +21,8 @@
 #include <nonius/detail/repeat.h++>
 #include <nonius/detail/run_for_at_least.h++>
 
+#include <algorithm>
+
 namespace nonius {
     template <typename Duration>
     struct execution_plan {
