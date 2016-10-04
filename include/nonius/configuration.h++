@@ -25,16 +25,15 @@ namespace nonius {
     namespace detail {
         template <typename T>
         class optional {
-            // Note that this doesn't handle aligned types
-            uint8_t storage[sizeof(T)];
+            typename std::aligned_storage<sizeof(T), alignof(T)>::type storage;
             bool initialized;
             T* address() {
-                return reinterpret_cast<T*>(storage);
+                return reinterpret_cast<T*>(&storage);
             }
         public:
             optional() : initialized(false) {}
             optional(T&& value) : initialized(false) {
-                new (storage) T(std::move(value));
+                new (&storage) T(std::move(value));
                 initialized = true;
             }
             ~optional() {
