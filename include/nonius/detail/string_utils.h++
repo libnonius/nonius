@@ -15,6 +15,7 @@
 #define NONIUS_STRING_UTILS_HPP
 
 #include <algorithm>
+#include <cctype>
 #include <string>
 #include <vector>
 
@@ -22,7 +23,7 @@ namespace nonius {
     namespace detail {
     struct is_spaceF {
         bool operator()(const char c) const {
-            return std::isspace(c);
+            return std::isspace(c) != 0;
         }
     };
 
