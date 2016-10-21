@@ -75,6 +75,7 @@
 .select select {
     outline: none;
     -webkit-appearance: none;
+    -moz-appearance: none;
     display: block;
     padding: 0 3em 0 1.5em;
     margin: 0.3em;
@@ -178,11 +179,13 @@ e.exports=function(t,e,n){function l(n,r){return o.coerce(t,e,i,n,r)}for(var s=!
                 benchmarks: [
                     {% for benchmark in run.benchmarks %}{
                         name: '{$benchmark.name}',
-                        mean: {$benchmark.mean},
-                        stddev: {$benchmark.stddev},
+                        {%if benchmark.data %}
+                        mean: {$benchmark.data.mean},
+                        stddev: {$benchmark.data.stddev},
                         samples: [
-                            {% for sample in benchmark.samples %}{$sample}, {% endfor %}
+                            {% for sample in benchmark.data.samples %}{$sample}, {% endfor %}
                         ],
+                        {% endif %}
                     },{% endfor %}
                 ]
             },{% endfor %}
@@ -227,7 +230,7 @@ e.exports=function(t,e,n){function l(n,r){return o.coerce(t,e,i,n,r)}for(var s=!
                 mode: 'markers',
                 marker: { symbol: i },
                 y: b.samples,
-                x: b.samples.map(function (_, i) { return i; })
+                x: b.samples && b.samples.map(function (_, i) { return i; })
             }
         });
         var layout = {
