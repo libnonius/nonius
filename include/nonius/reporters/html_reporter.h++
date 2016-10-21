@@ -124,10 +124,14 @@ namespace nonius {
                 for(auto d : r.data) {
                     cpptempl::data_map item;
                     item["name"] = escape(d.first);
-                    item["mean"] = truncate(d.second.analysis.mean.point.count() * magnitude);
-                    item["stddev"] = truncate(d.second.analysis.standard_deviation.point.count() * magnitude);
-                    for(auto e : d.second.samples)
-                        item["samples"].push_back(truncate(e.count() * magnitude));
+                    cpptempl::data_map data;
+                    if (!d.second.samples.empty()) {
+                        data["mean"] = truncate(d.second.analysis.mean.point.count() * magnitude);
+                        data["stddev"] = truncate(d.second.analysis.standard_deviation.point.count() * magnitude);
+                        for(auto e : d.second.samples)
+                            data["samples"].push_back(truncate(e.count() * magnitude));
+                    }
+                    item["data"] = data;
                     run_item["benchmarks"].push_back(item);
                 }
                 map["runs"].push_back(run_item);
@@ -147,7 +151,8 @@ namespace nonius {
             mins.reserve(runs.size() * runs.front().data.size());
             for (auto&& r : runs) {
                 for(auto d : r.data) {
-                    mins.push_back(*std::min_element(d.second.samples.begin(), d.second.samples.end()));
+                    if (d.second.samples.begin() != d.second.samples.end())
+                        mins.push_back(*std::min_element(d.second.samples.begin(), d.second.samples.end()));
                 }
             }
             auto min = *std::min_element(mins.begin(), mins.end());

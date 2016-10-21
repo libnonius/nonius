@@ -13,11 +13,13 @@
                 benchmarks: [
                     {% for benchmark in run.benchmarks %}{
                         name: '{$benchmark.name}',
-                        mean: {$benchmark.mean},
-                        stddev: {$benchmark.stddev},
+                        {%if benchmark.data %}
+                        mean: {$benchmark.data.mean},
+                        stddev: {$benchmark.data.stddev},
                         samples: [
-                            {% for sample in benchmark.samples %}{$sample}, {% endfor %}
+                            {% for sample in benchmark.data.samples %}{$sample}, {% endfor %}
                         ],
+                        {% endif %}
                     },{% endfor %}
                 ]
             },{% endfor %}
@@ -62,7 +64,7 @@
                 mode: 'markers',
                 marker: { symbol: i },
                 y: b.samples,
-                x: b.samples.map(function (_, i) { return i; })
+                x: b.samples && b.samples.map(function (_, i) { return i; })
             }
         });
         var layout = {
