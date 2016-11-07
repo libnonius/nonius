@@ -150,7 +150,7 @@ namespace nonius {
                     mins.push_back(*std::min_element(d.second.samples.begin(), d.second.samples.end()));
                 }
             }
-            auto min = *std::min_element(mins.begin(), mins.end());
+            auto min = mins.empty()? fp_seconds{} : *std::min_element(mins.begin(), mins.end());
             return detail::get_magnitude(min);
         }
 
