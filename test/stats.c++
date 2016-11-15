@@ -17,6 +17,30 @@
 
 #include <vector>
 
+TEST_CASE("normal_cdf") {
+    using nonius::detail::normal_cdf;
+    CHECK(normal_cdf(0.000000) == Approx(0.50000000000000000));
+    CHECK(normal_cdf(1.000000) == Approx(0.84134474606854293));
+    CHECK(normal_cdf(-1.000000) == Approx(0.15865525393145705));
+    CHECK(normal_cdf(2.809729) == Approx(0.99752083845315409));
+    CHECK(normal_cdf(-1.352570) == Approx(0.08809652095066035));
+}
+
+TEST_CASE("erfc_inv") {
+    using nonius::detail::erfc_inv;
+    CHECK(erfc_inv(1.103560) == Approx(-0.09203687623843015));
+    CHECK(erfc_inv(1.067400) == Approx(-0.05980291115763361));
+    CHECK(erfc_inv(0.050000) == Approx(1.38590382434967796));
+}
+
+TEST_CASE("normal_quantile") {
+    using nonius::detail::normal_quantile;
+    CHECK(normal_quantile(0.551780) == Approx(0.13015979861484198));
+    CHECK(normal_quantile(0.533700) == Approx(0.08457408802851875));
+    CHECK(normal_quantile(0.025000) == Approx(-1.95996398454005449));
+}
+
+
 TEST_CASE("mean") {
     std::vector<double> x { 10., 20., 14., 16., 30., 24. };
 
