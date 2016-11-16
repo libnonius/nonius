@@ -39,11 +39,11 @@ namespace nonius {
             bool matches_long(std::string const& s) const {
                 return std::get<0>(long_separator(s));
             }
-            bool matches_long(std::string const& s, std::string& argument) const {
+            bool matches_long(std::string const& s, std::string& arg) const {
                 bool match; std::string::const_iterator it;
                 std::tie(match, it) = long_separator(s);
                 if(match && it != s.end()) {
-                    if(*it == '=') argument.assign(it+1, s.end());
+                    if(*it == '=') arg.assign(it+1, s.end());
                     else return false;
                 }
                 return match;
