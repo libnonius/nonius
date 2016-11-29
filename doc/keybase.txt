@@ -1,0 +1,54 @@
+==================================================================
+https://keybase.io/rmf
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://nonius.io
+  * I am rmf (https://keybase.io/rmf) on keybase.
+  * I have a public key ASCYKofoBc-K2YaOXeUUED7xdcVf2C3dpJmsdZbT-cMaCAo
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "0101cf57b424053f79dfef901a8a6e4fe3dce4f2b53d9bdc2aa2f21d9c602885df590a",
+            "host": "keybase.io",
+            "kid": "0120982a87e805cf8ad9868e5de514103ef175c55fd82ddda499ac7596d3f9c31a080a",
+            "uid": "77fecb460e3726beeaf6da6158263900",
+            "username": "rmf"
+        },
+        "service": {
+            "hostname": "nonius.io",
+            "protocol": "https:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "client": {
+        "name": "keybase.io go client",
+        "version": "1.0.18"
+    },
+    "ctime": 1480458358,
+    "expire_in": 504576000,
+    "merkle_root": {
+        "ctime": 1480458282,
+        "hash": "bb676f7fa30f4e388e27fbf0bd738e727321cb3d7440a768fd087b233713c828bd8e760b3c987c7f64072bbf1cec38a17111f6f63e9be8ac7f622c3f324aba9f",
+        "seqno": 740805
+    },
+    "prev": "164c6bed7f607fa7ca4845b72f9a2a5a53a1c059cb7ca4f2f920e223b2dcb29d",
+    "seqno": 60,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgmCqH6AXPitmGjl3lFBA+8XXFX9gt3aSZrHWW0/nDGggKp3BheWxvYWTFAu17ImJvZHkiOnsia2V5Ijp7ImVsZGVzdF9raWQiOiIwMTAxY2Y1N2I0MjQwNTNmNzlkZmVmOTAxYThhNmU0ZmUzZGNlNGYyYjUzZDliZGMyYWEyZjIxZDljNjAyODg1ZGY1OTBhIiwiaG9zdCI6ImtleWJhc2UuaW8iLCJraWQiOiIwMTIwOTgyYTg3ZTgwNWNmOGFkOTg2OGU1ZGU1MTQxMDNlZjE3NWM1NWZkODJkZGRhNDk5YWM3NTk2ZDNmOWMzMWEwODBhIiwidWlkIjoiNzdmZWNiNDYwZTM3MjZiZWVhZjZkYTYxNTgyNjM5MDAiLCJ1c2VybmFtZSI6InJtZiJ9LCJzZXJ2aWNlIjp7Imhvc3RuYW1lIjoibm9uaXVzLmlvIiwicHJvdG9jb2wiOiJodHRwczoifSwidHlwZSI6IndlYl9zZXJ2aWNlX2JpbmRpbmciLCJ2ZXJzaW9uIjoxfSwiY2xpZW50Ijp7Im5hbWUiOiJrZXliYXNlLmlvIGdvIGNsaWVudCIsInZlcnNpb24iOiIxLjAuMTgifSwiY3RpbWUiOjE0ODA0NTgzNTgsImV4cGlyZV9pbiI6NTA0NTc2MDAwLCJtZXJrbGVfcm9vdCI6eyJjdGltZSI6MTQ4MDQ1ODI4MiwiaGFzaCI6ImJiNjc2ZjdmYTMwZjRlMzg4ZTI3ZmJmMGJkNzM4ZTcyNzMyMWNiM2Q3NDQwYTc2OGZkMDg3YjIzMzcxM2M4MjhiZDhlNzYwYjNjOTg3YzdmNjQwNzJiYmYxY2VjMzhhMTcxMTFmNmY2M2U5YmU4YWM3ZjYyMmMzZjMyNGFiYTlmIiwic2Vxbm8iOjc0MDgwNX0sInByZXYiOiIxNjRjNmJlZDdmNjA3ZmE3Y2E0ODQ1YjcyZjlhMmE1YTUzYTFjMDU5Y2I3Y2E0ZjJmOTIwZTIyM2IyZGNiMjlkIiwic2Vxbm8iOjYwLCJ0YWciOiJzaWduYXR1cmUifaNzaWfEQLi88dpSwoclQp1QKl89Kf+Gm0Y0xOXShwNGaJKRcfuJosIGlSbpgLb9nF1lCpcemm8ddpVnGlTYepmTc7xz/gOoc2lnX3R5cGUgpGhhc2iCpHR5cGUIpXZhbHVlxCC+vROfpatOMMcSgCXMk93eFPDAa8HWze+APT07+W1biaN0YWfNAgKndmVyc2lvbgE=
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/rmf
+
+==================================================================
