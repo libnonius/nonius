@@ -39,14 +39,14 @@ namespace nonius {
         /// it may be slow, but it is consistently slow.
         struct benchmark_function {
         private:
-            struct concept {
+            struct callable {
                 virtual benchmark_function call(parameters params) const = 0;
                 virtual void call(chronometer meter) const = 0;
-                virtual concept* clone() const = 0;
-                virtual ~concept() = default;
+                virtual callable* clone() const = 0;
+                virtual ~callable() = default;
             };
             template <typename Fun>
-            struct model : public concept {
+            struct model : public callable {
                 model(Fun&& fun) : fun(std::move(fun)) {}
                 model(Fun const& fun) : fun(fun) {}
 
@@ -114,7 +114,7 @@ namespace nonius {
             benchmark_function operator()(parameters params) const { return f->call(params); }
             void operator()(chronometer meter) const { f->call(meter); }
         private:
-            std::unique_ptr<concept> f;
+            std::unique_ptr<callable> f;
         };
     } // namespace detail
 } // namespace nonius
