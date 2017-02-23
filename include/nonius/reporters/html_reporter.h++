@@ -139,7 +139,24 @@ namespace nonius {
 
             cpptempl::parse(report_stream(), templ, map);
             report_stream() << std::flush;
-            if(verbose) progress_stream() << "done\n";
+            if(verbose) {
+                progress_stream() << "\n\nresult summary ("
+                                  << detail::units_for_magnitude(magnitude)
+                                  << ")\n";
+                for (auto&& r : runs) {
+                    for (auto&& p : r.params)
+                        progress_stream() << "\n  " << p.first << " = " << p.second;
+                    progress_stream() << "\n";
+                    for(auto&& d : r.data) {
+                        progress_stream() << "  " << d.name << "\t "
+                                  << truncate(d.analysis.mean.point.count() * magnitude) << "\t "
+                                  << truncate(d.analysis.standard_deviation.point.count() * magnitude)
+                                  << "\n";
+                    }
+                }
+                progress_stream() << "\ndone\n";
+                progress_stream() << std::flush;
+            }
         }
 
         static double truncate(double x) {
