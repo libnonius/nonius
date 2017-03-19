@@ -30,6 +30,7 @@
 #include <limits>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 #include <exception>
 
 namespace nonius {
@@ -98,9 +99,9 @@ namespace nonius {
             report_stream() << ">\n";
 
             report_stream() << " <properties>\n";
-            report_stream() << "  <property name=\"samples\" value=\"" << n_samples << "\">\n";
-            report_stream() << "  <property name=\"confidence_interval\" value=\"" << std::setprecision(3) << confidence_interval << "\">\n";
-            report_stream() << "  <property name=\"resamples\" value=\"" << resamples << "\">\n";
+            report_stream() << "  <property name=\"samples\" value=\"" << n_samples << "\"></property>\n";
+            report_stream() << "  <property name=\"confidence_interval\" value=\"" << std::setprecision(3) << confidence_interval << "\"></property>\n";
+            report_stream() << "  <property name=\"resamples\" value=\"" << resamples << "\"></property>\n";
             report_stream() << " </properties>\n";
 
             for(auto tc : data) {
