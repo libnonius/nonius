@@ -37,4 +37,8 @@
 #endif // NONIUS_DISABLE_HTML_REPORTER
 #endif // NONIUS_DISABLE_EXTRA_REPORTERS
 
+#ifdef NONIUS_RUNNER
+#include <nonius/main.h++>
+#endif // NONIUS_RUNNER
+
 #endif // NONIUS_HPP
