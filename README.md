@@ -10,5 +10,4 @@ statistical analysis on those measurements.
 If you want to learn more about it, check out the [guide].
 
  [Criterion]: http://www.serpentine.com/blog/2009/09/29/criterion-a-new-benchmarking-library-for-haskell/
- [guide]: http://flamingdangerzone.com/nonius
-
+ [guide]: http://nonius.io
