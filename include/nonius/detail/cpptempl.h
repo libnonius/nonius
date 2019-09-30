@@ -66,14 +66,13 @@
 #include <map>                          
 #include <memory>
 #include <unordered_map>
-#include <boost/lexical_cast.hpp>
 
 #include <ostream>
 
 #include <sstream>
-#include <boost/algorithm/string.hpp>
 
 #include <nonius/detail/noexcept.h++>
+#include <nonius/detail/string_utils.h++>
 
 namespace cpptempl
 {
@@ -123,7 +122,10 @@ namespace cpptempl
     template<> void data_ptr::operator = (const data_map& data);
     template<typename T>
     void data_ptr::operator = (const T& data) {
-        std::string data_str = boost::lexical_cast<std::string>(data);
+        std::stringstream ss;
+        ss << data;
+        ss.exceptions(std::ios::failbit);
+        std::string data_str = ss.str();
         this->operator =(data_str);
     }
 
@@ -384,7 +386,7 @@ namespace cpptempl
         // quoted string
         if (key[0] == '\"')
         {
-			return make_data(boost::trim_copy_if(key, [](char c){ return c == '"'; }));
+            return make_data(nonius::trim_copy_if(key, [](char c){ return c == '"'; }));
         }
         // check for dotted notation, i.e [foo.bar]
         size_t index = key.find(".") ;
@@ -447,7 +449,7 @@ namespace cpptempl
     inline TokenFor::TokenFor(std::string expr)
     {
         std::vector<std::string> elements ;
-        boost::split(elements, expr, boost::is_space()) ;
+        nonius::split(elements, expr, nonius::is_space()) ;
         if (elements.size() != 4u)
         {
             throw TemplateException("Invalid syntax in for statement") ;
@@ -468,8 +470,8 @@ namespace cpptempl
         for (size_t i = 0 ; i < items.size() ; ++i)
         {
             data_map loop ;
-            loop["index"] = make_data(boost::lexical_cast<std::string>(i+1)) ;
-            loop["index0"] = make_data(boost::lexical_cast<std::string>(i)) ;
+            loop["index"] = make_data(std::to_string(i+1)) ;
+            loop["index0"] = make_data(std::to_string(i)) ;
             data["loop"] = make_data(loop);
             data[m_val] = items[i] ;
             for(size_t j = 0 ; j < m_children.size() ; ++j)
@@ -509,7 +511,7 @@ namespace cpptempl
     inline bool TokenIf::is_true( std::string expr, data_map &data )
     {
         std::vector<std::string> elements ;
-        boost::split(elements, expr, boost::is_space()) ;
+        nonius::split(elements, expr, nonius::is_space()) ;
 
         if (elements[1] == "not")
         {
@@ -634,19 +636,19 @@ namespace cpptempl
                 pos = text.find("}") ;
                 if (pos != std::string::npos)
                 {
-                    std::string expression = boost::trim_copy(text.substr(1, pos-2)) ;
+                    std::string expression = nonius::trim_copy(text.substr(1, pos-2)) ;
                     text = text.substr(pos+1) ;
-                    if (boost::starts_with(expression, "for"))
+                    if (nonius::starts_with(expression, "for"))
                     {
                         tokens.push_back(token_ptr (new TokenFor(expression))) ;
                     }
-                    else if (boost::starts_with(expression, "if"))
+                    else if (nonius::starts_with(expression, "if"))
                     {
                         tokens.push_back(token_ptr (new TokenIf(expression))) ;
                     }
                     else
                     {
-                        tokens.push_back(token_ptr (new TokenEnd(boost::trim_copy(expression)))) ;
+                        tokens.push_back(token_ptr (new TokenEnd(nonius::trim_copy(expression)))) ;
                     }
                 }
             }
