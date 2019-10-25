@@ -23,9 +23,22 @@
 namespace nonius {
     template <typename Duration, typename Result>
     struct timing {
-        Duration elapsed;
+        Duration elapsed = {};
         Result result;
-        int iterations;
+        int iterations = 0;
+
+        timing() = default;
+
+        timing(Duration elapsed, Result result, int iterations)
+            : elapsed(elapsed)
+            , result(result)
+            , iterations(iterations)
+        {}
+
+        template <typename Duration2>
+        operator timing<Duration2, Result>() const {
+            return timing<Duration2, Result>{ chrono::duration_cast<Duration2>(elapsed), result, iterations };
+        }
     };
     template <typename Clock, typename Sig>
     using TimingOf = timing<Duration<Clock>, detail::CompleteType<detail::ResultOf<Sig>>>;

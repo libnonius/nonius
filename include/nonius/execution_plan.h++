@@ -24,16 +24,27 @@
 namespace nonius {
     template <typename Duration>
     struct execution_plan {
-        int iterations_per_sample;
-        Duration estimated_duration;
+        int iterations_per_sample = 0;
+        Duration estimated_duration = {};
         parameters params;
         detail::benchmark_function benchmark;
-        Duration warmup_time;
-        int warmup_iterations;
+        Duration warmup_time = {};
+        int warmup_iterations = 0;
+
+        execution_plan() = default;
+
+        execution_plan(int iterations_per_sample, Duration estimated_duration, parameters params, detail::benchmark_function benchmark, Duration warmup_time, int warmup_iterations)
+            : iterations_per_sample(iterations_per_sample)
+            , estimated_duration(estimated_duration)
+            , params(params)
+            , benchmark(benchmark)
+            , warmup_time(warmup_time)
+            , warmup_iterations(warmup_iterations)
+        {}
 
         template <typename Duration2>
         operator execution_plan<Duration2>() const {
-            return { iterations_per_sample, estimated_duration, params, benchmark, warmup_time, warmup_iterations };
+            return execution_plan<Duration2>{ iterations_per_sample, estimated_duration, params, benchmark, warmup_time, warmup_iterations };
         }
 
         template <typename Clock>

@@ -20,8 +20,15 @@
 namespace nonius {
     template <typename Duration>
     struct environment_estimate {
-        Duration mean;
+        Duration mean = {};
         outlier_classification outliers;
+
+        environment_estimate() = default;
+
+        environment_estimate(Duration mean, outlier_classification outliers)
+            : mean(mean)
+            , outliers(outliers)
+        {}
 
         template <typename Duration2>
         operator environment_estimate<Duration2>() const {

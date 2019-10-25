@@ -17,14 +17,23 @@
 namespace nonius {
     template <typename Duration>
     struct estimate {
-        Duration point;
-        Duration lower_bound;
-        Duration upper_bound;
-        double confidence_interval;
+        Duration point = {};
+        Duration lower_bound = {};
+        Duration upper_bound = {};
+        double confidence_interval = 0.0;
+
+        estimate() = default;
+
+        estimate(Duration point, Duration lower_bound, Duration upper_bound, double confidence_interval)
+            : point(point)
+            , lower_bound(lower_bound)
+            , upper_bound(upper_bound)
+            , confidence_interval(confidence_interval)
+        {}
 
         template <typename Duration2>
         operator estimate<Duration2>() const {
-            return { point, lower_bound, upper_bound, confidence_interval };
+            return estimate<Duration2>{ point, lower_bound, upper_bound, confidence_interval };
         }
     };
 } // namespace nonius
