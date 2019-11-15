@@ -13,17 +13,20 @@
                 benchmarks: [
                     {% for benchmark in run.benchmarks %}{
                         name: '{$benchmark.name}',
-                        mean: {$benchmark.mean},
-                        stddev: {$benchmark.stddev},
+                        {%if benchmark.data %}
+                        mean: {$benchmark.data.mean},
+                        stddev: {$benchmark.data.stddev},
                         samples: [
-                            {% for sample in benchmark.samples %}{$sample}, {% endfor %}
+                            {% for sample in benchmark.data.samples %}{$sample}, {% endfor %}
                         ],
+                        {% endif %}
                     },{% endfor %}
                 ]
             },{% endfor %}
         ]
     };
-
+    var origOrder = data.runs[0].benchmarks.map(function (_, i) { return i; })
+    var sortOrder = computeSortedOrder();
     var plotdiv = document.getElementById("plot");
     window.addEventListener("resize", function() {
         Plotly.Plots.resize(plotdiv);
@@ -34,35 +37,72 @@
     chooser.addEventListener("blur", chooser.focus.bind(chooser));
     chooser.focus();
 
+    var isSortedBox = document.getElementById("is-sorted");
+    isSortedBox.addEventListener("change", choosePlot);
+
     var legendStyle = {
         font: { family: 'monospace' },
         borderwidth: 2,
         bordercolor: 'black'
     }
 
+    function zeroes(count) {
+        var arr = []
+        while (count --> 0) arr.push(0)
+        return arr
+    }
+
+    function computeSortedOrder() {
+        // We sort each run.  Then we compute the "points" of each
+        // benchmark as the sum of the positions of this benchmkark on
+        // each run.  This gives us a rough indication of which
+        // benchmark is best -- the lower the points, the better.
+        var runsOrder = data.runs.map(function (r) {
+            order = r.benchmarks.map(function (_, i) { return i; })
+            order.sort(function (a, b) {
+                return r.benchmarks[a].mean - r.benchmarks[b].mean
+            })
+            return order
+        })
+        var length = data.runs[0].benchmarks.length
+        var points = runsOrder.reduce(function (acc, r) {
+            r.forEach(function (elem, idx) {
+                acc[elem] += idx
+            })
+            return acc
+        }, zeroes(length))
+        var order = data.runs[0].benchmarks.map(function (_, i) { return i; })
+        order.sort(function (a, b) {
+            return points[a] - points[b]
+        })
+        return order
+    }
+
     function choosePlot() {
-        var plot = chooser.options[chooser.selectedIndex].value;
+        var plot = chooser.options[chooser.selectedIndex].value
+        var order = isSortedBox.checked ? sortOrder : origOrder
         if (plot == 'summary') {
             if (data.runs.length > 1) {
-                plotSummary();
+                plotSummary(order);
             } else {
-                plotSingleSummary();
+                plotSingleSummary(order);
             }
         } else {
-            plotSamples(plot);
+            plotSamples(plot, order);
         }
     }
 
-    function plotSamples(plot) {
+    function plotSamples(plot, order) {
         var run = data.runs[plot];
-        var traces = run.benchmarks.map(function (b, i) {
+        var traces = order.map(function (i) {
+            var b = run.benchmarks[i]
             return {
                 name: b.name,
                 type: 'scatter',
                 mode: 'markers',
                 marker: { symbol: i },
                 y: b.samples,
-                x: b.samples.map(function (_, i) { return i; })
+                x: b.samples && b.samples.map(function (_, i) { return i; })
             }
         });
         var layout = {
@@ -79,10 +119,10 @@
         Plotly.newPlot(plotdiv, traces, layout);
     }
 
-    function plotSummary() {
-        var traces = data.runs[0].benchmarks.map(function (b, i) {
+    function plotSummary(order) {
+        var traces = order.map(function (i) {
             return {
-                name: b.name,
+                name: data.runs[0].benchmarks[i].name,
                 type: 'scatter',
                 marker: { symbol: i },
                 x: data.runs.map(function (r) { return r.params[data.param]; }),
@@ -112,12 +152,13 @@
         Plotly.newPlot(plotdiv, traces, layout);
     }
 
-    function plotSingleSummary() {
-        var traces = data.runs[0].benchmarks.map(function (b, i) {
+    function plotSingleSummary(order) {
+        var traces = order.map(function (i) {
+            var b = data.runs[0].benchmarks[i]
             return {
                 type: 'bar',
                 name: b.name,
-                x: [ 0 ],
+                x: [ data.title ],
                 y: [ b.mean ],
                 error_y: {
                     type: 'data',

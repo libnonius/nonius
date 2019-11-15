@@ -74,6 +74,7 @@ body {
     display: block;
     padding: 0 3em 0 1.5em;
     margin: 0.3em;
+    height: 2em;
 
     transition: border-color 0.2s;
     border: 2px solid #aaa;
@@ -90,6 +91,18 @@ body {
 .select select:focus {
     border: 2px solid white;
     color: white;
+}
+
+div.is-sorted {
+    position: absolute;
+    top: 0em;
+    right: 1em;
+    line-height: 2.8em;
+}
+
+div.is-sorted input {
+    position: relative;
+    top: 3px;
 }
 
 #plot {

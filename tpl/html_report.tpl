@@ -22,6 +22,10 @@
          {% endfor %}
        </select>
      </div>
+     <div class="is-sorted">
+       <input id="is-sorted" type="checkbox"/>
+       <label for="is-sorted">sorted</label>
+     </div>
    </div>
    <div id="plot"></div>
    <div id="footer">Generated with <a href="http://flamingdangerzone.com/nonius">nonius</a></div>
